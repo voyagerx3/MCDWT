@@ -7,7 +7,7 @@ A sequence I of images I[t], where each I[t] is a 2D array of pixels I[t][y][x].
 ```
 +---------------+  +---------------+     +---------------+   +--------------+
 |               |  |               |     |               |   |              |
-|               |  |               |     |            O<-----+ I[T-1][y][x] |
+|               |  |               |     |            O <----+ I[T-1][y][x] |
 |      I[0]     |  |      I[1]     | ... |     I[T-1]    |   |              |
 |               |  |               |     |               |   +--------------+
 |               |  |               |     |               |
@@ -98,6 +98,34 @@ A transformed image O.
 ## Algorithm
 
 See [pywt.wavedec2()](https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2) at [PyWavelets](https://pywavelets.readthedocs.io/en/latest/index.html).
+
+# Temporal Decomposition
+
+A Motion Estimation driven L-levels 1D-DWT.
+
+## Input
+
+A sequence I of images.
+
+## Output
+
+A sequence O of temporal subbands O[l], where each O[l] is a sequence of frames O[l][t].
+
+## Algorithm
+
+# Optical Flow Estimation
+
+## Input
+
+Two images A and C.
+
+## Output
+
+A image B.
+
+## Algorithm
+
+See how to compute the [optical flow](http://docs.opencv.org/trunk/d7/d8b/tutorial_py_lucas_kanade.html) between to images using [OpenCV](http://opencv.org/).
 
 # SVC (Symmetric Video Coding)
 
