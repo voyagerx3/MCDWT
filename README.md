@@ -16,9 +16,37 @@ A sequence I of images I[t], where each I[t] is a 2D array of pixels I[t][y][x].
 
 ## Output
 
-A sequence S of temporal subbands S[l], where each S[l] is a sequence of frames S[l][t] and where each frame S[l][t] is 2D Laplacian Pyramid.
+A sequence S of temporal subbands S[l], where each S[l] is a sequence of frames S[l][t] and where each frame S[l][t] is collection of spatial subbands.
 
-
+```
+                  +---+---+-------+                   +---+---+-------+
+                  |   |   |       |                   |   |   |       |
+                  +---+---+       |                   +---+---+       |
+                  |   |   |       |                   |   |   |       |
+                  +---+---+-------+                   +---+---+-------+
+                  |       |       |                   |       |       |
+                  |       |       |                   |       |       |
+                  |       |       |                   |       |       |
+                  +-------+-------+                   +-------+-------+
+                                    +---+---+-------+
+                                    |   |   |       |
+                                    +---+---+       |
+                                    |   |   |       |
+                                    +---+---+-------+
+                                    |       |       |
+                                    |       |       |
+                                    |       |       |
+                                    +-------+-------+
++---+---+-------+                                                        +---+---+-------+
+|   |   |       |                                                        |   |   |       |
++---+---+       |                                                        +---+---+       |
+|   |   |       |                                                        |   |   |       |
++---+---+-------+                                                        +---+---+-------+
+|       |       |                                                        |       |       |
+|       |       |                                                        |       |       |
+|       |       |                                                        |       |       |
++-------+-------+                                                        +-------+-------+
+```
 
 # SVC (Symmetric Video Coding)
 
