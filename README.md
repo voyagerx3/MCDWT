@@ -67,10 +67,37 @@ I[0][1] = detail frame for the 0-th level of temporal decomposition, first GOP
 
 ## Algorithm
 
-1. Perform spatial decomposition.
-2. Perform temporal decomposition.
+1. tmp = Spatial_Decomposition(I)
+2. S = Temporal_Decomposition(tmp).
 
+# Spatial Decomposition
 
+## Input
+
+A sequence I of images.
+
+## Output
+
+A sequence O of transformed images.
+
+## Algorithm
+
+1. for each I[t] in I:
+2.    O[t] = 2D_DWT(I[t])
+
+# 2D DWT
+
+## Input
+
+A image I.
+
+## Output
+
+A transformed image O.
+
+## Algorithm
+
+See [pywt.wavedec2()](https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2) at [PyWavelets](https://pywavelets.readthedocs.io/en/latest/index.html).
 
 # SVC (Symmetric Video Coding)
 
