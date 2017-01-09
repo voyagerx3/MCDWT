@@ -68,7 +68,7 @@ I[0][1] = detail frame for the 0-th level of temporal decomposition, first GOP
 ## Algorithm
 
 1. tmp = Spatial_Decomposition(I)
-2. S = Temporal_Decomposition(tmp).
+2. S = Temporal_Decomposition(tmp)
 
 # Spatial Decomposition
 
