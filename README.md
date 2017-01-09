@@ -30,7 +30,7 @@ A sequence S of temporal subbands S[l], where each S[l] is a sequence of frames 
                   |       |       |                   |       |       |
                   +-------+-------+       t = 0       +-------+-------+
                                     +---+---+-------+
-                                    |   |   |       |        A = approximation coefficients for the 1-th level of decomposition
+                                    |   |   |       |        A = approximation coefficients for the 1-th level of spatial decomposition
                                     +---+---+       |        B = horizontal detail coefficients at the 1-th level
                                     |   |   |       |        C = vertical detail coefficients at the 1-th level
                                     +---+---+-------+ l = 1  D = diagonal detail coefficients at the 1-th level
@@ -47,7 +47,20 @@ A sequence S of temporal subbands S[l], where each S[l] is a sequence of frames 
 |       |       |                                                        |       |       |
 |       |       |                                                        |       |       |
 +-------+-------+                                                        +-------+-------+
+
+I[2][0] = approximation frame for the 2-th level of temporal decomposition, first GOP
+I[2][1] = approximation frame for the 2-th level of temporal decomposition, second GOP
+I[1][0] = detail frame for the 1-th level of temporal decomposition, first GOP
+I[0][0] = detail frame for the 0-th level of temporal decomposition, first GOP
+I[0][1] = detail frame for the 0-th level of temporal decomposition, first GOP
 ```
+
+## Algorithm
+
+1. Perform spatial decomposition.
+2. Perform temporal decomposition.
+
+
 
 # SVC (Symmetric Video Coding)
 
