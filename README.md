@@ -32,7 +32,6 @@ A sequence S of temporal subbands S[l], where each S[l] is a sequence of frames 
                                     +---+---+-------+
                                     |   |   |       |        A = approximation coefficients for the 1-th level of decomposition
                                     +---+---+       |        B = horizontal detail coefficients at the 1-th level
-
                                     |   |   |       |        C = vertical detail coefficients at the 1-th level
                                     +---+---+-------+ l = 1  D = diagonal detail coefficients at the 1-th level
                                     |       |       |        E = horizontal detail coefficients at the 0-th level
