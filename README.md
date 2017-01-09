@@ -112,7 +112,24 @@ A sequence I of images.
 A sequence O of temporal subbands O[l], where each O[l] is a sequence of frames O[l][t].
 
 ## Algorithm
-
+```
+function R=myDWT(sig, count)
+ [Lo_D, Hi_D] = wfilter_bior44();
+ input = sig;
+ while(count ~= 0) % While count not equal to 0
+     % Pass through filters by using convolution
+     Ca = conv(input, Lo_D, 'same');
+     Cd = conv(input, Hi_D, 'same');
+     % Downsample by 2
+     Ca = downsample(Ca, 2);
+     Cd = downsample(Cd, 2);
+     % TODO: Save Ca and Cd somewhere
+     count = count - 1;
+     input = Ca;
+ end
+ R = input;
+end
+```
 # Optical Flow Estimation
 
 ## Input
