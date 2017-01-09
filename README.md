@@ -39,3 +39,5 @@ Inverse Spatio-Temporal Transform = Inverse Temporal Transform + Inverse Spatial
 ----> | ITT | ----> | IST | ---->
       +-----+       +-----+
 ```
+
+Spatial Transform 
