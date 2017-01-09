@@ -83,7 +83,7 @@ A sequence O of transformed images.
 ## Algorithm
 
 1. for each I[t] in I:
-2.    O[t] = 2D_DWT(I[t])
+2. ~ O[t] = 2D_DWT(I[t])
 
 # 2D DWT
 
