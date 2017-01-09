@@ -101,7 +101,7 @@ See [pywt.wavedec2()](https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and
 
 # Temporal Decomposition
 
-A Motion Estimation driven L-levels 1D-DWT.
+A motion-driven L-levels 1D-DWT.
 
 ## Input
 
@@ -112,6 +112,25 @@ A sequence I of images.
 A sequence O of temporal subbands O[l], where each O[l] is a sequence of frames O[l][t].
 
 ## Algorithm
+[Lifting scheme](https://en.wikipedia.org/wiki/Lifting_scheme)
+
+```
+Temporal_Decomposition(I, N, L):
+  for l in range(L):
+    n = N
+    N /= 2
+    for i in range(n):
+      DWT_Step(I, O, n)
+```
+
+# DWT Step
+
+A motion-driven 1-levels 1D-DWT.
+
+## Input
+
+A sequence of images
+
 ```
 function R=myDWT(sig, count)
  [Lo_D, Hi_D] = wfilter_bior44();
