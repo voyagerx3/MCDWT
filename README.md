@@ -61,6 +61,8 @@ I[2][1] = approximation frame for the 2-th level of temporal decomposition, seco
 I[1][0] = detail frame for the 1-th level of temporal decomposition, first GOP
 I[0][0] = detail frame for the 0-th level of temporal decomposition, first GOP
 I[0][1] = detail frame for the 0-th level of temporal decomposition, first GOP
+
+X --> Y = Y depends on X (Y has been encoded using X)
 ```
 
 ## Algorithm
