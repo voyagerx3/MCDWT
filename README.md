@@ -29,24 +29,32 @@ A sequence S of temporal subbands S[l], where each S[l] is a sequence of frames 
                   |   F   |   G   |                   |       |       |
                   |       |       |                   |       |       |
                   +-------+-------+       t = 0       +-------+-------+
-                             ^      +---+---+-------+      ^
-                             |      |   |   |       |      |       A = approximation coefficients for the 1-th level of spatial decomposition
-                             +----- +---+---+       | -----+       B = horizontal detail coefficients at the 1-th level
-                                    |   |   |       |        C = vertical detail coefficients at the 1-th level
-                                    +---+---+-------+ l = 1  D = diagonal detail coefficients at the 1-th level
-                                    |       |       |        E = horizontal detail coefficients at the 0-th level
-                                    |       |       |        F = vertical detail coefficients at the 0-th level
-                                    |       |       |        G = diagonal detail coefficients at the 0-th level
-      t = 0                         +-------+-------+                          t = 1
-+---+---+-------+                                                        +---+---+-------+
-|   |   |       |                                                        |   |   |       |
-+---+---+       |                                                        +---+---+       |
-|   |   |       |                                                        |   |   |       |
-+---+---+-------+                                                        +---+---+-------+  l = 2
-|       |       |                                                        |       |       |
-|       |       |                                                        |       |       |
+                      ^       ^     +---+---+-------+     ^        ^
+                      |       |     |   |   |       |     |        |
+                      |       +---- +---+---+       | ----+        |
+                      |             |   |   |       |              |
+                      |             +---+---+-------+ l = 1        |
+                      |             |       |       |              |
+                      |             |       |       |              |
+                      |             |       |       |              |
+      t = 0           |             +-------+-------+              |           t = 1
++---+---+-------+     |                 ^       ^                  |     +---+---+-------+
+|   |   |       |     |                 |       |                  |     |   |   |       |
++---+---+       | ----+                 |       |                  +---- +---+---+       |
+|   |   |       |                       |       |                        |   |   |       |
++---+---+-------+                       |       |                        +---+---+-------+  l = 2
+|       |       |                       |       |                        |       |       |
+|       |       | ----------------------+       +----------------------- |       |       |
 |       |       |                                                        |       |       |
 +-------+-------+                                                        +-------+-------+
+
+A = approximation coefficients for the 1-th level of spatial decomposition
+B = horizontal detail coefficients at the 1-th level
+C = vertical detail coefficients at the 1-th level
+D = diagonal detail coefficients at the 1-th level
+E = horizontal detail coefficients at the 0-th level
+F = vertical detail coefficients at the 0-th level
+G = diagonal detail coefficients at the 0-th level
 
 I[2][0] = approximation frame for the 2-th level of temporal decomposition, first GOP
 I[2][1] = approximation frame for the 2-th level of temporal decomposition, second GOP
