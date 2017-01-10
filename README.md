@@ -136,15 +136,15 @@ I[0]                I[4] (update step)
 GOP0        GOP1
 ```
 
-Algorith:
+Algorithm:
 
 ```
 x = 2
 for each level:
   i = 0
   while i < (T//x):
-    D = DWT_Step(I[x*i], I[x*i+1], I[x*i+2])
-    I[x*i+1] = D
+    D = DWT_Step(I[x*i+x//2-1], I[x*i+x//2], I[x*i+x//2+1])
+    I[x*i+x//2] = D
     i += 1
   x *= 2
 ```
