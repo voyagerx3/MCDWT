@@ -97,7 +97,7 @@ A transformed image O.
 
 ## Algorithm
 
-See [pywt.wavedec2()](https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2) at [PyWavelets](https://pywavelets.readthedocs.io/en/latest/index.html).
+See [pywt.wavedec2()](https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2) at [PyWavelets](https://pywavelets.readthedocs.io/en/latest/index.html). [Discrete wavelet transform](https://en.wikipedia.org/wiki/Discrete_wavelet_transform).
 
 # Temporal Decomposition
 
@@ -113,6 +113,8 @@ A sequence O of temporal subbands O[l], where each O[l] is a sequence of frames 
 
 ## Algorithm
 [Lifting scheme](https://en.wikipedia.org/wiki/Lifting_scheme)
+[A Really Friendly Guide To Wavelets](http://www.polyvalens.com/blog/wavelets/theory/)
+http://stackoverflow.com/questions/15802827/how-can-dwt-be-used-in-lsb-substitution-steganography
 
 ```
 Temporal_Decomposition(I, N, L):
