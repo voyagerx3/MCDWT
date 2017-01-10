@@ -24,8 +24,8 @@ A sequence S of temporal subbands S[l], where each S[l] is a sequence of frames 
       Spatial
       scale 0 1 2       t = 0                               t = 1
             ^ ^ ^ +---+---+-------+                   +---+---+-------+                                ^
-            | | | | A | B |       |                   |   |   |       |                                |
-            | | v +---+---+   E   |                   +---+---+       |                                |
+            | | | | A | B |       |                   |   |   |       |                                |
+            | | v +---+---+   E   |                   +---+---+ (x,y) |                                |
             | |   | C | D |       |                   |   |   |       |                                |
             | v   +---+---+-------+                   +---+---+-------+ l = 0                          |
             |     |       |       |                   |       |       |                                |
@@ -66,6 +66,11 @@ I[0][0] = detail frame for the 0-th level of temporal decomposition, first GOP
 I[0][1] = detail frame for the 0-th level of temporal decomposition, first GOP
 
 (X --> Y) = Y depends on X (Y has been encoded using X)
+
+(x,y) = spatial translation (location) of the spatial DWT coefficient
+t = temporal transpation (location) of the temporal DWT frame
+
+The wavelets are generated from a single basic wavelet, the so-called mother wavelet, by scaling and translation [1]
 ```
 
 ## Algorithm
@@ -116,7 +121,7 @@ A sequence O of temporal subbands O[l], where each O[l] is a sequence of frames 
 
 ## Algorithm
 [Lifting scheme](https://en.wikipedia.org/wiki/Lifting_scheme)
-[A Really Friendly Guide To Wavelets](http://www.polyvalens.com/blog/wavelets/theory/)
+[1] [A Really Friendly Guide To Wavelets](http://www.polyvalens.com/blog/wavelets/theory/)
 http://stackoverflow.com/questions/15802827/how-can-dwt-be-used-in-lsb-substitution-steganography
 http://stat.columbia.edu/~jakulin/Wavelets/index.html
 
