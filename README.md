@@ -67,8 +67,8 @@ I[0][1] = detail frame for the 0-th level of temporal decomposition, first GOP
 
 (X --> Y) = Y depends on X (Y has been encoded using X)
 
-(x,y) = spatial translation (location) of the spatial DWT coefficient
-t = temporal transpation (location) of the temporal DWT frame
+(x,y) = spatial translation (location) of a DWT coefficient in a spatial subband
+t = temporal transpation (location) of a DWT frame in a temporal subband
 
 The wavelets are generated from a single basic wavelet, the so-called mother wavelet, by scaling and translation [1]
 ```
