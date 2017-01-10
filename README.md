@@ -153,6 +153,7 @@ for each level:
 [1] [A Really Friendly Guide To Wavelets](http://www.polyvalens.com/blog/wavelets/theory/)
 http://stackoverflow.com/questions/15802827/how-can-dwt-be-used-in-lsb-substitution-steganography
 http://stat.columbia.edu/~jakulin/Wavelets/index.html
+http://www.ual.es/~vruiz/Docencia/Apuntes/Coding/Image/00-Fundamentals/index.html#x1-2000012
 
 ```
 Temporal_Decomposition(I, N, L):
