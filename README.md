@@ -1,4 +1,6 @@
-# MRVT (MultiResolution Video Transform)
+# SVT (Scalable Video Transform)
+
+SVT represents an video in a way that a using only a portion of the transformed video, a video with a lower temporal resolution (temporal scalability), lower spatial resolution (spatial scalability) or/and lower quality (quality scalability) can be generated. If all the transformed data is used, the original video is obtained.
 
 ## Input
 
