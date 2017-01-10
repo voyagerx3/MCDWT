@@ -50,7 +50,10 @@ A sequence S of temporal subbands S[l], where each S[l] is a sequence of frames 
 |       |       | ----------------------+       +----------------------- |       |       |         | | |
 |       |       |                                                        |       |       |         | | |
 +-------+-------+                                                        +-------+-------+         v v v
-                                                                                    Temporal scale 2 1 0
+      GOP 0                                       GOP 1                             Temporal scale 2 1 0
+<---------------><----------------------------------------------------------------------->
+
+                                                                                    
 A = approximation coefficients for the 1-th level of spatial decomposition (LL2, L(ow), H(ight))
 B = horizontal detail coefficients at the 1-th level (HL2)
 C = vertical detail coefficients at the 1-th level (LH2)
@@ -120,6 +123,32 @@ A sequence I of images.
 A sequence O of temporal subbands O[l], where each O[l] is a sequence of frames O[l][t].
 
 ## Algorithm
+
+First, an example for generating 3 temporal scales (two iterations or levels of the transform):
+
+```
+I[0] I[1] I[2] I[3] I[4]
+I[0] D[1] I[2] D[3] I[4] (predict step)
+I[0]      I[2]      I[4] (update step)
+I[0]      D[2]      I[4] (predict step)
+I[0]                I[4] (update step)
+---- -------------------
+GOP0        GOP1
+```
+
+Algorith:
+
+```
+x = 2
+for each level:
+  i = 0
+  while i < (T//x):
+    D = DWT_Step(I[x*i], I[x*i+1], I[x*i+2])
+    I[x*i+1] = D
+    i += 1
+  x *= 2
+```
+
 [Lifting scheme](https://en.wikipedia.org/wiki/Lifting_scheme)
 [1] [A Really Friendly Guide To Wavelets](http://www.polyvalens.com/blog/wavelets/theory/)
 http://stackoverflow.com/questions/15802827/how-can-dwt-be-used-in-lsb-substitution-steganography
@@ -136,11 +165,20 @@ Temporal_Decomposition(I, N, L):
 
 # DWT Step
 
-A motion-driven 1-levels 1D-DWT.
+A motion-driven 1-level lifted 1D-DWT without update step.
 
 ## Input
 
-A sequence of images
+A sequence {I[0],I[1],I[2]} of 3 images.
+
+## Output
+
+A frame D.
+
+## Algorithm
+
+D = I[1] - (I[0] + I[2])/2, where (A+B)/2 represents the generation of a prediction image using the images A and B, and where A-B represents the pixel-to-pixel subtraction of images. We will use an optical flow estimation algorithm for creating the prediction image.
+
 
 ```
 function R=myDWT(sig, count)
