@@ -18,45 +18,46 @@ A sequence I of images I[t], where each I[t] is a 2D array of pixels I[t][y][x].
 
 ## Output
 
-A sequence S of temporal subbands S[l], where each S[l] is a sequence of frames S[l][t] and where each frame S[l][t] is collection of spatial subbands.
+A sequence S of temporal subbands S[l], where each S[l] is a sequence of frames S[l][t] and where each frame S[l][t] is collection of spatial subbands (A, B, C, D, E, F and G, in the following example).
 
 ```
-                        t = 0                               t = 1
-                  +---+---+-------+                   +---+---+-------+
-                  | A | B |       |                   |   |   |       |
-                  +---+---+   E   |                   +---+---+       |
-                  | C | D |       |                   |   |   |       |
-                  +---+---+-------+                   +---+---+-------+ l = 0
-                  |       |       |                   |       |       |
-                  |   F   |   G   |                   |       |       |
-                  |       |       |                   |       |       |
-                  +-------+-------+       t = 0       +-------+-------+
-                      ^       ^     +---+---+-------+     ^        ^
-                      |       |     |   |   |       |     |        |
-                      |       +---- +---+---+       | ----+        |
-                      |             |   |   |       |              |
-                      |             +---+---+-------+ l = 1        |
-                      |             |       |       |              |
-                      |             |       |       |              |
-                      |             |       |       |              |
-      t = 0           |             +-------+-------+              |           t = 1
-+---+---+-------+     |                 ^       ^                  |     +---+---+-------+
-|   |   |       |     |                 |       |                  |     |   |   |       |
-+---+---+       | ----+                 |       |                  +---- +---+---+       |
-|   |   |       |                       |       |                        |   |   |       |
-+---+---+-------+                       |       |                        +---+---+-------+  l = 2
-|       |       |                       |       |                        |       |       |
-|       |       | ----------------------+       +----------------------- |       |       |
-|       |       |                                                        |       |       |
-+-------+-------+                                                        +-------+-------+
-
-A = approximation coefficients for the 1-th level of spatial decomposition
-B = horizontal detail coefficients at the 1-th level
-C = vertical detail coefficients at the 1-th level
-D = diagonal detail coefficients at the 1-th level
-E = horizontal detail coefficients at the 0-th level
-F = vertical detail coefficients at the 0-th level
-G = diagonal detail coefficients at the 0-th level
+      Spatial
+      scale 0 1 2       t = 0                               t = 1
+            ^ ^ ^ +---+---+-------+                   +---+---+-------+                                ^
+            | | | | A | B |       |                   |   |   |       |                                |
+            | | v +---+---+   E   |                   +---+---+       |                                |
+            | |   | C | D |       |                   |   |   |       |                                |
+            | v   +---+---+-------+                   +---+---+-------+ l = 0                          |
+            |     |       |       |                   |       |       |                                |
+            |     |   F   |   G   |                   |       |       |                                |
+            |     |       |       |                   |       |       |                                |
+            v     +-------+-------+       t = 0       +-------+-------+                                |
+                      ^       ^     +---+---+-------+     ^        ^                                 ^ |
+                      |       |     |   |   |       |     |        |                                 | |
+                      |       +---- +---+---+       | ----+        |                                 | |
+                      |             |   |   |       |              |                                 | |
+                      |             +---+---+-------+ l = 1        |                                 | |
+                      |             |       |       |              |                                 | |
+                      |             |       |       |              |                                 | |
+                      |             |       |       |              |                                 | |
+      t = 0           |             +-------+-------+              |           t = 1                 | |
++---+---+-------+     |                 ^       ^                  |     +---+---+-------+         ^ | |
+|   |   |       |     |                 |       |                  |     |   |   |       |         | | |
++---+---+       | ----+                 |       |                  +---- +---+---+       |         | | |
+|   |   |       |                       |       |                        |   |   |       |         | | |
++---+---+-------+                       |       |                        +---+---+-------+  l = 2  | | |
+|       |       |                       |       |                        |       |       |         | | |
+|       |       | ----------------------+       +----------------------- |       |       |         | | |
+|       |       |                                                        |       |       |         | | |
++-------+-------+                                                        +-------+-------+         v v v
+                                                                                    Temporal scale 2 1 0
+A = approximation coefficients for the 1-th level of spatial decomposition (LL2, L(ow), H(ight))
+B = horizontal detail coefficients at the 1-th level (HL2)
+C = vertical detail coefficients at the 1-th level (LH2)
+D = diagonal detail coefficients at the 1-th level (HH2)
+E = horizontal detail coefficients at the 0-th level (HL1)
+F = vertical detail coefficients at the 0-th level (LH1)
+G = diagonal detail coefficients at the 0-th level (HH1)
 
 I[2][0] = approximation frame for the 2-th level of temporal decomposition, first GOP
 I[2][1] = approximation frame for the 2-th level of temporal decomposition, second GOP
@@ -117,6 +118,7 @@ A sequence O of temporal subbands O[l], where each O[l] is a sequence of frames 
 [Lifting scheme](https://en.wikipedia.org/wiki/Lifting_scheme)
 [A Really Friendly Guide To Wavelets](http://www.polyvalens.com/blog/wavelets/theory/)
 http://stackoverflow.com/questions/15802827/how-can-dwt-be-used-in-lsb-substitution-steganography
+http://stat.columbia.edu/~jakulin/Wavelets/index.html
 
 ```
 Temporal_Decomposition(I, N, L):
