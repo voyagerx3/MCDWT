@@ -15,9 +15,10 @@ That said, this project implements a t+2D version for its simplicity at the t st
 A sequence `I` of images `I[t]`, where each `I[t]` is a 2D array of pixels I[t][y][x]. "t" denotes time. "x" and "y" denote space. 
 
 ```
+                                                      x
 +---------------+  +---------------+     +---------------+   +--------------+
 |               |  |               |     |               |   |              |
-|               |  |               |     |            O <----+ I[T-1][y][x] |
+|               |  |               |   y |            O <----+ I[T-1][y][x] |
 |      I[0]     |  |      I[1]     | ... |     I[T-1]    |   |              |
 |               |  |               |     |               |   +--------------+
 |               |  |               |     |               |
