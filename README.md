@@ -87,9 +87,86 @@ The wavelets are generated from a single basic wavelet, the so-called mother wav
 
 ## Algorithm
 ```
-tmp = Temporal_Decomposition(I)
-S = Spatial_Decomposition(tmp)
+tmp = Spatial_Analysis(I)
+S = Temporal_Analysis(tmp)
 ```
+
+# Spatial Analysis
+
+## Input
+
+A sequence `I` of images.
+
+## Output
+
+A sequence O of transformed images.
+
+## Algorithm
+
+1. for each I[t] in I:
+2. ~ O[t] = 2D_DWT(I[t])
+
+# 2D DWT
+
+## Input
+
+A image I.
+
+## Output
+
+A transformed image O.
+
+## Algorithm
+
+See [pywt.wavedec2()](https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2) at [PyWavelets](https://pywavelets.readthedocs.io/en/latest/index.html). [Discrete wavelet transform](https://en.wikipedia.org/wiki/Discrete_wavelet_transform).
+
+# Temporal Analysis
+
+A motion-driven `L` temporal-levels (`L+1` temporal scales) lifted 1D-DWT.
+
+## Input
+
+A sequence `I` of images in the wavelet domain.
+
+## Output
+
+A sequence `S` of temporal subbands, where each subband `S[l]` is a sequence of images in the wavelet domain.
+
+## Algorithm
+
+First, an example of a generation of 3 temporal scales (two iterations or levels of the transform) with 5 images:
+
+```
+I[0] I[1] I[2] I[3] I[4]
+I[0] D[1] I[2] D[3] I[4] (predict step)
+I[0]      I[2]      I[4] (update step)
+I[0]      D[2]      I[4] (predict step)
+I[0]                I[4] (update step)
+---- -------------------
+GOP0        GOP1
+
+S[2] = {I[0], I[4]}
+S[1] = {D[2]}
+S[0] = {D[1], D[3]}
+
+To generate Prediction(D[2]) we search (I[2].2).0 into (I[0].2).0 and (I[4].2).0.
+
+```
+
+Next, an algorithm. Notice that `O` is computed in-place (for this, `I` is returned).
+```
+x = 2 # An offset
+for each temporal level:
+  i = 0 # Image index
+  while i < (T//x):
+    D = DWT_Step(I[x*i+x//2-1], I[x*i+x//2], I[x*i+x//2+1])
+    I[x*i+x//2] = D
+    i += 1
+  x *= 2
+return I
+```
+
+
 
 # Temporal Decomposition
 
@@ -170,36 +247,6 @@ An image `B`.
 ## Algorithm
 
 See how to compute the [optical flow](http://docs.opencv.org/trunk/d7/d8b/tutorial_py_lucas_kanade.html) between to images using [OpenCV](http://opencv.org/). The prediction is built dividing by 2 the vectors field and projecting the ...
-
-
-# Spatial Decomposition
-
-## Input
-
-A sequence `I` of images.
-
-## Output
-
-A sequence O of transformed images.
-
-## Algorithm
-
-1. for each I[t] in I:
-2. ~ O[t] = 2D_DWT(I[t])
-
-# 2D DWT
-
-## Input
-
-A image I.
-
-## Output
-
-A transformed image O.
-
-## Algorithm
-
-See [pywt.wavedec2()](https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2) at [PyWavelets](https://pywavelets.readthedocs.io/en/latest/index.html). [Discrete wavelet transform](https://en.wikipedia.org/wiki/Discrete_wavelet_transform).
 
 
 
