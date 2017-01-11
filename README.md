@@ -2,6 +2,12 @@
 
 SVT represents an video in a way that a using only a portion of the transformed video, a video with a lower temporal resolution (temporal scalability), lower spatial resolution (spatial scalability) or/and lower quality (quality scalability) can be generated. If all the transformed data is used, the original video is obtained.
 
+To obtain a multiresolution version or a video (a sequence of images), the DWT (Discrete Wavelet Transform) is used. A DWT (there are infinite transforms) is applied along temporal (t) and spatial domains (2D). At this moment, two alternatives arise: (1) a t+2D transform or (2) a 2D+t transform.
+
+In a t+2D transform, the video is first analyzed over the time domain and next, over the spatial domain. A 2D+t transform does just the opposite.
+
+Each choice has a number of pros and cons. For example, in a t+2D transform we can apply directly any motion estimator because the input is a normal video. However, if we implement a 2D+t transform, the input to the motion estimator is a sequence of images in the DWT domain. The overwhelming majority of DWT are not shift invariant [1], which basically means that DWT(s(t)) != DWT(s(t+x)), where x is a displacement along the time. Therefore, motion estimators which compare pixels using their values will not work on the DWT domain. On the other hand, if we want to provide true spatial scalability (processing only those spatial resolutions (scales) neccesary to get a spatially scaled of our video), a t+2D transformed video could be unsuitable because the first step of the forward transform (t) should be reversed at full resolution in the backward transform (as the forward transform did).
+
 ## Input
 
 A sequence I of images I[t], where each I[t] is a 2D array of pixels I[t][y][x]. "t" denotes time. "x" and "y" denote space. 
