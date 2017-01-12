@@ -15,12 +15,12 @@ Each choice has a number of pros and cons. For example, in a t+2D transform we c
 
 [Friendly Guide]: http://www.polyvalens.com/blog/wavelets/theory
 
-That said, this project implements a t+2D version for its simplicity at the t stage.
+<!--That said, this project implements a t+2D version for its simplicity at the t stage.-->
 
 ## Wavelets and pyramids
-As we can just explained, the DWT allows to get a scalable representation of a signal. However, this can be also done with [Laplacian pyramids][LaPy].
+As we can just explained, the DWT allows to get a scalable representation of a image. However, this can be also done with [Gaussian and Laplacian pyramids][Pyramids]. 
 
-[LaPy]: https://en.wikipedia.org/wiki/Pyramid_(image_processing)
+[Pyramids]: https://en.wikipedia.org/wiki/Pyramid_(image_processing)
 
 ## Input
 
