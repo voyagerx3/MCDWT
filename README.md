@@ -94,7 +94,7 @@ The wavelets are generated from a single basic wavelet, the so-called mother wav
 ```
 
 ## Algorithm
-```
+```python
 tmp = Spatial_Analysis(I)
 S = Temporal_Analysis(tmp)
 ```
