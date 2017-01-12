@@ -7,7 +7,7 @@
 [video]: https://en.wikipedia.org/wiki/Video
 
 ## The 's'-levels 2D Discrete Wavelet Transform
-The <sup>[1](#myfootnote1)</sup> [2D-DWT][2D-DWT] (2 Dimensions - Discrete Wavelet Transform)][DWT] allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. This is done, for example, in [the JPEG2000 image and video compression standard][J2K].
+A<sup>[1](#myfootnote1)</sup> [2D-DWT][2D-DWT] (2 Dimensions - Discrete Wavelet Transform)q allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. This is done, for example, in [the JPEG2000 image and video compression standard][J2K].
 
 [J2K]: https://en.wikipedia.org/wiki/JPEG_2000
 [2D-DWT]: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
@@ -111,6 +111,38 @@ For `l=2` and `n=5`:
 <---------------><----------------------------------------------------------------------->
 
 (X --> Y) = X depends on Y (X has been encoded using Y)
+```
+
+### Inverse tDWT
+
+#### Spatial scalability
+
+Scale 2:
+
+T[0].LL2, T[4].LL2, T[2].LL2, T[1].LL2, T[3].LL2
+
+Scale 1:
+
+V[0].1 = 2D_iDWT(T[0]),
+V[4].1 = 2D_iDWT(T[4]),
+V[2].1 = 2D_iDWT(T[2].LL2)
++
+( tmp = 2D_iDWT(T[2].LL2)
+  tmp -> V[0].1
+  +
+  tmp -> V[4].1
+)/2,
+V[1].1 = 2D_iDWT(T[1].LL2)
++
+(2D_iDWT(T[1]
+
+#### Temporal scalability
+
+2D_iDWT(T[0]), 2D_iDWT(T[4]), 2D_iDWT(T[
+
+```python
+for pyramid in T:
+  2D_iDWT(pyramid)
 ```
 
 ### Algorithm
