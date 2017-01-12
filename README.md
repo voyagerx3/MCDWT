@@ -1,15 +1,22 @@
 # t+2D Video Transform (t2DVT)
 
+## Video scalabilty
 `t2DVT` inputs a [video][video] and outputs a video in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution ([temporal scalability][Scalability]), lower spatial resolution ([spatial scalability][Scalability]) or/and lower quality ([quality scalability][Scalability]) can be generated. If all the transformed data is used, the original video is obtained (`t2DVT` es is a lossless transform).
 
 [Scalability]: http://eeweb.poly.edu/~yao/EL6123/scalablecoding.pdf
 [video]: https://en.wikipedia.org/wiki/Video
 
+## Encoding choices
 To obtain a multiresolution version or a video (a sequence of images), the DWT (Discrete Wavelet Transform) is used. A<sup>[1](#myfootnote1)</sup> DWT is applied along temporal (`t`) and spatial domains (`2D`). At this point, two alternatives arise: (1) a `t+2D` transform or (2) a `2D+t` transform. In a `t+2D` transform, the video is first analyzed over the time domain and next, over the spatial domain. A `2D+t` transform does just the opposite.
 
-Each choice has a number of pros and cons. For example, in a t+2D transform we can apply directly any image predictor based on motion estimation because the input is a normal video. However, if we implement a 2D+t transform, the input to the motion estimator is a sequence of images in the DWT domain. The overwhelming majority of DWT are not shift invariant [1], which basically means that DWT(`s(t)`) `!=` DWT(`s(t+x)`), where `x` is a displacement of the signal `s(t)` along the time domain. Therefore, motion estimators which compare pixel values will not work on the DWT domain. On the other hand, if we want to provide true spatial scalability (processing only those spatial resolutions (scales) necessary to get a spatially scaled of our video), a t+2D transformed video could be unsuitable because the first step of the forward transform (t) should be reversed at full resolution in the backward transform (as the forward transform did).
+Each choice has a number of pros and cons. For example, in a t+2D transform we can apply directly any image predictor based on motion estimation because the input is a normal video. However, if we implement a 2D+t transform, the input to the motion estimator is a sequence of images in the DWT domain. The overwhelming majority of DWT are not shift invariant [1], which basically means that DWT(`s(t)`) `!=` DWT(`s(t+x)`), where `x` is a displacement of the signal `s(t)` along the time domain. Therefore, motion estimators which compare pixel values will not work on the DWT domain. On the other hand, if we want to provide true spatial scalability (processing only those spatial resolutions (scales) necessary to get a spatially scaled of our video), a `t+2D` transformed video could be unsuitable because the first step of the forward transform (`t`) should be reversed at full resolution in the backward transform (as the forward transform did).
 
 That said, this project implements a t+2D version for its simplicity at the t stage.
+
+## Wavelets and pyramids
+As we can just explained, the DWT allows to get a scalable representation of a signal. However, this can be also done with [Laplacian pyramids][LaPy].
+
+[LaPy]: https://en.wikipedia.org/wiki/Pyramid_(image_processing)
 
 ## Input
 
