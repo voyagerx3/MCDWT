@@ -7,7 +7,6 @@ t2DVT inputs a [video][video] and outputs a video in a way that when using only 
 
 To obtain a multiresolution version or a video (a sequence of images), the DWT (Discrete Wavelet Transform) is used. A<sup>[1](#myfootnote1)</sup> DWT is applied along temporal (t) and spatial domains (2D). At this point, two alternatives arise: (1) a t+2D transform or (2) a 2D+t transform.
 
-<a name="myfootnote1">1</a>: there are infinite transforms
 
 In a t+2D transform, the video is first analyzed over the time domain and next, over the spatial domain. A 2D+t transform does just the opposite.
 
@@ -306,3 +305,5 @@ Inverse Temporal Transform = Inverse MC in the LPT
 
 Progressive Entropy Compressor = [MSB](https://en.wikipedia.org/wiki/Most_significant_bit) to [LSB](https://en.wikipedia.org/wiki/Least_significant_bit) [bit-plane](https://en.wikipedia.org/wiki/Bit_plane) encoder. The top floor of the pyramid is compressed using 0-Order Binary Arithmetic Coding (0OBAC)
 
+<!-- Footnotes -->
+<a name="myfootnote1">1</a>: there are infinite transforms
