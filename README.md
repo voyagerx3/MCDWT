@@ -7,6 +7,8 @@
   <mi>a</mi><mo>&#x2260;</mo><mn>0</mn>
 </math>
 
+$$a$$
+
 t2DVT inputs a [video][video] and outputs a video in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution ([temporal scalability][Scalability]), lower spatial resolution ([spatial scalability][Scalability]) or/and lower quality ([quality scalability][Scalability]) can be generated. If all the transformed data is used, the original video is obtained.
 
 [Scalability]: http://eeweb.poly.edu/~yao/EL6123/scalablecoding.pdf
