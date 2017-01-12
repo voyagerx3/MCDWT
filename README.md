@@ -1,6 +1,8 @@
 # t+2D Video Transform (t2DVT)
 
-t2DVT represents an video in a way that a using only a portion of the transformed video, a video with a lower temporal resolution (temporal scalability), lower spatial resolution (spatial scalability) or/and lower quality (quality scalability) can be generated. If all the transformed data is used, the original video is obtained.
+t2DVT inputs a video and outputs a video in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution (temporal scalability), lower spatial resolution (spatial scalability) or/and lower quality (quality scalability) can be generated [Scalability][@S. If all the transformed data is used, the original video is obtained.dss
+
+[Scalability]: http://eeweb.poly.edu/~yao/EL6123/scalablecoding.pdf
 
 To obtain a multiresolution version or a video (a sequence of images), the DWT (Discrete Wavelet Transform) is used. A DWT (there are infinite transforms) is applied along temporal (t) and spatial domains (2D). At this point, two alternatives arise: (1) a t+2D transform or (2) a 2D+t transform.
 
@@ -153,7 +155,7 @@ To generate Prediction(D[2]) we search (I[2].2).0 into (I[0].2).0 and (I[4].2).0
 
 ```
 
-Next, an algorithm. Notice that `O` is computed in-place (for this, `I` is returned).
+Next, an algorithm. Notice that `O` is computed in-place (of `I`,  for this reason,`I` is returned).
 ```
 x = 2 # An offset
 for each temporal level:
