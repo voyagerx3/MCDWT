@@ -1,6 +1,6 @@
 # t+2D Video Transform (t2DVT)
 
-t2DVT inputs a video and outputs a video in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution (temporal scalability), lower spatial resolution (spatial scalability) or/and lower quality (quality scalability) can be generated [Scalability][@S. If all the transformed data is used, the original video is obtained.dss
+t2DVT inputs a video and outputs a video in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution (temporal scalability), lower spatial resolution (spatial scalability) or/and lower quality (quality scalability) can be generated [Scalability][@Scalability]. If all the transformed data is used, the original video is obtained.dss
 
 [Scalability]: http://eeweb.poly.edu/~yao/EL6123/scalablecoding.pdf
 
