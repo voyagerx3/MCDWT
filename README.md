@@ -43,7 +43,9 @@ A sequence `S` of `n` frames:
 
 ## Algorithm
 ```python
-S = Spatial_Analysis(I)
+S = []
+for picture in V:
+  S.append(DWT(picture))
 ```
 
 
