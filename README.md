@@ -1,44 +1,5 @@
-<script type="text/javascript" async
-  src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
-
 # t+2D Video Transform (t2DVT)
-<math xmlns="http://www.w3.org/1998/Math/MathML">
-  <mi>a</mi><mo>&#x2260;</mo><mn>0</mn>
-</math>
 
-<p style="text-align:center">
-  `x = (-b +- sqrt(b^2-4ac))/(2a) .`
-</p>
-
-$$a$$
-
-<math xmlns="http://www.w3.org/1998/Math/MathML"><msqrt><mn>2</mn></msqrt></math>
-
-<math xmlns="http://www.w3.org/1998/Math/MathML">
-		
-         <mrow>
-            <mi>A</mi>
-            <mo>=</mo>
-			
-            <mfenced open="[" close="]">
-			
-               <mtable>
-                  <mtr>
-                     <mtd><mi>x</mi></mtd>
-                     <mtd><mi>y</mi></mtd>
-                  </mtr>
-					
-                  <mtr>
-                     <mtd><mi>z</mi></mtd>
-                     <mtd><mi>w</mi></mtd>
-                  </mtr>
-               </mtable>
-               
-            </mfenced>
-         </mrow>
-</math>
-      
 t2DVT inputs a [video][video] and outputs a video in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution ([temporal scalability][Scalability]), lower spatial resolution ([spatial scalability][Scalability]) or/and lower quality ([quality scalability][Scalability]) can be generated. If all the transformed data is used, the original video is obtained.
 
 [Scalability]: http://eeweb.poly.edu/~yao/EL6123/scalablecoding.pdf
