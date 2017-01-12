@@ -6,8 +6,8 @@
 [Scalability]: http://eeweb.poly.edu/~yao/EL6123/scalablecoding.pdf
 [video]: https://en.wikipedia.org/wiki/Video
 
-## The Discrete Wavelet Transform
-The <sup>[1](#myfootnote1)</sup> DWT (Discrete Wavelet Transform)][DWT] allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. This is done, for example, in [the JPEG2000 image and video compression standard][J2K].
+## The 's'-levels 2D Discrete Wavelet Transform
+The <sup>[1](#myfootnote1)</sup> 2D-DWT (2 Dimensions - Discrete Wavelet Transform)][DWT] allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. This is done, for example, in [the JPEG2000 image and video compression standard][J2K].
 
 [J2K]: https://en.wikipedia.org/wiki/JPEG_2000
 
@@ -26,7 +26,7 @@ A sequebce `V` of `n` images:
       V[0]               V[1]                 V[n-1]
 ```
 
-### Output
+### Output of a 2-levels 2D-DWT
 A sequence `S` of `n` frames:
 ```
 +---+---+-------+  +---+---+-------+     +---+---+-------+
@@ -41,12 +41,40 @@ A sequence `S` of `n` frames:
        S[0]               S[1]                  S[2]
 ```
 
-## Algorithm
+### Algorithm
 ```python
 S = []
-for picture in V:
-  S.append(DWT(picture))
+for image in V:
+  S.append(DWT(image))
 ```
+
+### Scalability
+The 2D-DWT applied to a video produces a representation scalable in the space (we can extract different videos with different spatial scales or resolutions), in the time (we can extract diferent videos with different number of frames) and in quality (we can quantize the DWT coefficients with different quantization steps to get videos of different quality).
+
+### Inverse 's'-levels inverse 2D-DWT
+In the last example, subbands `V2={S[0].LL2, S[1].LL2, ..., S[n-1].LL2}` represent the scale number 2 of the original video (the spatial resolution of this `V2` is the resolution of `V` divided by 4 in each spatial dimension).
+
+To reconstruct the scale 1, we apply the iDWT (1-level inverse DWT) in place (this means that the output of the transform replaces the input data):
+```python
+for pyramid in S:
+  iDWT(pyramid)
+```
+
+And finally, to get the original video, we need to apply again the previous code.
+
+### Redundancy and compression
+The 2D DWT provides an interesting feature to `S`: `S` usually has a lower entropy than `S`. This means that if we apply to `S` an entropy coder, we can get a shorter representation of the original video than if we encode `V` directly. This is a consequence that the 2D DWT explits the spatial redudancy of images of the video: neighboring pixels tend to have similar values.
+
+## The temporal DWT
+Unfortunately, the 2D DWT does not exploit the temporal redundancy of a video. This means that we can achieve higher compression ratios if we, for example, apply a 1D DWT along the temporal domain.
+
+### Input
+A sequence `S` of `n` pyramids.
+
+### Output
+A sequence `T` of `n` pyramids organized into temporal subbands `T[l]`, where each subband is a sequence of pyramids `T[l][t]`.
+
+
 
 
 ## Wavelets and pyramids
