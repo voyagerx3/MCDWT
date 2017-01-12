@@ -1,12 +1,8 @@
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-});
+<script type="text/javascript" async
+  src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
-<script type="text/javascript" async src="path-to-mathjax/MathJax.js?config=TeX-AMS_CHTML"></script>
 
 # t+2D Video Transform (t2DVT)
-$a
 <math xmlns="http://www.w3.org/1998/Math/MathML">
   <mi>a</mi><mo>&#x2260;</mo><mn>0</mn>
 </math>
