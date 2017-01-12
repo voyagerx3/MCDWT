@@ -5,7 +5,9 @@ t2DVT inputs a [video][video] and outputs a video in a way that when using only 
 [Scalability]: http://eeweb.poly.edu/~yao/EL6123/scalablecoding.pdf
 [video]: https://en.wikipedia.org/wiki/Video
 
-To obtain a multiresolution version or a video (a sequence of images), the DWT (Discrete Wavelet Transform) is used. A DWT (there are infinite transforms) is applied along temporal (t) and spatial domains (2D). At this point, two alternatives arise: (1) a t+2D transform or (2) a 2D+t transform.
+To obtain a multiresolution version or a video (a sequence of images), the DWT (Discrete Wavelet Transform) is used. A<sup>[1](#myfootnote1)</sup> DWT is applied along temporal (t) and spatial domains (2D). At this point, two alternatives arise: (1) a t+2D transform or (2) a 2D+t transform.
+
+<a name="myfootnote1">1</a>: there are infinite transforms
 
 In a t+2D transform, the video is first analyzed over the time domain and next, over the spatial domain. A 2D+t transform does just the opposite.
 
