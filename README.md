@@ -1,24 +1,13 @@
-<script type="text/javascript" async
-  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+});
 </script>
+<script type="text/javascript" async src="path-to-mathjax/MathJax.js?config=TeX-AMS_CHTML"></script>
 
 # t+2D Video Transform (t2DVT)
-<html>a<\html>
+$a
 
-```html
-<h2>Example of code</h2>
-
-<pre>
-    <div class="container">
-        <div class="block two first">
-            <h2>Your title</h2>
-            <div class="wrap">
-            //Your content
-            </div>
-        </div>
-    </div>
-</pre>
-```
 
 t2DVT inputs a [video][video] and outputs a video in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution ([temporal scalability][Scalability]), lower spatial resolution ([spatial scalability][Scalability]) or/and lower quality ([quality scalability][Scalability]) can be generated. If all the transformed data is used, the original video is obtained.
 
