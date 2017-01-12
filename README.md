@@ -7,9 +7,13 @@
 [video]: https://en.wikipedia.org/wiki/Video
 
 ## Encoding choices
-To obtain a multiresolution version or a video (a sequence of images), the DWT (Discrete Wavelet Transform) is used. A<sup>[1](#myfootnote1)</sup> DWT is applied along temporal (`t`) and spatial domains (`2D`). At this point, two alternatives arise: (1) a `t+2D` transform or (2) a `2D+t` transform. In a `t+2D` transform, the video is first analyzed over the time domain and next, over the spatial domain. A `2D+t` transform does just the opposite.
+To obtain a multiresolution version or a video (a sequence of images), [the DWT (Discrete Wavelet Transform)][DWT] is used. A<sup>[1](#myfootnote1)</sup> DWT is applied along temporal (`t`) and spatial domains (`2D`). At this point, two alternatives arise: (1) a `t+2D` transform or (2) a `2D+t` transform. In a `t+2D` transform, the video is first analyzed over the time domain and next, over the spatial domain. A `2D+t` transform does just the opposite.
 
-Each choice has a number of pros and cons. For example, in a t+2D transform we can apply directly any image predictor based on motion estimation because the input is a normal video. However, if we implement a 2D+t transform, the input to the motion estimator is a sequence of images in the DWT domain. The overwhelming majority of DWT are not shift invariant [1], which basically means that DWT(`s(t)`) `!=` DWT(`s(t+x)`), where `x` is a displacement of the signal `s(t)` along the time domain. Therefore, motion estimators which compare pixel values will not work on the DWT domain. On the other hand, if we want to provide true spatial scalability (processing only those spatial resolutions (scales) necessary to get a spatially scaled of our video), a `t+2D` transformed video could be unsuitable because the first step of the forward transform (`t`) should be reversed at full resolution in the backward transform (as the forward transform did).
+[DWT]: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
+
+Each choice has a number of pros and cons. For example, in a t+2D transform we can apply directly any image predictor based on motion estimation because the input is a normal video. However, if we implement a 2D+t transform, the input to the motion estimator is a sequence of images in the DWT domain. [The overwhelming majority of DWT are not shift invariant][Friendly Guide], which basically means that DWT(`s(t)`) `!=` DWT(`s(t+x)`), where `x` is a displacement of the signal `s(t)` along the time domain. Therefore, motion estimators which compare pixel values will not work on the DWT domain. On the other hand, if we want to provide true spatial scalability (processing only those spatial resolutions (scales) necessary to get a spatially scaled of our video), a `t+2D` transformed video could be unsuitable because the first step of the forward transform (`t`) should be reversed at full resolution in the backward transform (as the forward transform did).
+
+[Friendly Guide]: [A Really Friendly Guide To Wavelets](http://www.polyvalens.com/blog/wavelets/theory/)
 
 That said, this project implements a t+2D version for its simplicity at the t stage.
 
@@ -126,7 +130,7 @@ A transformed image O.
 
 ## Algorithm
 
-See [pywt.wavedec2()](https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2) at [PyWavelets](https://pywavelets.readthedocs.io/en/latest/index.html). [Discrete wavelet transform](https://en.wikipedia.org/wiki/Discrete_wavelet_transform).
+See [pywt.wavedec2()](https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2) at [PyWavelets](https://pywavelets.readthedocs.io/en/latest/index.html).
 
 # Temporal Analysis
 
@@ -220,7 +224,6 @@ return I
 ```
 
 [Lifting scheme](https://en.wikipedia.org/wiki/Lifting_scheme)
-[1] [A Really Friendly Guide To Wavelets](http://www.polyvalens.com/blog/wavelets/theory/)
 http://stackoverflow.com/questions/15802827/how-can-dwt-be-used-in-lsb-substitution-steganography
 http://stat.columbia.edu/~jakulin/Wavelets/index.html
 http://www.ual.es/~vruiz/Docencia/Apuntes/Coding/Image/00-Fundamentals/index.html#x1-2000012
