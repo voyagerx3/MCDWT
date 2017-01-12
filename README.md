@@ -1,7 +1,7 @@
-# t+2D Video Transform (t2DVT)
+# Scalable Video Transform (SVT)
 
 ## Video scalabilty
-`t2DVT` inputs a [video][video] and outputs a video in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution ([temporal scalability][Scalability]), lower spatial resolution ([spatial scalability][Scalability]) or/and lower quality ([quality scalability][Scalability]) can be generated. If all the transformed data is used, the original video is obtained (`t2DVT` es is a lossless transform).
+SVT inputs a [video][video] and outputs a video in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution ([temporal scalability][Scalability]), lower spatial resolution ([spatial scalability][Scalability]) or/and lower quality ([quality scalability][Scalability]) can be generated. If all the transformed data is used, the original video is obtained (`t2DVT` es is a lossless transform).
 
 [Scalability]: http://eeweb.poly.edu/~yao/EL6123/scalablecoding.pdf
 [video]: https://en.wikipedia.org/wiki/Video
@@ -18,11 +18,13 @@ Each choice has a number of pros and cons. For example, in a t+2D transform we c
 <!--That said, this project implements a t+2D version for its simplicity at the t stage.-->
 
 ## Wavelets and pyramids
-As we can just explained, the DWT allows to get a scalable representation of a image. However, this can be also done with [Gaussian and Laplacian pyramids][Pyramids]. 
+As we can just explained, the DWT allows to get a scalable representation of a image. However, this can be also done with [Gaussian and Laplacian pyramids][Pyramids]. Image pyramids are interesting because they are shift invariant and therefore, one can operate within the scales as they are *normal* images.
+
+Image pyramids representations need more memory than DWT ones and this is a drawback when compressing. Luckily, it is very fast to convert a laplacian pyramid representation into a DWT representation and viceversa. For this reason, even if we use the DWT to work with our images, we can suppose at any moment that we can also working with the pyramid of those images.
 
 [Pyramids]: https://en.wikipedia.org/wiki/Pyramid_(image_processing)
 
-## Input
+## Input of SVT
 
 A sequence `I` of images `I[t]`, where each `I[t]` is a 2D array of pixels I[t][y][x]. "t" denotes time. "x" and "y" denote space. 
 
