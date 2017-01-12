@@ -7,9 +7,10 @@
 [video]: https://en.wikipedia.org/wiki/Video
 
 ## The 's'-levels 2D Discrete Wavelet Transform
-The <sup>[1](#myfootnote1)</sup> 2D-DWT (2 Dimensions - Discrete Wavelet Transform)][DWT] allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. This is done, for example, in [the JPEG2000 image and video compression standard][J2K].
+The <sup>[1](#myfootnote1)</sup> [2D-DWT][2D-DWT] (2 Dimensions - Discrete Wavelet Transform)][DWT] allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. This is done, for example, in [the JPEG2000 image and video compression standard][J2K].
 
 [J2K]: https://en.wikipedia.org/wiki/JPEG_2000
+[2D-DWT]: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
 
 ### Input
 A sequebce `V` of `n` images:
@@ -26,8 +27,8 @@ A sequebce `V` of `n` images:
       V[0]               V[1]                 V[n-1]
 ```
 
-### Output of a 2-levels 2D-DWT
-A sequence `S` of `n` frames:
+### Output
+A sequence `S` of `n` frames. For a 2-levels 2D-DWT:
 ```
 +---+---+-------+  +---+---+-------+     +---+---+-------+
 |LL2|HL2|       |  |   |   |       |     |   |   |       |
@@ -45,7 +46,7 @@ A sequence `S` of `n` frames:
 ```python
 S = []
 for image in V:
-  S.append(DWT(image))
+  S.append(2D_DWT(image))
 ```
 
 ### Scalability
@@ -57,23 +58,62 @@ In the last example, subbands `V2={S[0].LL2, S[1].LL2, ..., S[n-1].LL2}` represe
 To reconstruct the scale 1, we apply the iDWT (1-level inverse DWT) in place (this means that the output of the transform replaces the input data):
 ```python
 for pyramid in S:
-  iDWT(pyramid)
+  2D_iDWT(pyramid)
 ```
 
 And finally, to get the original video, we need to apply again the previous code.
 
 ### Redundancy and compression
-The 2D DWT provides an interesting feature to `S`: `S` usually has a lower entropy than `S`. This means that if we apply to `S` an entropy coder, we can get a shorter representation of the original video than if we encode `V` directly. This is a consequence that the 2D DWT explits the spatial redudancy of images of the video: neighboring pixels tend to have similar values.
+The 2D DWT provides an interesting feature to `S`: `S` usually has a lower entropy than `V`. This means that if we apply to `S` an entropy encoder, we can get a shorter representation of the video than if we encode `V` directly. This is a consequence that the 2D-DWT exploits the spatial redudancy of the images of the video: neighboring pixels tend to have similar values.
 
-## The temporal DWT
-Unfortunately, the 2D DWT does not exploit the temporal redundancy of a video. This means that we can achieve higher compression ratios if we, for example, apply a 1D DWT along the temporal domain.
+## The temporal (t) DWT
+Unfortunately, the 2D-DWT does not exploit the temporal redundancy of a video. This means that we can achieve higher compression ratios if we apply a 1D-DWT along the temporal domain.
 
 ### Input
 A sequence `S` of `n` pyramids.
 
 ### Output
-A sequence `T` of `n` pyramids organized into temporal subbands `T[l]`, where each subband is a sequence of pyramids `T[l][t]`.
+A sequence `T` of `n` pyramids organized in `l` temporal subbands, where each subband is a sequence of pyramids.
 
+For `l=2` and `n=5`:
+
+```
+      Spatial
+      scale 0 1 2       t = 1                               t = 3
+            ^ ^ ^ +---+---+-------+                   +---+---+-------+                                ^
+            | | | |   |   |       |                   |   |   |       |                                |
+            | | v +---+---+       |                   +---+---+    O <---- T[3][y][x]                  |
+            | |   |   |   |       |                   |   |   |       |                                |
+            | v   +---+---+-------+                   +---+---+-------+ l = 0                          |
+            |     |       |       |                   |       |       |                                |
+            |     |       |       |                   |       |       |                                |
+            |     |       |       |                   |       |       |                                |
+            v     +-------+-------+       t = 2       +-------+-------+                                |
+                      |       |     +---+---+-------+     |        |                                 ^ |
+                      |       |     |   |   |       |     |        |                                 | |
+                      |       +---->+---+---+       |<----+        |                                 | |
+                      |             |   |   |       |              |                                 | |
+                      |             +---+---+-------+ l = 1        |                                 | |
+                      |             |       |       |              |                                 | |
+                      |             |       |       |              |                                 | |
+                      |             |       |       |              |                                 | |
+      t = 0           |             +-------+-------+              |           t = 4                 | |
++---+---+-------+     |                 |       |                  |     +---+---+-------+         ^ | |
+|   |   |       |     |                 |       |                  |     |   |   |       |         | | |
++---+---+       |<----+                 |       |                  +---->+---+---+       |         | | |
+|   |   |       |                       |       |                        |   |   |       |         | | |
++---+---+-------+                       |       |                        +---+---+-------+  l = 2  | | |
+|       |       |                       |       |                        |       |       |         | | |
+|       |       |<----------------------+       +----------------------->|       |       |         | | |
+|       |       |                                                        |       |       |         | | |
++-------+-------+                                                        +-------+-------+         v v v
+      GOP 0                                       GOP 1                             Temporal scale 2 1 0
+<---------------><----------------------------------------------------------------------->
+
+(X --> Y) = X depends on Y (X has been encoded using Y)
+```
+
+### Algorithm
 
 
 
@@ -389,4 +429,4 @@ Inverse Temporal Transform = Inverse MC in the LPT
 Progressive Entropy Compressor = [MSB](https://en.wikipedia.org/wiki/Most_significant_bit) to [LSB](https://en.wikipedia.org/wiki/Least_significant_bit) [bit-plane](https://en.wikipedia.org/wiki/Bit_plane) encoder. The top floor of the pyramid is compressed using 0-Order Binary Arithmetic Coding (0OBAC)
 
 <!-- Footnotes -->
-<a name="myfootnote1">1</a>: there are infinite transforms
+<a name="myfootnote1">1</a>: there are infinite transforms. 
