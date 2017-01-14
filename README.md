@@ -156,12 +156,27 @@ V[2].0 = tmp + (
   P(V[0].0, tmp -> V[0].0) +
   P(V[4].0, tmp -> V[4].0)
 )/2,
+(tmp = 2D_iDWT(V[1].1, 0)
+V[1].1 = tmp + (
+  P(V[0].0, tmp -> V[0].0) +
+  P(V[2].0, tmp -> V[2].0)
+)/2,
+(tmp = 2D_iDWT(V[3].1, 0)
+V[3].1 = tmp + (
+  P(V[2].0, tmp -> V[2].0) +
+  P(V[4].0, tmp -> V[4].0)
+)/2.
 
 Scale = -1
 
 V[0].-1 = 2D_iDWT(V[0].0, 0),
 V[4].-1 = 2D_iDWT(V[4].0, 0),
 (tmp = 2D_iDWT(V[2].0, 0))
+v[2].-1 = tmp + (
+  P(V[0].-1, tmp -> V[0].-1) +
+  P(V[4].-1, tmp -> V[4].-1)
+)/2,
+
 
 #### Temporal scalability
 
