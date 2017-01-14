@@ -127,20 +127,41 @@ V[3].2 = T[3].L2 + (V[2].2 + V[4].2)/2
 
 Scale 1:
 
-A.Hx = {A.HLx, A.LHx, A.HHx}
+(note A.Hx = {A.HLx, A.LHx, A.HHx})
 
-V[0].1 = 2D_iDWT(V[0].2, T[0].H1),
-V[4].1 = 2D_iDWT(V[4].2, T[4].H1),
-V[2].1 = 2D_iDWT(T[2].LL2) # One level inverse wavelet of only the subba
-+
-( tmp = 2D_iDWT(T[2].LL2)
-  tmp -> V[0].1
-  +
-  tmp -> V[4].1
+V[0].1 = 2D_iDWT(V[0].2, T[0].H2),
+V[4].1 = 2D_iDWT(V[4].2, T[4].H2),
+(tmp = 2D_iDWT(V[2].2, 0))
+V[2].1 = tmp + ( 
+  P(V[0].1, tmp -> V[0].1) +
+  P(V[4].1, tmp -> V[4].1)
 )/2,
-V[1].1 = 2D_iDWT(T[1].LL2)
-+
-(2D_iDWT(T[1]
+(tmp = 2D_iDWT(V[1].2, 0))
+V[1].1 = tmp + (
+  P(V[0].1, tmp -> V[0].1) +
+  P(V[2].1, tmp -> V[2].1)
+)/2,
+(tmp = 2D_iDWT(V[3].2, 0))
+V[3].1 = tmp + (
+  P(V[2].1, tmp -> V[2].1) +
+  P(V[4].1, tmp -> V[4].1)
+)/2
+
+Scale = 0
+
+V[0].0 = V[0] = 2D_iDWT(V[0].1, T[0].H1),
+V[4].0 = 2D_iDWT(V[4].1, T[4].H1),
+(tmp = 2D_iDWT(V[2].1, 0))
+V[2].0 = tmp + (
+  P(V[0].0, tmp -> V[0].0) +
+  P(V[4].0, tmp -> V[4].0)
+)/2,
+
+Scale = -1
+
+V[0].-1 = 2D_iDWT(V[0].0, 0),
+V[4].-1 = 2D_iDWT(V[4].0, 0),
+(tmp = 2D_iDWT(V[2].0, 0))
 
 #### Temporal scalability
 
