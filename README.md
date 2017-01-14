@@ -119,13 +119,19 @@ For `l=2` and `n=5`:
 
 Scale 2:
 
-T[0].LL2, T[4].LL2, T[2].LL2, T[1].LL2, T[3].LL2
+V[0].2 = T[0].L2,
+V[4].2 = T[4].L2,
+V[2].2 = T[2].L2 + (V[0].2 + V[4].2)/2,
+V[1].2 = T[1].L2 + (V[0].2 + V[2].2)/2,
+V[3].2 = T[3].L2 + (V[2].2 + V[4].2)/2
 
 Scale 1:
 
-V[0].1 = 2D_iDWT(T[0]),
-V[4].1 = 2D_iDWT(T[4]),
-V[2].1 = 2D_iDWT(T[2].LL2)
+A.Hx = {A.HLx, A.LHx, A.HHx}
+
+V[0].1 = 2D_iDWT(V[0].2, T[0].H1),
+V[4].1 = 2D_iDWT(V[4].2, T[4].H1),
+V[2].1 = 2D_iDWT(T[2].LL2) # One level inverse wavelet of only the subba
 +
 ( tmp = 2D_iDWT(T[2].LL2)
   tmp -> V[0].1
