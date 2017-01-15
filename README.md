@@ -28,7 +28,7 @@ A sequebce `V` of `n` images:
 ```
 
 ### Output
-A sequence `S` of `n` frames. For a 2-levels 2D-DWT:
+A sequence `S` of `n` pyramids. For example, a 2-levels 2D-DWT looks like:
 ```
 +---+---+-------+  +---+---+-------+     +---+---+-------+
 |LL2|HL2|       |  |   |   |       |     |   |   |       |
@@ -150,17 +150,21 @@ V[3].1 = tmp + (
 Scale = 0
 
 V[0].0 = V[0] = 2D_iDWT(V[0].1, T[0].H1),
+
 V[4].0 = 2D_iDWT(V[4].1, T[4].H1),
+
 (tmp = 2D_iDWT(V[2].1, 0))
 V[2].0 = tmp + (
   P(V[0].0, tmp -> V[0].0) +
   P(V[4].0, tmp -> V[4].0)
 )/2,
+
 (tmp = 2D_iDWT(V[1].1, 0)
 V[1].1 = tmp + (
   P(V[0].0, tmp -> V[0].0) +
   P(V[2].0, tmp -> V[2].0)
 )/2,
+
 (tmp = 2D_iDWT(V[3].1, 0)
 V[3].1 = tmp + (
   P(V[2].0, tmp -> V[2].0) +
@@ -170,15 +174,53 @@ V[3].1 = tmp + (
 Scale = -1
 
 V[0].-1 = 2D_iDWT(V[0].0, 0),
+
 V[4].-1 = 2D_iDWT(V[4].0, 0),
+
 (tmp = 2D_iDWT(V[2].0, 0))
 v[2].-1 = tmp + (
   P(V[0].-1, tmp -> V[0].-1) +
   P(V[4].-1, tmp -> V[4].-1)
 )/2,
 
+(tmp = 2D_iDWT(V[1].0, 0))
+v[1].-1 = tmp +
 
 #### Temporal scalability
+
+Scale 2:
+
+V[0].0 = V[0] = 2D_iDWT<l>(T[0]),
+V[4].0 = 2D_iDWT<l>(T[4])
+
+Scale 1:
+
+Scale 2,
+(V[2].2 = T[2].L2 + (V[0].2 + V[4].2)/2)
+((tmp = 2D_iDWT(V[2].2, 0))
+(V[2].1 = tmp + ( 
+  P(V[0].1, tmp -> V[0].1) +
+  P(V[4].1, tmp -> V[4].1)
+)/2)
+(tmp = 2D_iDWT(V[2].1, 0))
+V[2].0 = tmp + (
+  P(V[0].0, tmp -> V[0].0) +
+  P(V[4].0, tmp -> V[4].0)
+)/2
+
+Scale 0:
+
+Scale2, Scale 1,
+
+V[1].2 = T[1].L2 + (V[0].2 + V[2].2)/2,
+((tmp = 2D_iDWT(V[1].1, 0)
+V[1].1 = tmp + (
+  P(V[0].0, tmp -> V[0].0) +
+  P(V[2].0, tmp -> V[2].0)
+)/2)
+
+V[3].2 = T[3].L2 + (V[2].2 + V[4].2)/2
+
 
 2D_iDWT(T[0]), 2D_iDWT(T[4]), 2D_iDWT(T[
 
@@ -186,6 +228,15 @@ v[2].-1 = tmp + (
 for pyramid in T:
   2D_iDWT(pyramid)
 ```
+
+#### Quality scalability
+
+##### In a intra-image
+
+Design a "sorting" algorithm that, bit-plane by bit-plane, in function of the content of the LLl subband (or the requested WOI of this) dedides the ordering in which the locations at the rest of subbands should be checked to determine if the wavelet coefficients that are in those locations are significant or not, depending on the contribution of these locations to the energy of the inverse transform. LH, HL and HH subbands can be "melt" in only one (the H subband to distinguish they from the L subband). This should generate basically a collection of quadtrees (one for each L coefficient).
+
+
+Sort the wavelet coefficients by magnitude (supposing an orthogonal transform)
 
 ### Algorithm
 
