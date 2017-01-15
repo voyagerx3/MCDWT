@@ -113,7 +113,19 @@ For `l=2` and `n=5`:
 (X --> Y) = X depends on Y (X has been encoded using Y)
 ```
 
-### Inverse tDWT
+### Forward SVT (examples)
+
+#### Spatial scalability
+
+Scale 1:
+
+V[0] = 2D_DWT(V[0]),
+V[4] = 2D_DWT(V[4]),
+(tmp = 2D_DWT(v[2])
+V[2]
+
+
+### Inverse SVT (examples)
 
 #### Spatial scalability
 
