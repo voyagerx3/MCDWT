@@ -119,10 +119,14 @@ For `l=2` and `n=5`:
 
 Scale 1:
 
-V[0] = 2D_DWT(V[0]),
-V[4] = 2D_DWT(V[4]),
-(tmp = 2D_DWT(v[2])
-V[2]
+tmp1 = DWT(V[1])
+tmp2 = iDWT(tmp1.L, 0)
+tmp2 -= (P(V[0].0, tmp2 -> V[0].0) + P(V[2].0, tmp2 -> V[2].0)/2
+tmp2 = DWT(tmp2)
+V[1] = {tmp1.L, tmp2.H}
+
+tmp = iDWT(V[1].L, 0)
+V[1] += 
 
 
 ### Inverse SVT (examples)
