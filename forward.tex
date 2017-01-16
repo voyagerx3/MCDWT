@@ -2,6 +2,8 @@
 \usepackage{amsmath}
 \usepackage{textcomp}
 \usetikzlibrary{shapes,arrows}
+\usetikzlibrary{calc}
+
 \begin{document}
 % Definition of blocks:
 \tikzset{%
@@ -15,26 +17,26 @@
 \newcommand{\suma}{\Large$+$}
 \newcommand{\inte}{$\displaystyle \int$}
 \newcommand{\derv}{\huge$\frac{d}{dt}$}
-\newcommand{\DWT}{\begin{tikzpicture}%
-    \draw node [draw, minimum width = 1cm, minimum height = 1cm] (0) {$0$};
+\newcommand{\DWT}[2]{\begin{tikzpicture}%
+    \draw node [draw, minimum width = 1cm, minimum height = 1cm] (0) {$#1$};
     \draw node [draw, minimum width = 1cm, minimum height = 1cm, node distance = 1cm, right of=0, fill=gray!10] (empty) {};
     \draw node [draw, minimum width = 1cm, minimum height = 1cm, node distance = 1cm, below of=0, fill=gray!10] {};
-    \draw node [draw, minimum width = 1cm, minimum height = 1cm, node distance = 1cm, below of=empty, fill=gray!10] {$B^\sim.H$};
+    \draw node [draw, minimum width = 1cm, minimum height = 1cm, node distance = 1cm, below of=empty, fill=gray!10] {$#2$};
     %\draw grid[very thick] (2,2);
     %\draw node (L) at (0.5,1.5) {$0$};
-    %\draw node (H) at (1.5,0.5) {$B^\sim.H$};
+    %\draw node (H) at (1.5,0.5) {$#1^\sim.H$};
   \end{tikzpicture}
 }
-
+\tikzstyle{line} = [draw, -latex']
 \begin{tikzpicture}[auto, >=triangle 45]
 
   \draw
   node [block] (AL) {$[A.L]$}
-  node [block, right of=AL] (DWTA) {$\{A.L, A.H\}$}
+  node [node distance=3.5cm, right of=AL] (DWTA) {\DWT{A.L}{A.H}}
   node [block, right of=DWTA] (BL) {$[B.L]$}
-  node [block, right of=BL] (DWTB) {$\{B.L, B.H\}$}
+  node [node distance=3.5cm, right of=BL] (DWTB) {\DWT{B.L}{B.H}}
   node [block, right of=DWTB] (CL) {$[C.L]$}
-  node [block, right of=CL] (DWTC) {$\{C.L, C.H\}$}
+  node [node distance=3.5cm, right of=CL] (DWTC) {\DWT{C.L}{C.H}}
   node [block, above of=DWTA] (A) {$A$}
   node [block, above of=DWTB] (B) {$B$}
   node [block, above of=DWTC] (C) {$C$}
@@ -46,19 +48,20 @@
   node [block, below of=CH] (BHC) {$[B_C.H]$}
   node [draw, thick, rectangle, right of=BHA, node distance=3.5cm] (12a) {$1/2$}
   node [draw, thick, rectangle, left of=BHC, node distance=3.5cm] (12b) {$1/2$}
-  node [block, below of=suma] (BHp) {$[B^{\sim}.H]$}
-  node [node distance=3.5cm, below of=BHp] {\DWT}
+  node [block, below of=suma] (BHp) {$[\tilde{B}.H]$}
+  node [node distance=3.5cm, below of=BHp] (BHp2) {\DWT{0}{\tilde{B}.H}}
+  node [node distance=3.5cm, below of=BHp2] (out) {\DWT{B.L}{\tilde{B}.H}}
   ;
   
-  \draw [->] (A) -- node {DWT} (DWTA);
-  \draw [->] (DWTA) -- node {iDWT} (AL);
-  \draw [->] (B) -- node {DWT} (DWTB);
-  \draw [->] (DWTB) -- node {iDWT} (BL);
-  \draw [->] (C) -- node {DWT} (DWTC);
-  \draw [->] (DWTC) -- node {iDWT} (CL);
-  \draw [->] (DWTA) -- node {iDWT} (AH);
-  \draw [->] (DWTB) -- node {iWDT} (BH);
-  \draw [->] (DWTC) -- node {iWDT} (CH);
+  \draw [->] (A) -- node {DWT} ($(DWTA) + (0,1cm)$);
+  \draw [->] ($(DWTA) + (-1cm,0.5cm)$) -- node[below] {iDWT} (AL);
+  \draw [->] (B) -- node {DWT} ($(DWTB) + (0,1cm)$);
+  \draw [->] ($(DWTB) + (-1cm,0.5cm)$) -- node[below] {iDWT} (BL);
+  \draw [->] (C) -- node {DWT} ($(DWTC) + (0,1cm)$);
+  \draw [->] ($(DWTC) + (-1cm,0.5cm)$) -- node[below] {iDWT} (CL);
+  \draw [->] ($(DWTA) + (0.5cm,-1cm)$) -- node[left] {iDWT} (AH);
+  \draw [->] ($(DWTB) + (0.5cm,-1cm)$) -- node {iWDT} (BH);
+  \draw [->] ($(DWTC) + (0.5cm,-1cm)$) -- node {iWDT} (CH);
   \draw [->] (AH) -- node {$[B.L]\rightarrow [A.L]$} (BHA);
   \draw [->] (BH) -- (suma);
   \draw [->] (CH) -- node {$[B.L]\rightarrow [C.L]$} (BHC);
@@ -67,6 +70,10 @@
   \draw [->] (12a) -- (suma);
   \draw [->] (12b) -- (suma);
   \draw [->] (suma) -- (BHp);
+  \draw [->] (BHp) -- node {DWT} ($(BHp2) + (0,1cm)$);
+  \draw [->] ($(BHp2) + (0.5cm,-1cm)$) -- ($(out) + (0.5cm,1cm)$);
+  \path [line] ($(DWTB.north) + (-0.5cm,-0.3cm)$) -| ($(DWTB.north) + (-0.5cm,0.5cm)$);
+
   
 \end{tikzpicture}
 \end{document}
