@@ -1,15 +1,13 @@
-
-% Title: Block diagram of Third order noise shaper in Compact Disc Players
-% Author: Ramón Jaramillo
 \documentclass[tikz,14pt,border=10pt]{standalone}
+\usepackage{amsmath}
 \usepackage{textcomp}
 \usetikzlibrary{shapes,arrows}
 \begin{document}
 % Definition of blocks:
 \tikzset{%
-  block/.style    = {draw, thick, rectangle, minimum height = 2cm,
+  block/.style    = {draw, rectangle, minimum height = 2cm,
     minimum width = 2cm, node distance = 3.5cm},
-  sum/.style      = {draw, circle, node distance = 2.5cm}, % Adder
+  sum/.style      = {draw, circle, node distance = 3.5cm}, % Adder
   input/.style    = {coordinate}, % Input
   output/.style   = {coordinate} % Output
 }
@@ -17,10 +15,20 @@
 \newcommand{\suma}{\Large$+$}
 \newcommand{\inte}{$\displaystyle \int$}
 \newcommand{\derv}{\huge$\frac{d}{dt}$}
+\newcommand{\DWT}{\begin{tikzpicture}%
+    \draw node [draw, minimum width = 1cm, minimum height = 1cm] (0) {$0$};
+    \draw node [draw, minimum width = 1cm, minimum height = 1cm, node distance = 1cm, right of=0, fill=gray!10] (empty) {};
+    \draw node [draw, minimum width = 1cm, minimum height = 1cm, node distance = 1cm, below of=0, fill=gray!10] {};
+    \draw node [draw, minimum width = 1cm, minimum height = 1cm, node distance = 1cm, below of=empty, fill=gray!10] {$B^\sim.H$};
+    %\draw grid[very thick] (2,2);
+    %\draw node (L) at (0.5,1.5) {$0$};
+    %\draw node (H) at (1.5,0.5) {$B^\sim.H$};
+  \end{tikzpicture}
+}
 
-\begin{tikzpicture}[auto, thick, node distance=2cm, >=triangle 45]
-  
-  \draw % Nodes
+\begin{tikzpicture}[auto, >=triangle 45]
+
+  \draw
   node [block] (AL) {$[A.L]$}
   node [block, right of=AL] (DWTA) {$\{A.L, A.H\}$}
   node [block, right of=DWTA] (BL) {$[B.L]$}
@@ -33,21 +41,32 @@
   node [block, below of=DWTA] (AH) {$[A.H]$}
   node [block, below of=DWTB] (BH) {$[B.H]$}
   node [block, below of=DWTC] (CH) {$[C.H]$}
-  node [block, below of=AH] (BHA) {$[B.H_A]$}
-  node [block, below of=CH] (BHC) {$[B.H_C]$};
+  node [block, below of=AH] (BHA) {$[B_A.H]$}
+  node [sum, below of=BH] (suma) {\suma}
+  node [block, below of=CH] (BHC) {$[B_C.H]$}
+  node [draw, thick, rectangle, right of=BHA, node distance=3.5cm] (12a) {$1/2$}
+  node [draw, thick, rectangle, left of=BHC, node distance=3.5cm] (12b) {$1/2$}
+  node [block, below of=suma] (BHp) {$[B^{\sim}.H]$}
+  node [node distance=3.5cm, below of=BHp] {\DWT}
+  ;
   
-  \draw % Arrows
-      [->] (A) -- node {DWT} (DWTA)
-      [->] (DWTA) -- node {iDWT} (AL)
-      [->] (B) -- node {DWT} (DWTB)
-      [->] (DWTB) -- node {iDWT} (BL)
-      [->] (C) -- node {DWT} (DWTC)
-      [->] (DWTC) -- node {iDWT} (CL)
-      [->] (DWTA) -- node {iDWT} (AH)
-      [->] (DWTB) -- node {iWDT} (BH)
-      [->] (DWTC) -- node {iWDT} (CH)
-      [->] (AH) -- node {$[B.L]\rightarrow [A.L]$} (BHA)
-      [->] (CH) -- node {$[B.L]\rightarrow [C.L]$} (BHC);
+  \draw [->] (A) -- node {DWT} (DWTA);
+  \draw [->] (DWTA) -- node {iDWT} (AL);
+  \draw [->] (B) -- node {DWT} (DWTB);
+  \draw [->] (DWTB) -- node {iDWT} (BL);
+  \draw [->] (C) -- node {DWT} (DWTC);
+  \draw [->] (DWTC) -- node {iDWT} (CL);
+  \draw [->] (DWTA) -- node {iDWT} (AH);
+  \draw [->] (DWTB) -- node {iWDT} (BH);
+  \draw [->] (DWTC) -- node {iWDT} (CH);
+  \draw [->] (AH) -- node {$[B.L]\rightarrow [A.L]$} (BHA);
+  \draw [->] (BH) -- (suma);
+  \draw [->] (CH) -- node {$[B.L]\rightarrow [C.L]$} (BHC);
+  \draw [->] (BHA) -- (12a);
+  \draw [->] (BHC) -- (12b);
+  \draw [->] (12a) -- (suma);
+  \draw [->] (12b) -- (suma);
+  \draw [->] (suma) -- (BHp);
   
 \end{tikzpicture}
 \end{document}
