@@ -113,7 +113,7 @@ For example, if `l=2` and `n=5`:
 (X --> Y) = X depends on Y (X has been encoded using Y)
 ```
 
-### Algorithm of the forward transform (MCDWT)
+### Algorithm of the direct (forward) transform (MCDWT)
 ![MCDWT](forward.png)
 
 ### Algorithm of the inverse (backward) transform (iMCDWT)
@@ -124,6 +124,11 @@ For example, if `l=2` and `n=5`:
 #### Spatial scalability
 
 Scale 1:
+
+[A.L] = iDWT(A.L,0); [B.L] = iDWT(B.L,0); [C.L] = iDWT(C.L,0);
+[A.H] = iDWT(0,A.H); [\tilde{B}.H] = iDWT(0,\tilde{B}.H); [C.H] = iDWT(0,C.H);
+A = [A.L] + [A.H]; C = [C.L] + [C.H];
+[B_A.H] = P([A.H], [B.L] -> [A.L]); [C_A.H] = P()
 
 tmp1 = DWT(V[1])
 tmp2 = iDWT(tmp1.L, 0)
