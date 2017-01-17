@@ -1,13 +1,13 @@
-# Scalable Video Transform (SVT)
+# Motion Compensated Discrete Wavelet Transform (MCDWT)
 
-## Video scalabilty
-**SVT inputs a [video][video] and outputs a video** in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution ([temporal scalability][Scalability]), lower spatial resolution ([spatial scalability][Scalability]) or/and lower quality ([quality scalability][Scalability]) can be generated. If all the transformed data is used, the original video is obtained (SVT es is a lossless transform). The video output has exactly the same number of elements than the input video (for example, no extra motion fields are produced).
+## MCDWT and video scalabilty
+**MCDWT inputs a [video][video] and outputs a video**, in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution ([temporal scalability][Scalability]), lower spatial resolution ([spatial scalability][Scalability]) or/and lower quality ([quality scalability][Scalability]) can be generated. If all the transformed data is used, then the original video is obtained (MCDWT es is a lossless transform). The video output has exactly the same number of elements than the input video (for example, no extra motion fields are produced). At this moment, we will focuse only on spatial scalability.
 
 [Scalability]: http://eeweb.poly.edu/~yao/EL6123/scalablecoding.pdf
 [video]: https://en.wikipedia.org/wiki/Video
 
 ## The 's'-levels 2D Discrete Wavelet Transform
-A<sup>[1](#myfootnote1)</sup> [2D-DWT][2D-DWT] (2 Dimensions - Discrete Wavelet Transform)q allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. This is done, for example, in [the JPEG2000 image and video compression standard][J2K].
+A<sup>[1](#myfootnote1)</sup> [2D-DWT][2D-DWT] (2 Dimensions - Discrete Wavelet Transform) generates a scalable representation of an image and by extension, of a video if we apply the DWT on all the images of the video. This is done, for example, in [the JPEG2000 image and video compression standard][J2K]. Notice that only the spatial redundancy is exploited. All the temporal redundancy is still in the video.
 
 [J2K]: https://en.wikipedia.org/wiki/JPEG_2000
 [2D-DWT]: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
@@ -28,7 +28,7 @@ A sequebce `V` of `n` images:
 ```
 
 ### Output
-A sequence `S` of `n` pyramids. For example, a 2-levels 2D-DWT looks like:
+A sequence `S` of `n` "pyramids". For example, a 2-levels 2D-DWT looks like:
 ```
 +---+---+-------+  +---+---+-------+     +---+---+-------+
 |LL2|HL2|       |  |   |   |       |     |   |   |       |
@@ -50,12 +50,12 @@ for image in V:
 ```
 
 ### Scalability
-The 2D-DWT applied to a video produces a representation scalable in the space (we can extract different videos with different spatial scales or resolutions), in the time (we can extract diferent videos with different number of frames) and in quality (we can quantize the DWT coefficients with different quantization steps to get videos of different quality).
+The 2D-DWT applied to a video produces a representation scalable in the space (we can extract different videos with different spatial scales or resolutions), in the time (we can extract diferent videos with different number of frames) and in quality (we can get the DWT coefficients with different quantization steps to reconstruct videos of different quality).
 
 ### Inverse 's'-levels inverse 2D-DWT
-In the last example, subbands `V2={S[0].LL2, S[1].LL2, ..., S[n-1].LL2}` represent the scale number 2 of the original video (the spatial resolution of this `V2` is the resolution of `V` divided by 4 in each spatial dimension).
+In the last example, subbands `V2={S[0].LL2, S[1].LL2, ..., S[n-1].LL2}` represent the scale (number) 2 of the original video (the spatial resolution of this `V2` is the resolution of `V` divided by 4 in each spatial dimension).
 
-To reconstruct the scale 1, we apply the iDWT (1-level inverse DWT) in place (this means that the output of the transform replaces the input data):
+To reconstruct the scale 1, we apply the iDWT (1-level inverse DWT) in place (this means that the output of the transform replaces all or a part of the input data):
 ```python
 for pyramid in S:
   2D_iDWT(pyramid)
@@ -64,10 +64,10 @@ for pyramid in S:
 And finally, to get the original video, we need to apply again the previous code.
 
 ### Redundancy and compression
-The 2D DWT provides an interesting feature to `S`: `S` usually has a lower entropy than `V`. This means that if we apply to `S` an entropy encoder, we can get a shorter representation of the video than if we encode `V` directly. This is a consequence that the 2D-DWT exploits the spatial redudancy of the images of the video: neighboring pixels tend to have similar values.
+The 2D DWT provides an interesting feature to `S`: `S` usually has a lower entropy than `V`. This means that if we apply to `S` an entropy encoder, we can get a shorter representation of the video than if we encode `V` directly. This is a consequence of 2D-DWT exploits the spatial redudancy of the images of the video: neighboring pixels tend to have similar values and when they are substracted, they tend to produce zeros.
 
 ## The temporal (t) DWT
-Unfortunately, the 2D-DWT does not exploit the temporal redundancy of a video. This means that we can achieve higher compression ratios if we apply a 1D-DWT along the temporal domain.
+As we have said, the 2D-DWT does not exploit the temporal redundancy of a video. This means that we can achieve higher compression ratios if we apply a 1D-DWT along the temporal domain.
 
 ### Input
 A sequence `S` of `n` pyramids.
@@ -112,6 +112,7 @@ For `l=2` and `n=5`:
 
 (X --> Y) = X depends on Y (X has been encoded using Y)
 ```
+![MCDWT](forward.svg)
 
 ### Forward SVT (examples)
 
