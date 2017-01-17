@@ -71,8 +71,8 @@
   \draw [->] (12b) -- (suma);
   \draw [->] (suma) -- (BHp);
   \draw [->] (BHp) -- node {DWT} ($(BHp2) + (0,1cm)$);
-  \draw [->] ($(BHp2) + (0.5cm,-1cm)$) -- ($(out) + (0.5cm,1cm)$);
-  \path [line] ($(DWTB.north) + (-0.5cm,-0.3cm)$) -| ($(DWTB.north) + (-0.5cm,0.5cm)$);
+  \draw [->] ($(BHp2) + (0.5cm,-0.8cm)$) -- ($(out) + (0.5cm,0.9cm)$);
+  \path [line,->] ($(DWTB.north) + (-0.5cm,-0.3cm)$) -| ($(DWTB.north) + (-0.5cm,0.5cm)$) -| ($(DWTB.north) + (-5cm,0.5cm)$) -- ($(DWTB.north) + (-5cm,-5cm)$) -- ($(DWTB.north) + (-2cm,-5cm)$) -- ($(DWTB.north) + (-2cm,-18.1cm)$) -- ($(DWTB.north) + (-0.85cm,-18.1cm)$);
 
   
 \end{tikzpicture}
