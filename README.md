@@ -112,7 +112,7 @@ For `l=2` and `n=5`:
 
 (X --> Y) = X depends on Y (X has been encoded using Y)
 ```
-![MCDWT](forward.svg)
+![MCDWT](forward.png)
 
 ### Forward SVT (examples)
 
