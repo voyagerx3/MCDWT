@@ -67,7 +67,7 @@ And finally, to get the original video, we need to apply again the previous code
 The 2D DWT provides an interesting feature to `S`: `S` usually has a lower entropy than `V`. This means that if we apply to `S` an entropy encoder, we can get a shorter representation of the video than if we encode `V` directly. This is a consequence of 2D-DWT exploits the spatial redudancy of the images of the video: neighboring pixels tend to have similar values and when they are substracted, they tend to produce zeros.
 
 ## MCDWT
-As we have said, the 2D-DWT does not exploit the temporal redundancy of a video. This means that we can achieve higher compression ratios if we apply a 1D-DWT along the temporal domain. This is exactly what MCDWT does.
+As we have said, the 2D-DWT does not exploit the temporal redundancy of a video. This means that we can achieve higher compression ratios if we apply a 1D-DWT along the temporal domain. This is exactly what MCDWT does. However, due to the temporal redundancy is generated mainly by the presence of objects in the scene of the video which are moving with respect to the camera, some sort of motion estimation and compensation must be used.
 
 ### Input
 A sequence `S` of `n` pyramids.
@@ -75,7 +75,7 @@ A sequence `S` of `n` pyramids.
 ### Output
 A sequence `T` of `n` pyramids organized in `l` temporal subbands, where each subband is a sequence of pyramids.
 
-For `l=2` and `n=5`:
+For example, if `l=2` and `n=5`:
 
 ```
       Spatial
@@ -116,9 +116,10 @@ For `l=2` and `n=5`:
 ### Algorithm of the forward transform (MCDWT)
 ![MCDWT](forward.png)
 
-### Algorithm of the backward transform (iMCDWT)
+### Algorithm of the inverse (backward) transform (iMCDWT)
+![MCDWT](backward.png)
 
-### Forward SVT (examples)
+### Data extraction
 
 #### Spatial scalability
 
