@@ -89,7 +89,7 @@ The 2D-DWT provides an interesting feature to `S`: usually, `H` subbands has a l
 As we have said, the 2D-DWT does not exploit the temporal redundancy of a video. This means that we can achieve higher compression ratios if (in addition to the 2D-DWT) we apply a 1D-DWT along the temporal domain. This is exactly what MCDWT does. However, due to the temporal redundancy is generated mainly by the presence of objects in the scene of the video which are moving with respect to the camera, some sort of motion estimation and compensation should be used.
 
 ### MCDWT input
-A sequence `S` of `n` pyramids.
+A sequence `V` of `n` images.
 
 ### MCDWT output
 A sequence `T` of `n` pyramids, organized in `l` temporal subbands, where each subband is a sequence of pyramids. The number of input and output pyramids is the same.
@@ -143,15 +143,15 @@ For example, if `l=2` and `n=5`:
 First, an example of a generation of 3 temporal scales (two iterations or levels of the transform) with 5 images:
 
 ```
-S[0] S[1] S[2] S[3] S[4]
-I[0] D[1] I[2] D[3] I[4] (predict step)
-I[0]      I[2]      I[4] (update step)
-I[0]      D[2]      I[4] (predict step)
-I[0]                I[4] (update step)
+V[0] V[1] V[2] V[3] V[4]
+V[0] D[1] V[2] D[3] V[4] (predict step)
+V[0]      V[2]      V[4] (update step)
+V[0]      D[2]      V[4] (predict step)
+V[0]                V[4] (update step)
 ---- -------------------
 GOP0        GOP1
 
-S[2] = {I[0], I[4]}
+[2] = {I[0], I[4]}
 S[1] = {D[2]}
 S[0] = {D[1], D[3]}
 
@@ -161,19 +161,22 @@ To generate Prediction(D[2]) we search (I[2].2).0 into (I[0].2).0 and (I[4].2).0
 
 Next, an algorithm. Notice that `O` is computed in-place (of `I`,  for this reason,`I` is returned).
 ```
-x = 2 # An offset
+x = 2 # Initial offset of the predicted image (image B)
 for each temporal level:
   i = 0 # Image index
   while i < (T//x):
-    D = DWT_Step(I[x*i+x//2-1], I[x*i+x//2], I[x*i+x//2+1])
-    I[x*i+x//2] = D
+    MCDWT_step(I[x*i+x//2-1], I[x*i+x//2], I[x*i+x//2+1]) # A, B and C. In place
     i += 1
   x *= 2
 return I
 ```
 
-
-
+Example (3 temporal scales (two iterations or levels of the transform) and 5 images):
+```
+V[0] V[1] V[2] V[3] V[4]
+ A    B    C              <- First call of MCDWT_step
+           A    B    C    <- Second call of MCDWT_step
+```
 ### Data extraction examples
 
 #### Providing spatial scalability
