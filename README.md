@@ -13,7 +13,7 @@ A<sup>[1](#myfootnote1)</sup> [2D-DWT][2D-DWT] (2 Dimensions - Discrete Wavelet 
 [2D-DWT]: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
 
 ### Input
-A sequebce `V` of `n` images:
+A sequence `V` of `n` images:
 ```
                                                          x
 +---------------+  +---------------+     +---------------+
