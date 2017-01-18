@@ -140,9 +140,43 @@ For example, if `l=2` and `n=5`:
 
 ### Forward MCDWT
 
-### Data extraction
+First, an example of a generation of 3 temporal scales (two iterations or levels of the transform) with 5 images:
 
-#### Spatial scalability
+```
+S[0] S[1] S[2] S[3] S[4]
+I[0] D[1] I[2] D[3] I[4] (predict step)
+I[0]      I[2]      I[4] (update step)
+I[0]      D[2]      I[4] (predict step)
+I[0]                I[4] (update step)
+---- -------------------
+GOP0        GOP1
+
+S[2] = {I[0], I[4]}
+S[1] = {D[2]}
+S[0] = {D[1], D[3]}
+
+To generate Prediction(D[2]) we search (I[2].2).0 into (I[0].2).0 and (I[4].2).0.
+
+```
+
+Next, an algorithm. Notice that `O` is computed in-place (of `I`,  for this reason,`I` is returned).
+```
+x = 2 # An offset
+for each temporal level:
+  i = 0 # Image index
+  while i < (T//x):
+    D = DWT_Step(I[x*i+x//2-1], I[x*i+x//2], I[x*i+x//2+1])
+    I[x*i+x//2] = D
+    i += 1
+  x *= 2
+return I
+```
+
+
+
+### Data extraction examples
+
+#### Providing spatial scalability
 
 Scale 1:
 
@@ -418,39 +452,6 @@ A sequence `I` of images in the wavelet domain.
 A sequence `S` of temporal subbands, where each subband `S[l]` is a sequence of images in the wavelet domain.
 
 ## Algorithm
-
-First, an example of a generation of 3 temporal scales (two iterations or levels of the transform) with 5 images:
-
-```
-I[0] I[1] I[2] I[3] I[4]
-I[0] D[1] I[2] D[3] I[4] (predict step)
-I[0]      I[2]      I[4] (update step)
-I[0]      D[2]      I[4] (predict step)
-I[0]                I[4] (update step)
----- -------------------
-GOP0        GOP1
-
-S[2] = {I[0], I[4]}
-S[1] = {D[2]}
-S[0] = {D[1], D[3]}
-
-To generate Prediction(D[2]) we search (I[2].2).0 into (I[0].2).0 and (I[4].2).0.
-
-```
-
-Next, an algorithm. Notice that `O` is computed in-place (of `I`,  for this reason,`I` is returned).
-```
-x = 2 # An offset
-for each temporal level:
-  i = 0 # Image index
-  while i < (T//x):
-    D = DWT_Step(I[x*i+x//2-1], I[x*i+x//2], I[x*i+x//2+1])
-    I[x*i+x//2] = D
-    i += 1
-  x *= 2
-return I
-```
-
 
 
 # Temporal Decomposition
