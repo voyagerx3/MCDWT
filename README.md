@@ -144,19 +144,19 @@ n = 5 # Number of images
 l = 2 # Number of temporal scales
 
 x = 2
-2D_DWT(V[0]) # 1-level 2D-DWT
 for j in range(l):
-  i = 0 # Image index
-  while i < (n//x):
-    A = V[x*i] # Pointer copy
-    B = V[x*i+x//2]
-    C = V[x*i+x]
-    2D_DWT(B)
-    2D_DWT(C)
-    MCDWT_step(A, B, C) # In place
-    i += 1
-    V[i] = V[i].L # Next iteration, we apply MCDWT to the LL subbands
-  x *= 2
+    2D_DWT(V[0]) # 1-level 2D-DWT
+    i = 0 # Image index
+    while i < (n//x):
+        A = V[x*i] # Pointer copy
+        B = V[x*i+x//2]
+        C = V[x*i+x]
+        2D_DWT(B)
+        2D_DWT(C)
+        MCDWT_step(A, B, C) # In place
+        i += 1
+        A = A.L; B = B.L; C = C.L # In the next temporal scale, we apply MCDWT to the LL subbands 
+    x *= 2
 ```
 
 Example (3 temporal scales (`l=2` iterations of the transform) and `n=5` images):
@@ -175,42 +175,43 @@ n = 5 # Number of images
 l = 2 # Number of temporal scales
 
 x = 2**l
-2D_DWT(V[0]) # 1-level 2D-DWT
 for j in range(l):
   i = 0 # Image index
   while i < (n//x):
     A = V[x*i] # Pointer copy
     B = V[x*i+x//2]
     C = V[x*i+x]
-    2D_DWT(B)
-    2D_DWT(C)
-    MCDWT_step(A, B, C) # In place
+    iMCDWT_step(A, B, C) # In place
     i += 1
-    V[i] = V[i].L # Next iteration, we apply MCDWT to the LL subbands
   x //= 2
 ```
 
-
 ### Data extraction examples
 
-#### Providing spatial scalability
+#### Spatial scalability
+
+Scale 2:
+
+Provided by subbands L of the pyramids.
 
 Scale 1:
+
+Provided after running iMCDWT one iteration. For 3 pyramids A={A.L,A.H}, B={B.L,\tilde{B}.H} and C={C.L,C.H} where the subband L is the scale 2, the scale 1 is recostructed by (see Algoithm iMCDWT_step):
 
 [A.L] = iDWT(A.L,0); [B.L] = iDWT(B.L,0); [C.L] = iDWT(C.L,0);
 [A.H] = iDWT(0,A.H); [\tilde{B}.H] = iDWT(0,\tilde{B}.H); [C.H] = iDWT(0,C.H);
 A = [A.L] + [A.H]; C = [C.L] + [C.H];
-[B_A.H] = P([A.H], [B.L] -> [A.L]); [C_A.H] = P()
+[B_A.H] = P([A.H], [B.L] -> [A.L]); [B_C.H] = P([C.H], [B.L] -> [C.L]);
+[B.H] = [\tilde{B}.H] + ([B_A.H] + [B_C.H])/2;
+B = [B.L] + [B.H]
 
-tmp1 = DWT(V[1])
-tmp2 = iDWT(tmp1.L, 0)
-tmp2 -= (P(V[0].0, tmp2 -> V[0].0) + P(V[2].0, tmp2 -> V[2].0)/2
-tmp2 = DWT(tmp2)
-V[1] = {tmp1.L, tmp2.H}
+Scale 2:
 
-tmp = iDWT(V[1].L, 0)
-V[1] += 
+Repeat the previous computations.
 
+Scale -1:
+
+Repeat the previous computations, placing 0's in the H subbands.
 
 ### Inverse SVT (examples)
 
