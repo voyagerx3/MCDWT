@@ -44,10 +44,10 @@ A sequence `S` of `n` "pyramids". For example, a 2-levels 2D-DWT looks like:
 where `L` and `H` stands for *low-pass filtered* and *high-pass filtered*, respectively. The integer > 1 that follows these letters represents the subband level. For the sake of simplicity, we will denote the subbands `{LH, HL, HH}` as only `H`, and `LL` as only `L`. 
 
 ### Algorithm
-```python
-S = []
+```pytho
 for image in V:
-  S.append(2D_DWT(image))
+  2D_DWT(image) # In place
+S = V # Pointer copy
 ```
 
 ### Scalability
@@ -59,7 +59,8 @@ In the last example, subbands `V2={S[0].LL2, S[1].LL2, ..., S[n-1].LL2}` represe
 To reconstruct the scale 1, we apply the iDWT (1-level inverse DWT) in place (this means that the output of the transform replaces all or a part of the input data):
 ```python
 for pyramid in S:
-  2D_iDWT(pyramid)
+  2D_iDWT(pyramid) # In place
+V = S # Pointer copy
 ```
 
 And finally, to get the original video, we need to apply again the previous code.
