@@ -213,7 +213,7 @@ Scale -1:
 
 Repeat the previous computations, placing 0's in the H subbands.
 
-<1--
+<!--
 ### Inverse SVT (examples)
 
 #### Spatial scalability
