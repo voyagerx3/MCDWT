@@ -41,6 +41,7 @@ A sequence `S` of `n` "pyramids". For example, a 2-levels 2D-DWT looks like:
 +-------+-------+  +-------+-------+     +-------+-------+
        S[0]               S[1]                  S[2]
 ```
+where `L` and `H` stands for *low-pass filtered* and *high-pass filtered*, respectively. The integer > 1 that follows these letters represents the subband level. For the sake of simplicity, we will denote the subbands `{LH, HL, HH}` as only `H`, and `LL` as only `L`. 
 
 ### Algorithm
 ```python
