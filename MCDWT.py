@@ -9,4 +9,5 @@ for j in range(l): # Number of temporal scales
         print('B = ', x*i+x//2)
         print('C = ', x*i+x)
         i += 1
+        print('i = ', i)
     x *= 2
