@@ -3,8 +3,22 @@
 ## MCDWT and video scalabilty
 **MCDWT inputs a [video][video] and outputs a video**, in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution ([temporal scalability][Scalability]), lower spatial resolution ([spatial scalability][Scalability]) or/and lower quality ([quality scalability][Scalability]) can be generated. If all the transformed data is used, then the original video is obtained (MCDWT es is a lossless transform). The video output has exactly the same number of elements than the input video (for example, no extra motion fields are produced). At this moment, we will focuse only on spatial scalability.
 
-[Scalability]: http://eeweb.poly.edu/~yao/EL6123/scalablecoding.pdf
+[Scalability]: http://inst.eecs.berkeley.edu/~ee290t/sp04/lectures/videowavelet_UCB1-3.pdf
 [video]: https://en.wikipedia.org/wiki/Video
+
+## Video transform choices
+To obtain a multiresolution version or a video, [the<sup>[1](#myfootnote1)</sup> DWT (Discrete Wavelet Transform)][DWT] can be applied along temporal (`t`) and spatial domains (`2D`). At this point, two alternatives arise: (1) a `t+2D` transform or (2) a `2D+t` transform. In a `t+2D` transform, the video is first analyzed over the time domain and next, over the spatial domain. A `2D+t` transform does just the opposite.
+
+[DWT]: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
+
+Each choice has a number of pros and cons. For example, in a `t+2D` transform we can apply directly any image predictor based on motion estimation because the input is a normal video. However, if we implement a `2D+t` transform, the input to the motion estimator is a sequence of images in the DWT domain. [The overwhelming majority of DWT's are not shift invariant][Friendly Guide], which basically means that DWT(`s(t)`) `!=` DWT(`s(t+x)`), where `x` is a displacement of the signal `s(t)` along the time domain. Therefore, motion estimators which compare pixel values will not work on the DWT domain. On the other hand, if we want to provide true spatial scalability (processing only those spatial resolutions (scales) necessary to get a spatially scaled of our video), a `t+2D` transformed video is not suitable because the first step of the forward transform (`t`) should be reversed at full resolution in the backward transform (as the forward transform did).
+
+[Friendly Guide]: http://www.polyvalens.com/blog/wavelets/theory
+
+## Wavelet and pyramid domains
+Indeed, the DWT allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. However, this can be also done with [Gaussian and Laplacian pyramids][Pyramids]. Image pyramids are interesting because they are shift invariant and therefore, one can operate within the scales as they are *normal* images. However, as a consecuence of image pyramids representations are not critically sampled, they need more memory than DWT ones and this is a drawback when compressing. Luckily, it is very fast to convert a laplacian pyramid representation into a DWT representation, and viceversa. For this reason, even if we use the DWT to work with our images, we can suppose at any moment that we are working with the pyramid of those images.
+
+[Pyramids]: https://en.wikipedia.org/wiki/Pyramid_(image_processing)
 
 ## The 's'-levels 2D Discrete Wavelet Transform
 A<sup>[1](#myfootnote1)</sup> [2D-DWT][2D-DWT] (2 Dimensions - Discrete Wavelet Transform) generates a scalable representation of an image and by extension, of a video if we apply the DWT on all the images of the video. This is done, for example, in [the JPEG2000 image and video compression standard][J2K]. Notice that only the spatial redundancy is exploited. All the temporal redundancy is still in the video.
@@ -13,7 +27,7 @@ A<sup>[1](#myfootnote1)</sup> [2D-DWT][2D-DWT] (2 Dimensions - Discrete Wavelet 
 [2D-DWT]: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
 
 ### Input
-A sequebce `V` of `n` images:
+A sequence `V` of `n` images:
 ```
                                                          x
 +---------------+  +---------------+     +---------------+
@@ -41,12 +55,13 @@ A sequence `S` of `n` "pyramids". For example, a 2-levels 2D-DWT looks like:
 +-------+-------+  +-------+-------+     +-------+-------+
        S[0]               S[1]                  S[2]
 ```
+where `L` and `H` stands for *low-pass filtered* and *high-pass filtered*, respectively. The integer > 1 that follows these letters represents the subband level. For the sake of simplicity, we will denote the subbands `{LH, HL, HH}` as only `H`, and `LL` as only `L`. 
 
 ### Algorithm
-```python
-S = []
+```pytho
 for image in V:
-  S.append(2D_DWT(image))
+  2D_DWT(image) # In place
+S = V # Pointer copy
 ```
 
 ### Scalability
@@ -55,27 +70,31 @@ The 2D-DWT applied to a video produces a representation scalable in the space (w
 ### Inverse 's'-levels inverse 2D-DWT
 In the last example, subbands `V2={S[0].LL2, S[1].LL2, ..., S[n-1].LL2}` represent the scale (number) 2 of the original video (the spatial resolution of this `V2` is the resolution of `V` divided by 4 in each spatial dimension).
 
-To reconstruct the scale 1, we apply the iDWT (1-level inverse DWT) in place (this means that the output of the transform replaces all or a part of the input data):
+To reconstruct the scale 1, we apply the 2D_iDWT (1-level 2D inverse DWT) in place (this means that the output of the transform replaces all or a part of the input data):
 ```python
 for pyramid in S:
-  2D_iDWT(pyramid)
+  2D_iDWT(pyramid) # In place
+V = S # Pointer copy
 ```
 
-And finally, to get the original video, we need to apply again the previous code.
+And finally, to get the original video, we need to apply again the previous code over `S = V`.
+
+### Implementation of 2D_DWT and 2D_iDWT
+See for example, [pywt.wavedec2()](https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2) at [PyWavelets](https://pywavelets.readthedocs.io/en/latest/index.html).
 
 ### Redundancy and compression
-The 2D DWT provides an interesting feature to `S`: `S` usually has a lower entropy than `V`. This means that if we apply to `S` an entropy encoder, we can get a shorter representation of the video than if we encode `V` directly. This is a consequence of 2D-DWT exploits the spatial redudancy of the images of the video: neighboring pixels tend to have similar values and when they are substracted, they tend to produce zeros.
+The 2D-DWT provides an interesting feature to `S`: usually, `H` subbands has a lower entropy than `V`. This means that if we apply to `S` an entropy encoder, we can get a shorter representation of the video than if we encode `V` directly. This is a consequence of 2D-DWT exploits the spatial redudancy of the images of the video (neighboring pixels tend to have similar values and when they are substracted, they tend to produce zeros).
 
-## MCDWT
-As we have said, the 2D-DWT does not exploit the temporal redundancy of a video. This means that we can achieve higher compression ratios if we apply a 1D-DWT along the temporal domain. This is exactly what MCDWT does.
+## Why MCDWT?
+As we have said, the 2D-DWT does not exploit the temporal redundancy of a video. This means that we can achieve higher compression ratios if (in addition to the 2D-DWT) we apply a 1D-DWT along the temporal domain. This is exactly what MCDWT does. However, due to the temporal redundancy is generated mainly by the presence of objects in the scene of the video which are moving with respect to the camera, some sort of motion estimation and compensation should be used.
 
-### Input
-A sequence `S` of `n` pyramids.
+### MCDWT input
+A sequence `V` of `n` images.
 
-### Output
-A sequence `T` of `n` pyramids organized in `l` temporal subbands, where each subband is a sequence of pyramids.
+### MCDWT output
+A sequence `T` of `n` pyramids, organized in `l` temporal subbands, where each subband is a sequence of pyramids. The number of input and output pyramids is the same.
 
-For `l=2` and `n=5`:
+For example, if `l=2` and `n=5`:
 
 ```
       Spatial
@@ -113,16 +132,68 @@ For `l=2` and `n=5`:
 (X --> Y) = X depends on Y (X has been encoded using Y)
 ```
 
-### Algorithm of the forward transform (MCDWT)
+### Forward (direct) MCDWT step
 ![MCDWT](forward.png)
 
-### Algorithm of the backward transform (iMCDWT)
+### Backward (inverse) MCDWT step
+![MCDWT](backward.png)
 
-### Forward SVT (examples)
+### Forward MCDWT
 
-#### Spatial scalability
+First, an example of a generation of 3 temporal scales (two iterations or levels of the transform) with 5 images:
+
+```
+V[0] V[1] V[2] V[3] V[4]
+V[0] D[1] V[2] D[3] V[4] (predict step)
+V[0]      V[2]      V[4] (update step)
+V[0]      D[2]      V[4] (predict step)
+V[0]                V[4] (update step)
+---- -------------------
+GOP0        GOP1
+
+[2] = {I[0], I[4]}
+S[1] = {D[2]}
+S[0] = {D[1], D[3]}
+
+To generate Prediction(D[2]) we search (I[2].2).0 into (I[0].2).0 and (I[4].2).0.
+
+```
+
+Next, an algorithm. Notice that `O` is computed in-place (of `I`,  for this reason,`I` is returned).
+```
+x = 2 # Initial offset of the predicted image (image B)
+2D_DWT(V[0]) # 1-level 2D-DWT
+for each temporal scale:
+  i = 0 # Image index
+  while i < (T//x):
+    A = V[x*i+x//2-1] # Pointer copy
+    B = V[x*i+x//2]
+    C = V[x*i+x//2+1]
+    2D_DWT(B)
+    2D_DWT(C)
+    MCDWT_step(A, B, C) # In place
+    i += 1
+  x *= 2
+return I
+```
+
+Example (3 temporal scales (two iterations of the transform) and 5 images):
+```
+V[0] V[1] V[2] V[3] V[4]
+ A    B    C              <- First call of MCDWT_step
+           A    B    C    <- Second call of MCDWT_step
+ A         B         C    <- Third call of MCDWT_step
+```
+### Data extraction examples
+
+#### Providing spatial scalability
 
 Scale 1:
+
+[A.L] = iDWT(A.L,0); [B.L] = iDWT(B.L,0); [C.L] = iDWT(C.L,0);
+[A.H] = iDWT(0,A.H); [\tilde{B}.H] = iDWT(0,\tilde{B}.H); [C.H] = iDWT(0,C.H);
+A = [A.L] + [A.H]; C = [C.L] + [C.H];
+[B_A.H] = P([A.H], [B.L] -> [A.L]); [C_A.H] = P()
 
 tmp1 = DWT(V[1])
 tmp2 = iDWT(tmp1.L, 0)
@@ -263,24 +334,9 @@ Sort the wavelet coefficients by magnitude (supposing an orthogonal transform)
 
 
 
-## Wavelets and pyramids
-The <sup>[1](#myfootnote1)</sup> DWT (Discrete Wavelet Transform)][DWT] allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. However, this can be also done with [Gaussian and Laplacian pyramids][Pyramids]. Image pyramids are interesting because they are shift invariant and therefore, one can operate within the scales as they are *normal* images.
-
-[DWT]: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
-
-Image pyramids representations need more memory than DWT ones and this is a drawback when compressing. Luckily, it is very fast to convert a laplacian pyramid representation into a DWT representation and viceversa. For this reason, even if we use the DWT to work with our images, we can suppose at any moment that we can also working with the pyramid of those images.
-
-[Pyramids]: https://en.wikipedia.org/wiki/Pyramid_(image_processing)
 
 
 
-## Video transforming choices
-To obtain a multiresolution version or a video (a sequence of images), [the<sup>[1](#myfootnote1)</sup> DWT (Discrete Wavelet Transform)][DWT] is applied along temporal (`t`) and spatial domains (`2D`). At this point, two alternatives arise: (1) a `t+2D` transform or (2) a `2D+t` transform. In a `t+2D` transform, the video is first analyzed over the time domain and next, over the spatial domain. A `2D+t` transform does just the opposite.
-
-
-Each choice has a number of pros and cons. For example, in a `t+2D` transform we can apply directly any image predictor based on motion estimation because the input is a normal video. However, if we implement a `2D+t` transform, the input to the motion estimator is a sequence of images in the DWT domain. [The overwhelming majority of DWT's are not shift invariant][Friendly Guide], which basically means that DWT(`s(t)`) `!=` DWT(`s(t+x)`), where `x` is a displacement of the signal `s(t)` along the time domain. Therefore, motion estimators which compare pixel values will not work on the DWT domain. On the other hand, if we want to provide true spatial scalability (processing only those spatial resolutions (scales) necessary to get a spatially scaled of our video), a `t+2D` transformed video could be unsuitable because the first step of the forward transform (`t`) should be reversed at full resolution in the backward transform (as the forward transform did).
-
-[Friendly Guide]: http://www.polyvalens.com/blog/wavelets/theory
 
 <!--That said, this project implements a t+2D version for its simplicity at the t stage.-->
 
@@ -392,7 +448,6 @@ A transformed image O.
 
 ## Algorithm
 
-See [pywt.wavedec2()](https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2) at [PyWavelets](https://pywavelets.readthedocs.io/en/latest/index.html).
 
 # Temporal Analysis
 
@@ -407,39 +462,6 @@ A sequence `I` of images in the wavelet domain.
 A sequence `S` of temporal subbands, where each subband `S[l]` is a sequence of images in the wavelet domain.
 
 ## Algorithm
-
-First, an example of a generation of 3 temporal scales (two iterations or levels of the transform) with 5 images:
-
-```
-I[0] I[1] I[2] I[3] I[4]
-I[0] D[1] I[2] D[3] I[4] (predict step)
-I[0]      I[2]      I[4] (update step)
-I[0]      D[2]      I[4] (predict step)
-I[0]                I[4] (update step)
----- -------------------
-GOP0        GOP1
-
-S[2] = {I[0], I[4]}
-S[1] = {D[2]}
-S[0] = {D[1], D[3]}
-
-To generate Prediction(D[2]) we search (I[2].2).0 into (I[0].2).0 and (I[4].2).0.
-
-```
-
-Next, an algorithm. Notice that `O` is computed in-place (of `I`,  for this reason,`I` is returned).
-```
-x = 2 # An offset
-for each temporal level:
-  i = 0 # Image index
-  while i < (T//x):
-    D = DWT_Step(I[x*i+x//2-1], I[x*i+x//2], I[x*i+x//2+1])
-    I[x*i+x//2] = D
-    i += 1
-  x *= 2
-return I
-```
-
 
 
 # Temporal Decomposition
