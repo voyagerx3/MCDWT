@@ -162,20 +162,27 @@ To generate Prediction(D[2]) we search (I[2].2).0 into (I[0].2).0 and (I[4].2).0
 Next, an algorithm. Notice that `O` is computed in-place (of `I`,  for this reason,`I` is returned).
 ```
 x = 2 # Initial offset of the predicted image (image B)
-for each temporal level:
+2D_DWT(V[0]) # 1-level 2D-DWT
+for each temporal scale:
   i = 0 # Image index
   while i < (T//x):
-    MCDWT_step(I[x*i+x//2-1], I[x*i+x//2], I[x*i+x//2+1]) # A, B and C. In place
+    A = V[x*i+x//2-1] # Pointer copy
+    B = V[x*i+x//2]
+    C = V[x*i+x//2+1]
+    2D_DWT(B)
+    2D_DWT(C)
+    MCDWT_step(A, B, C) # In place
     i += 1
   x *= 2
 return I
 ```
 
-Example (3 temporal scales (two iterations or levels of the transform) and 5 images):
+Example (3 temporal scales (two iterations of the transform) and 5 images):
 ```
 V[0] V[1] V[2] V[3] V[4]
  A    B    C              <- First call of MCDWT_step
            A    B    C    <- Second call of MCDWT_step
+ A         B         C    <- Third call of MCDWT_step
 ```
 ### Data extraction examples
 
