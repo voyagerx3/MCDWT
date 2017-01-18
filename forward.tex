@@ -32,14 +32,14 @@
 
   \draw
   node [block] (AL) {$[A.L]$}
-  node [node distance=3.5cm, right of=AL] (DWTA) {\DWT{A.L}{A.H}}
+  node [node distance=3.5cm, right of=AL, label=$A$] (DWTA) {\DWT{A.L}{A.H}}
   node [block, right of=DWTA] (BL) {$[B.L]$}
-  node [node distance=3.5cm, right of=BL] (DWTB) {\DWT{B.L}{B.H}}
+  node [node distance=3.5cm, right of=BL, label=$B$] (DWTB) {\DWT{B.L}{B.H}}
   node [block, right of=DWTB] (CL) {$[C.L]$}
-  node [node distance=3.5cm, right of=CL] (DWTC) {\DWT{C.L}{C.H}}
-  node [block, above of=DWTA] (A) {$A$}
-  node [block, above of=DWTB] (B) {$B$}
-  node [block, above of=DWTC] (C) {$C$}
+  node [node distance=3.5cm, right of=CL, label=$C$] (DWTC) {\DWT{C.L}{C.H}}
+  %node [block, above of=DWTA] (A) {$A$}
+  %node [block, above of=DWTB] (B) {$B$}
+  %node [block, above of=DWTC] (C) {$C$}
   node [block, below of=DWTA] (AH) {$[A.H]$}
   node [block, below of=DWTB] (BH) {$[B.H]$}
   node [block, below of=DWTC] (CH) {$[C.H]$}
@@ -53,11 +53,11 @@
   node [node distance=3.5cm, below of=BHp2] (out) {\DWT{B.L}{\tilde{B}.H}}
   ;
   
-  \draw [->] (A) -- node {DWT} ($(DWTA) + (0,1cm)$);
+  %\draw [->] (A) -- node {DWT} ($(DWTA) + (0,1cm)$);
   \draw [->] ($(DWTA) + (-1cm,0.5cm)$) -- node[below] {iDWT} (AL);
-  \draw [->] (B) -- node {DWT} ($(DWTB) + (0,1cm)$);
+  %\draw [->] (B) -- node {DWT} ($(DWTB) + (0,1cm)$);
   \draw [->] ($(DWTB) + (-1cm,0.5cm)$) -- node[below] {iDWT} (BL);
-  \draw [->] (C) -- node {DWT} ($(DWTC) + (0,1cm)$);
+  %\draw [->] (C) -- node {DWT} ($(DWTC) + (0,1cm)$);
   \draw [->] ($(DWTC) + (-1cm,0.5cm)$) -- node[below] {iDWT} (CL);
   \draw [->] ($(DWTA) + (0.5cm,-1cm)$) -- node[left] {iDWT} (AH);
   \draw [->] ($(DWTB) + (0.5cm,-1cm)$) -- node {iDWT} (BH);
