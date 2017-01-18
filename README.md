@@ -213,6 +213,7 @@ Scale -1:
 
 Repeat the previous computations, placing 0's in the H subbands.
 
+<1--
 ### Inverse SVT (examples)
 
 #### Spatial scalability
@@ -603,6 +604,8 @@ Temporal Transform = Motion Compensation (MC) in the LPT
 Inverse Temporal Transform = Inverse MC in the LPT
 
 Progressive Entropy Compressor = [MSB](https://en.wikipedia.org/wiki/Most_significant_bit) to [LSB](https://en.wikipedia.org/wiki/Least_significant_bit) [bit-plane](https://en.wikipedia.org/wiki/Bit_plane) encoder. The top floor of the pyramid is compressed using 0-Order Binary Arithmetic Coding (0OBAC)
+
+-->
 
 <!-- Footnotes -->
 <a name="myfootnote1">1</a>: there are infinite transforms. 
