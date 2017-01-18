@@ -139,33 +139,15 @@ For example, if `l=2` and `n=5`:
 ![MCDWT](backward.png)
 
 ### Forward MCDWT
-
-First, an example of a generation of 3 temporal scales (two iterations or levels of the transform) with 5 images:
-
 ```
-V[0] V[1] V[2] V[3] V[4]
-V[0] D[1] V[2] D[3] V[4] (predict step)
-V[0]      V[2]      V[4] (update step)
-V[0]      D[2]      V[4] (predict step)
-V[0]                V[4] (update step)
----- -------------------
-GOP0        GOP1
+n = 5 # Number of images
+l = 2 # Number of temporal scales
 
-[2] = {I[0], I[4]}
-S[1] = {D[2]}
-S[0] = {D[1], D[3]}
-
-To generate Prediction(D[2]) we search (I[2].2).0 into (I[0].2).0 and (I[4].2).0.
-
-```
-
-Next, an algorithm. Notice that `O` is computed in-place (of `I`,  for this reason,`I` is returned).
-```
-x = 2 # Initial offset of the predicted image (image B)
+x = 2
 2D_DWT(V[0]) # 1-level 2D-DWT
-for each temporal scale:
+for j in range(l):
   i = 0 # Image index
-  while i < (T//x):
+  while i < (n//x):
     A = V[x*i+x//2-1] # Pointer copy
     B = V[x*i+x//2]
     C = V[x*i+x//2+1]
@@ -173,16 +155,18 @@ for each temporal scale:
     2D_DWT(C)
     MCDWT_step(A, B, C) # In place
     i += 1
+    V[i] = V[i].L # Next iteration, we apply MCDWT to the LL subbands
   x *= 2
-return I
 ```
 
-Example (3 temporal scales (two iterations of the transform) and 5 images):
+Example (3 temporal scales (`l=2` iterations of the transform) and `n=5` images):
 ```
 V[0] V[1] V[2] V[3] V[4]
  A    B    C              <- First call of MCDWT_step
            A    B    C    <- Second call of MCDWT_step
  A         B         C    <- Third call of MCDWT_step
+---- -------------------
+GOP0        GOP1
 ```
 ### Data extraction examples
 
