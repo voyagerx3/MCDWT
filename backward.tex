@@ -31,11 +31,11 @@
 \begin{tikzpicture}[auto, >=triangle 45]
 
   \draw node [block] (AL) {$[A.L]$};
-  \draw node [node distance=3.5cm, right of=AL] (DWTA) {\DWT{A.L}{A.H}};
+  \draw node [node distance=3.5cm, right of=AL, label=$A$] (DWTA) {\DWT{A.L}{A.H}};
   \draw node [block, right of=DWTA] (BL) {$[B.L]$};
-  \draw node [node distance=3.5cm, right of=BL] (DWTB) {\DWT{B.L}{\tilde{B}.H}};
+  \draw node [node distance=3.5cm, right of=BL, label=$B$] (DWTB) {\DWT{B.L}{\tilde{B}.H}};
   \draw node [block, right of=DWTB] (CL) {$[C.L]$};
-  \draw node [node distance=3.5cm, right of=CL] (DWTC) {\DWT{C.L}{C.H}};
+  \draw node [node distance=3.5cm, right of=CL, label=$C$] (DWTC) {\DWT{C.L}{C.H}};
   \draw node [block, below of=DWTA] (AH) {$[A.H]$};
   \draw node [block, below of=DWTB] (BHp) {$[\tilde{B}.H]$};
   \draw node [block, below of=DWTC] (CH) {$[C.H]$};
