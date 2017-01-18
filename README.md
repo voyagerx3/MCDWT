@@ -148,9 +148,9 @@ x = 2
 for j in range(l):
   i = 0 # Image index
   while i < (n//x):
-    A = V[x*i+x//2-1] # Pointer copy
+    A = V[x*i] # Pointer copy
     B = V[x*i+x//2]
-    C = V[x*i+x//2+1]
+    C = V[x*i+x]
     2D_DWT(B)
     2D_DWT(C)
     MCDWT_step(A, B, C) # In place
@@ -168,6 +168,29 @@ V[0] V[1] V[2] V[3] V[4]
 ---- -------------------
 GOP0        GOP1
 ```
+
+### Backward MCDWT
+```
+n = 5 # Number of images
+l = 2 # Number of temporal scales
+
+x = 2**l
+2D_DWT(V[0]) # 1-level 2D-DWT
+for j in range(l):
+  i = 0 # Image index
+  while i < (n//x):
+    A = V[x*i] # Pointer copy
+    B = V[x*i+x//2]
+    C = V[x*i+x]
+    2D_DWT(B)
+    2D_DWT(C)
+    MCDWT_step(A, B, C) # In place
+    i += 1
+    V[i] = V[i].L # Next iteration, we apply MCDWT to the LL subbands
+  x //= 2
+```
+
+
 ### Data extraction examples
 
 #### Providing spatial scalability
