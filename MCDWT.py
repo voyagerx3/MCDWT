@@ -2,7 +2,7 @@ n = 9 # Number of images
 l = 3 # Number of temporal scales
 
 x = 2
-for l in range(3): # Number of temporal scales
+for l in range(l): # Number of temporal scales
     i = 0
     while i < (n//x):
         print('A = ', x*i)
