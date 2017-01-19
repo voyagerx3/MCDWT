@@ -7,7 +7,7 @@
 [video]: https://en.wikipedia.org/wiki/Video
 
 ## Video transform choices
-To obtain a multiresolution version or a video, [the<sup>[1](#myfootnote1)</sup> DWT (Discrete Wavelet Transform)][DWT] can be applied along temporal (`t`) and spatial domains (`2D`). At this point, two alternatives arise: (1) a `t+2D` transform or (2) a `2D+t` transform. In a `t+2D` transform, the video is first analyzed over the time domain and next, over the spatial domain. A `2D+t` transform does just the opposite.
+To obtain a multiresolution version or a video, the<sup>[1](#myfootnote1)</sup> [DWT (Discrete Wavelet Transform)][DWT] can be applied along temporal (`t`) and spatial domains (`2D`). At this point, two alternatives arise: (1) a `t+2D` transform or (2) a `2D+t` transform. In a `t+2D` transform, the video is first analyzed over the time domain and next, over the spatial domain. A `2D+t` transform does just the opposite.
 
 [DWT]: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
 
