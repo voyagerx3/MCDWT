@@ -218,14 +218,25 @@ Provided by subbands L of the pyramids.
 
 Scale 1:
 
-Provided after running iMCDWT one iteration. For 3 pyramids A={A.L,A.H}, B={B.L,\tilde{B}.H} and C={C.L,C.H} where the subband L is the scale 2, the scale 1 is recostructed by (see Algoithm iMCDWT_step):
+Provided after running iMCDWT one iteration. For 3 pyramids A={A.L,A.H}, B={B.L,~B.H} and C={C.L,C.H} where the subband L is the scale 2, the scale 1 is recostructed by (see Algoithm iMCDWT_step):
 
-[A.L] = iDWT(A.L,0); [B.L] = iDWT(B.L,0); [C.L] = iDWT(C.L,0);
-[A.H] = iDWT(0,A.H); [\tilde{B}.H] = iDWT(0,\tilde{B}.H); [C.H] = iDWT(0,C.H);
-A = [A.L] + [A.H]; C = [C.L] + [C.H];
-[B_A.H] = P([A.H], [B.L] -> [A.L]); [B_C.H] = P([C.H], [B.L] -> [C.L]);
-[B.H] = [\tilde{B}.H] + ([B_A.H] + [B_C.H])/2;
-B = [B.L] + [B.H]
+[A.L] = iDWT(A.L,0);
+[A.H] = iDWT(0,A.H);
+V[0] = [A.L] + [A.H];
+[B.L] = 2D_iDWT(V[1].L,0);
+[~B.H] = 2D_iDWT(0,V[1].H);
+[C.L] = 2D_iDWT(V[2].L,0);
+[C.H] = 2D_iDWT(0,V[2].H);
+V[2] = [C.L] + [C.H] 
+[B.L]->[A.L] = ME([B.L], [A.L])
+[B.L]->[C.L] = ME([B.L], [C.L])
+[B.H]_A = MC([A.H], [B.L]->[A.L])
+[B.H]_C = MC([C.H], [B.L]->[C.L])
+[B.H] = [~B.H] + int(round(([B.H]_A + [B.H]_C)/2.0))
+V[1] = [B.L] + [B.H]
+[A.L] = [C.L]
+[A.H] = [C.H]
+...
 
 Scale 2:
 
