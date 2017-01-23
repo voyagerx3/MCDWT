@@ -186,8 +186,8 @@ l = 2 # Number of temporal scales
 
 x = 2**l
 for j in range(l):
-    [A.L] = iDWT(V[0].L, 0)
-    [A.H] = iDWT(0, V[0].H)
+    [A.L] = 2D_iDWT(V[0].L, 0)
+    [A.H] = 2D_iDWT(0, V[0].H)
     V[0] = [A.L] + [A.H]
     i = 0 # Image index
     while i < (n//x):
