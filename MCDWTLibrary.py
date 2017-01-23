@@ -2,12 +2,12 @@ import numpy as np
 import cv2
 import pywt
 
-
-# Reads a video file frame by frame, convert each frame to YCrCb
-# and saves it in the folder /output as a binaryfile with .npy extension
-
 def read_video(filename):
-
+    '''
+    Reads a video file frame by frame, convert each frame to
+    YCrCb and saves it in the folder /output as a binaryfile with
+    .npy extension.
+    '''
     cap = cv2.VideoCapture(filename)
     num_frame = 0
     while(True):
@@ -21,11 +21,10 @@ def read_video(filename):
         if ret == False:
             break
 
-# Reads a frame from a filename
-
-
 def read_frame(filename):
-
+    '''
+    Reads a frame from a filename.
+    '''
     image = np.load(filename)
 
     # To see it in RGB uncomment the next line
@@ -33,18 +32,20 @@ def read_frame(filename):
 
     return image
 
-# Compute the 1-level 2D-DWT of a frame in memory 
-
 def image_to_dwt2d(image):
-
+    '''
+    Compute the 1-level 2D-DWT of a frame in memory.
+    '''
     coeffs = pywt.dwt2(image, 'haar')
     
     return coeffs
 
-# Compute to a frame the 1-level 2D-DWT
+
 
 def dwt2d_to_image(coeffs):
-
+    '''
+    Compute to a frame the 1-level 2D-DWT
+    '''
     image = pywt.idwt2(coeffs, 'haar')
     
     return image
