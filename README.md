@@ -191,16 +191,19 @@ for j in range(l):
     V[0] = [A.L] + [A.H]
     i = 0 # Image index
     while i < (n//x):
-        [B.L] = iDWT(V[x*i+x//2].L, 0)
-        [\tilde{B}.H] = iDWT(0, V[x*i+x//2].H)
-        [C.L] = iDWT(V[x*i+x].L, 0)
-        [C.H] = iDWT(0, V[x*i+x].H)
+        [B.L] = 2D_iDWT(V[x*i+x//2].L, 0)
+        [~B.H] = 2D_iDWT(0, V[x*i+x//2].H)
+        [C.L] = 2D_iDWT(V[x*i+x].L, 0)
+        [C.H] = 2D_iDWT(0, V[x*i+x].H)
         V[x*i+x] = [C.L] + [C.H]
-        iMCDWT_step([A.L], [A.H], [B.L], [\tilde{B}.H], [C.L], [C.H])
-        V[x*i+x//2] = [B.L] + [\tilde{B}.H]
-        # A = V[x*i] # Pointer copy
-        # B = V[x*i+x//2]
-        # C = V[x*i+x]
+        [B.L]->[A.L] = ME([B.L], [A.L])
+        [B.L]->[C.L] = ME([B.L], [C.L])
+        [B.H]_A = MC([A.H], [B.L]->[A.L])
+        [B.H]_C = MC([C.H], [B.L]->[C.L])
+        [B.H] = [~B.H] + int(round(([B.H]_A + [B.H]_C)/2.0))
+        V[x*i+x//2] = [B.L] + [B.H]
+        [A.L] = [C.L]
+        [A.H] = [C.H]
         i += 1
     x //= 2
 ```
