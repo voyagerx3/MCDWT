@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import pywt
 
-def read_video(filename):
+def split_video_in_frames_to_disk(filename):
     '''
     Reads a video file frame by frame, convert each frame to
     YCrCb and saves it in the folder /output as a binaryfile with
