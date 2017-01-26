@@ -242,3 +242,11 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+
+# Added content of output
+
+output/*
+
+# Added virtual env
+
+venv/
