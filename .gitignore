@@ -245,6 +245,7 @@ ModelManifest.xml
 
 # Added content of output
 
+output/*
 
 # Added virtual env
 
