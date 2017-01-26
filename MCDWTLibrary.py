@@ -10,16 +10,20 @@ def split_video_in_frames_to_disk(filename):
     '''
     cap = cv2.VideoCapture(filename)
     num_frame = 0
-    while(True):
+
+    while(cap.isOpened()):
+
         ret, frame = cap.read()
+        if frame is None:
+            break
 
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
 
-        np.save('output/' + filename + str(num_frame), image)
+
+        cv2.imwrite('output/PNG/imagen'+str(num_frame)+'.png',image)
+        
         num_frame = num_frame + 1
 
-        if ret == False:
-            break
 
 def read_frame(filename):
     '''
