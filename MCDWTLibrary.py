@@ -123,7 +123,7 @@ def forward_MCDWT(imageA, imageB, imageC):
 
         
     
-forward_MCDWT(read_frame('output/PNG/imagen56.png'),read_frame('output/PNG/imagen57.png'),read_frame('output/PNG/imagen58.png'))
+# forward_MCDWT(read_frame('output/PNG/imagen56.png'),read_frame('output/PNG/imagen57.png'),read_frame('output/PNG/imagen58.png'))
 
 # read_video('stockholm_1280x768x50x420x578.avi')
 
