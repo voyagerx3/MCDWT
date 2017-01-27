@@ -140,22 +140,32 @@ For example, if `l=2` and `n=5`:
 
 ### Forward MCDWT
 ```
-n = 5 # Number of images
-l = 2 # Number of temporal scales
+n = 5 # Number of frames of the video
+l = 2 # Number of temporal scales to generate
 
-x = 2
+x = 2 # A constant
 for j in range(l):
     2D_DWT(V[0]) # 1-level 2D-DWT
+    [A.L] = 2D_iDWT(V[0].L, 0)
+    [A.H] = 2D_iDWT(0, V[0].H)
     i = 0 # Image index
     while i < (n//x):
-        A = V[x*i] # Pointer copy
-        B = V[x*i+x//2]
-        C = V[x*i+x]
-        2D_DWT(B)
-        2D_DWT(C)
-        MCDWT_step(A, B, C) # In place
+        2D_DWT(V[x*i+x//2])
+        [B.L] = 2D_iDWT(V[x*i+x//2].L, 0)
+        [B.H] = 2D_iDWT(0, V[x*i+x//2].L)
+        2D_DWT(V[x*i+x])
+        [C.L] = 2D_iDWT(V[x*i+x].L, 0)
+        [C.H] = 2D_iDWT(0, V[x*i+x].L)
+        [B.L]->[A.L] = ME([B.L], [A.L])
+        [B.L]->[C.L] = ME([B.L], [C.L])
+        [B.H]_A = MC([A.H], [B.L]->[A.L])
+        [B.H]_C = MC([C.H], [B.L]->[C.L])
+        [~B.H] = [B.H] - int(round(([B.H]_A + [B.H]_C)/2.0))
+        2D_DWT([~B.H])
+        [~B.H].L = B.L
+        [A.L] = [C.L]
+        [A.H] = [C.H]
         i += 1
-        A = A.L; B = B.L; C = C.L # In the next temporal scale, we apply MCDWT to the LL subbands 
     x *= 2
 ```
 
@@ -176,21 +186,24 @@ l = 2 # Number of temporal scales
 
 x = 2**l
 for j in range(l):
-    [A.L] = iDWT(V[0].L, 0)
-    [A.H] = iDWT(0, V[0].H)
+    [A.L] = 2D_iDWT(V[0].L, 0)
+    [A.H] = 2D_iDWT(0, V[0].H)
     V[0] = [A.L] + [A.H]
     i = 0 # Image index
     while i < (n//x):
-        [B.L] = iDWT(V[x*i+x//2].L, 0)
-        [\tilde{B}.H] = iDWT(0, V[x*i+x//2].H)
-        [C.L] = iDWT(V[x*i+x].L, 0)
-        [C.H] = iDWT(0, V[x*i+x].H)
+        [B.L] = 2D_iDWT(V[x*i+x//2].L, 0)
+        [~B.H] = 2D_iDWT(0, V[x*i+x//2].H)
+        [C.L] = 2D_iDWT(V[x*i+x].L, 0)
+        [C.H] = 2D_iDWT(0, V[x*i+x].H)
         V[x*i+x] = [C.L] + [C.H]
-        iMCDWT_step([A.L], [A.H], [B.L], [\tilde{B}.H], [C.L], [C.H])
-        V[x*i+x//2] = [B.L] + [\tilde{B}.H]
-        # A = V[x*i] # Pointer copy
-        # B = V[x*i+x//2]
-        # C = V[x*i+x]
+        [B.L]->[A.L] = ME([B.L], [A.L])
+        [B.L]->[C.L] = ME([B.L], [C.L])
+        [B.H]_A = MC([A.H], [B.L]->[A.L])
+        [B.H]_C = MC([C.H], [B.L]->[C.L])
+        [B.H] = [~B.H] + int(round(([B.H]_A + [B.H]_C)/2.0))
+        V[x*i+x//2] = [B.L] + [B.H]
+        [A.L] = [C.L]
+        [A.H] = [C.H]
         i += 1
     x //= 2
 ```
@@ -205,14 +218,25 @@ Provided by subbands L of the pyramids.
 
 Scale 1:
 
-Provided after running iMCDWT one iteration. For 3 pyramids A={A.L,A.H}, B={B.L,\tilde{B}.H} and C={C.L,C.H} where the subband L is the scale 2, the scale 1 is recostructed by (see Algoithm iMCDWT_step):
+Provided after running iMCDWT one iteration. For 3 pyramids A={A.L,A.H}, B={B.L,~B.H} and C={C.L,C.H} where the subband L is the scale 2, the scale 1 is recostructed by (see Algoithm iMCDWT_step):
 
-[A.L] = iDWT(A.L,0); [B.L] = iDWT(B.L,0); [C.L] = iDWT(C.L,0);
-[A.H] = iDWT(0,A.H); [\tilde{B}.H] = iDWT(0,\tilde{B}.H); [C.H] = iDWT(0,C.H);
-A = [A.L] + [A.H]; C = [C.L] + [C.H];
-[B_A.H] = P([A.H], [B.L] -> [A.L]); [B_C.H] = P([C.H], [B.L] -> [C.L]);
-[B.H] = [\tilde{B}.H] + ([B_A.H] + [B_C.H])/2;
-B = [B.L] + [B.H]
+[A.L] = iDWT(A.L,0);
+[A.H] = iDWT(0,A.H);
+V[0] = [A.L] + [A.H];
+[B.L] = 2D_iDWT(V[1].L,0);
+[~B.H] = 2D_iDWT(0,V[1].H);
+[C.L] = 2D_iDWT(V[2].L,0);
+[C.H] = 2D_iDWT(0,V[2].H);
+V[2] = [C.L] + [C.H] 
+[B.L]->[A.L] = ME([B.L], [A.L])
+[B.L]->[C.L] = ME([B.L], [C.L])
+[B.H]_A = MC([A.H], [B.L]->[A.L])
+[B.H]_C = MC([C.H], [B.L]->[C.L])
+[B.H] = [~B.H] + int(round(([B.H]_A + [B.H]_C)/2.0))
+V[1] = [B.L] + [B.H]
+[A.L] = [C.L]
+[A.H] = [C.H]
+...
 
 Scale 2:
 
