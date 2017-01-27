@@ -7,3 +7,4 @@ install:
   - "pip install opencv-python"
 # command to run tests
 script: pytest
+
