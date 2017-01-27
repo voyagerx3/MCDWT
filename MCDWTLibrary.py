@@ -29,12 +29,11 @@ def read_frame(filename):
     '''
     Reads a frame from a filename.
     '''
-    image = np.load(filename)
 
     # To see it in RGB uncomment the next line
     # image = cv2.cvtColor(image, cv2.COLOR_YCrCb2BGR)
 
-    return image
+    return cv2.imread(filename,1)
 
 def image_to_dwt2d(image):
     '''
@@ -54,7 +53,83 @@ def dwt2d_to_image(coeffs):
     
     return image
 
+def forward_MCDWT(imageA, imageB, imageC):
 
+    coeffA=image_to_dwt2d(imageA[:,:,0])
+    coeffB=image_to_dwt2d(imageB[:,:,0])
+    coeffC=image_to_dwt2d(imageC[:,:,0])
+    
+    All = np.uint8(coeffA[0])
+    Ahl = np.uint8(coeffA[1][0])
+    Alh = np.uint8(coeffA[1][1])
+    Ahh = np.uint8(coeffA[1][2])
+
+    Bll = np.uint8(coeffB[0])
+    Bhl = np.uint8(coeffB[1][0])
+    Blh = np.uint8(coeffB[1][1])
+    Bhh = np.uint8(coeffB[1][2])
+
+    Cll = np.uint8(coeffC[0])
+    Chl = np.uint8(coeffC[1][0])
+    Clh = np.uint8(coeffC[1][1])
+    Chh = np.uint8(coeffC[1][2])
+    
+    zeroes = np.zeros((384, 640), dtype="uint8")
+        
+    iAl = dwt2d_to_image((All,(zeroes,zeroes,zeroes)))
+    iAh = dwt2d_to_image((zeroes,(Ahl,Alh,Ahh)))
+    iAl.astype(np.uint8)
+    iAh.astype(np.uint8)
+
+    iBl = dwt2d_to_image((Bll,(zeroes,zeroes,zeroes)))
+    iBh = dwt2d_to_image((zeroes,(Bhl,Blh,Bhh)))
+    iBl.astype(np.uint8)
+    iBh.astype(np.uint8)
+
+    iCl = dwt2d_to_image((Cll,(zeroes,zeroes,zeroes)))
+    iCh = dwt2d_to_image((zeroes,(Chl,Clh,Chh)))
+    iCl.astype(np.uint8)
+    iCh.astype(np.uint8)
+
+    imagenResiduo = iBh-((iAh + iCh)/2)
+
+    coeffR = image_to_dwt2d(imagenResiduo)
+    
+    Rll = np.uint8(coeffR[0])
+    Rhl = np.uint8(coeffR[1][0])
+    Rlh = np.uint8(coeffR[1][1])
+    Rhh = np.uint8(coeffR[1][2])
+
+    Rll = Bll
+
+    outputA = np.zeros((768, 1280), dtype="uint8")
+    outputA[0:384, 0:640] = All
+    outputA[0:384, 640:1280] = Ahl
+    outputA[384:768, 0:640] = Alh
+    outputA[384:768, 640:1280] = Ahh
+    outputA = outputA + 128
+
+    outputC = np.zeros((768, 1280), dtype="uint8")
+    outputC[0:384, 0:640] = Cll
+    outputC[0:384, 640:1280] = Chl
+    outputC[384:768, 0:640] = Clh
+    outputC[384:768, 640:1280] = Chh
+    outputC = outputC + 128
+
+    outputR = np.zeros((768, 1280), dtype="uint8")
+    outputR[0:384, 0:640] = Rll
+    outputR[0:384, 640:1280] = Rhl
+    outputR[384:768, 0:640] = Rlh
+    outputR[384:768, 640:1280] = Rhh
+    outputR = outputR + 128
+
+    cv2.imwrite('output/PNG/A.png',outputA)
+    cv2.imwrite('output/PNG/R.png',outputR)
+    cv2.imwrite('output/PNG/C.png',outputC)
+
+        
+    
+forward_MCDWT(read_frame('output/PNG/imagen56.png'),read_frame('output/PNG/imagen57.png'),read_frame('output/PNG/imagen58.png'))
 
 # read_video('stockholm_1280x768x50x420x578.avi')
 
