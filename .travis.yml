@@ -6,6 +6,4 @@ install:
   - "pip install -r requirements.txt"
   - "pip install opencv-python"
 # command to run tests
-script: pytest
-
-
+script: pytest tests
