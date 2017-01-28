@@ -1,0 +1,1 @@
+Search.setIndex({docnames:["MCDWT","iMCDWT","index"],envversion:50,filenames:["MCDWT.rst","iMCDWT.rst","index.rst"],objects:{},objnames:{},objtypes:{},terms:{content:2,imcdwt:2,index:2,modul:2,page:2,search:2},titles:["MCDWT module","iMCDWT module","Welcome to MCDWT&#8217;s documentation!"],titleterms:{document:2,imcdwt:1,indic:2,mcdwt:[0,2],modul:[0,1],tabl:2,welcom:2}})
