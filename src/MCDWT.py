@@ -1,13 +1,20 @@
-n = 5 # Number of images
-l = 2 # Number of temporal scales
+def MCDWT(input = 'input' : str, output = 'output', n=5 : int, l=2 : int) -> None :
+    ''' A Motion Compendated Discrete Wavelet Transform.
 
-x = 2
-for j in range(l): # Number of temporal scales
-    i = 0
-    while i < (n//x):
-        print('A = ', x*i)
-        print('B = ', x*i+x//2)
-        print('C = ', x*i+x)
-        i += 1
-        print('i = ', i)
-    x *= 2
+    Arguments:
+        input: directory of the input images that must be named 000.png, 001.png, etc.
+        output: directory fo the output images (named 000.png, 001.png, etc.).
+        n: number of images of the input.
+        l: number of leves of the MCDWT (temporal scales). Controls the GOP size. Examples: l=0 -> GOP_size = 1, l=1 -> GOP_size = 2, l=2 -> GOP_size = 4. etc.
+    '''
+
+    x = 2
+    for j in range(l): # Number of temporal scales
+        i = 0
+        while i < (n//x):
+            print('A = ', x*i)
+            print('B = ', x*i+x//2)
+            print('C = ', x*i+x)
+            i += 1
+            print('i = ', i)
+        x *= 2
