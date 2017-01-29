@@ -1,4 +1,4 @@
-def MCDWT(input = 'input' : str, output = 'output', n=5 : int, l=2 : int) -> None :
+def MCDWT(input = 'input', output = 'output', n=5, l=2) -> None :
     ''' A Motion Compendated Discrete Wavelet Transform.
 
     Arguments:
