@@ -8,28 +8,31 @@ def _2D_DWT(image):
     Arguments
     ---------
 
-        image : [numpy.ndarray]*3 structure.
+        image : [y,x,c].
 
             A color frame.
 
     Returns
     -------
 
-        A ([(numpy.ndarray (LL))]*3,[(numpy.ndarray (LH), numpy.ndarray (HL),
-        numpy.ndarray (HH))]*3) structure.
+        (L,H) where L=[y,x,c] and H=(LH, HL, HH) where LH,HL,HH=[y,x,c].
 
             A color pyramid.
 
     '''
-    L = [None]*3
-    H = [None]*3
-    for c in range(3):
-        tmp = pywt.dwt2(image[c], 'db5')
-        L[c] = tmp[0]
-        H[c] = tmp[1]
-    return (L, H)
 
-def _2D_iDWT(subband_L, subbands_H):
+    y = ceil(image.shape[0]/2)
+    x = ceil(image.shape[1]/2)
+    LL = np.ndarray(y, x, 3)
+    LH = np.ndarray(y, x, 3)
+    HL = np.ndarray(y, x, 3)
+    HH = np.ndarray(y, x, 3)
+    for c in range(3):
+        (LL[:,:,c], (LH[:,:,c], HL[:,:,c], HH[:,:,c])) = pywt.dwt2(image[:,:,c], 'db5', mode='per')
+
+    return (LL, (LH, HL, HH))
+
+def _2D_iDWT(LL, (LH, HL, HH)):
     '''2D 1-iteration inverse DWT of a color pyramid.
 
     Arguments
