@@ -217,6 +217,7 @@ class ImageWritter:
 
         '''
         image_name = '{}{image_number:03d}.png'.format(self.image_path,image_number=0)
+        interlaced_image = np.ndarray((image[0].shape[0], image[0].shape[1], 3), np.uint8)
         interlaced_image[:,:,0] = image[0]
         interlaced_image[:,:,1] = image[1]
         interlaced_image[:,:,2] = image[2]
@@ -262,7 +263,7 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
     x = 2
     for j in range(l): # Number of temporal scales
         A = ir.read(0)
-        iw.write(A)
+        iw.write(A, 0)
         tmp = _2D_DWT(A)
         zero = np.zeros(tmp[0][0].shape, np.uint8)
         zero_L = [zero, zero, zero]
