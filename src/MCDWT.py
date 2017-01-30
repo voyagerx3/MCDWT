@@ -17,14 +17,19 @@ def _2D_DWT(image):
 
         [(numpy.ndarray (LL), (numpy.ndarray (LH), numpy.ndarray (HL),
         numpy.ndarray (HH)))]*3 structure.
+        ([(numpy.ndarray (LL))]*3,[(numpy.ndarray (LH), numpy.ndarray (HL),
+        numpy.ndarray (HH))]*3) structure.
 
             A color pyramid.
 
     '''
-    pyramid = []
-    for component in image:
-        pyramid.append(pywt.dwt2(component, 'db5'))
-    return pyramid
+    L = [None]*3
+    H = [None]*3
+    for c in range(3):
+        tmp = pywt.dwt2(image[c], 'db5')
+        L[c] = tmp[0]
+        H[c] = tmp[1]
+    return (L, H)
 
 def _2D_iDWT(subband_L, subbands_H):
     '''2D 1-iteration inverse DWT of a color pyramid.
@@ -49,24 +54,24 @@ def _2D_iDWT(subband_L, subbands_H):
             A color frame.
 
     '''
-    frame = []
-    for component in pyramid:
-        frame.append(pywt.idwt2(component, 'db5'))
+    frame = [None]*3
+    for c in range(3):
+        frame[c] = pywt.idwt2((subband_L[c], subbands_H[c]), 'db5')
     return frame
 
-def L_zero(y, x):
-    '''Generates a matrix of (y * x) unsigned int8 zeros.
+def _L_zero(y, x):
+    '''Generates a matrix of (\'y\' * \'x\') unsigned int8 zeros.
 
     Arguments
     ---------
 
         y : int
 
-            Number of zeros in the \'y\' dimension.
+            Number of zeros in the Y dimension.
 
         x : int
 
-            Number of zeros in the \'x\' dimension.
+            Number of zeros in the X dimension.
 
     Returns
     -------
@@ -78,19 +83,19 @@ def L_zero(y, x):
     '''
     return np.zeros((y, x), np.uint8)
 
-def H_zero(y, x):
-    ''' Generates a tuple of matrices of (y * x) unsigned int8 zeros.
+def _H_zero(y, x):
+    ''' Generates a tuple of matrices of (\'y \'* \'x\') unsigned int8 zeros.
 
     Arguments
     ---------
 
         y : int
 
-            Number of zeros in the \'y\' dimension of each matrix.
+            Number of zeros in the Y dimension of each matrix.
 
         x : int
 
-            Number of zeros in the \'x\' dimension of each matrix.
+            Number of zeros in the X dimension of each matrix.
 
     Returns
     -------
@@ -105,14 +110,13 @@ class InputImageException(Exception):
     pass
 
 class ImageReader:
-    '''A image handler.
+    '''An image reader.
 
-    Helps to read the images from disk, which must be enumerated using
-    3 digits.
+    Read PNG mages from disk, which must be enumerated using 3 digits.
+
     '''
 
     def __init__(self):
-        '''ImageReader constructor.'''
         pass
 
     def set_path(self, path='../input/'):
@@ -141,7 +145,70 @@ class ImageReader:
         Parameters
         ----------
 
-            image: a string with the path to the image in disk.
+            image_number : int.
+
+                Index of the image to read.
+
+        Returns
+        -------
+
+            A [numpy.ndarray]*3 structure.
+
+        '''
+        image_name = '{}{image_number:03d}.png'.format(self.image_path,image_number=0)
+        image_interlaced = cv2.imread(image_name)
+        if image_interlaced is None:
+            raise InputImageException('{} not found'.format(image_name))
+        else:
+            deinterlaced_image = []
+            deinterlaced_image.append(image_interlaced[:,:,0])
+            deinterlaced_image.append(image_interlaced[:,:,1])
+            deinterlaced_image.append(image_interlaced[:,:,2])
+            return deinterlaced_image
+
+class ImageWritter:
+    '''An image writter.
+
+    Write PNG images to disk, which must be enumerated using 3 digits.
+
+    '''
+
+    def __init__(self):
+        pass
+
+    def set_path(self, path='../output/'):
+        '''Set up the path where the images are.
+
+        Parameters
+        ----------
+
+            path : str
+
+                The image path (directory and image prefix). Example:
+                'output/image'.
+
+        Returns
+        -------
+
+            None.
+
+        '''
+
+        self.image_path = path 
+
+    def write(self, image, image_number):
+        '''Write a image to disk.
+
+        Parameters
+        ----------
+
+            image : [numpy.ndarray] * 3 structure.
+
+                The image to write.
+
+            image_number : int.
+
+                Index of the image to write.
 
         Returns
         -------
@@ -150,15 +217,10 @@ class ImageReader:
 
         '''
         image_name = '{}{image_number:03d}.png'.format(self.image_path,image_number=0)
-        image_interlaced = cv2.imread(image_name)
-        if image is None:
-            raise InputImageException('{} not found'.format(image_name))
-        else:
-            deinterlaced_image = []
-            deinterlaced_image.append(image[:,:,0])
-            deinterlaced_image.append(image[:,:,1])
-            deinterlaced_image.append(image[:,:,2])
-            return deinterlaced_image
+        interlaced_image[:,:,0] = image[0]
+        interlaced_image[:,:,1] = image[1]
+        interlaced_image[:,:,2] = image[2]
+        image_interlaced = cv2.imwrite(image_name, interlaced_image)
 
 def MCDWT(input = '../input/', output='../output/', n=5, l=2):
     '''A Motion Compensated Discrete Wavelet Transform.
@@ -194,12 +256,19 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
 
     '''
     ir = ImageReader()
+    iw = ImageWritter()
     ir.set_path(input)
+    iw.set_path(output)
     x = 2
     for j in range(l): # Number of temporal scales
-        tmp = _2D_DWT(ir.read(0))
+        A = ir.read(0)
+        iw.write(A)
+        tmp = _2D_DWT(A)
+        zero = np.zeros(tmp[0][0].shape, np.uint8)
+        zero_L = [zero, zero, zero]
+        zero_H = [(zero, zero, zero), (zero, zero, zero), (zero, zero, zero)]
         import ipdb; ipdb.set_trace()
-        AL = _2D_iDWT(tmp[:][0], H_zero(tmp[:][0].shape))
+        AL = _2D_iDWT(tmp[0], zero_H)
         i = 0
         while i < (n//x):
             print('A = ', x*i)
