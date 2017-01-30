@@ -156,14 +156,14 @@ class ImageReader:
 
         '''
         image_name = '{}{image_number:03d}.png'.format(self.image_path,image_number=0)
-        image_interlaced = cv2.imread(image_name)
-        if image_interlaced is None:
+        interlaced_image = cv2.imread(image_name)
+        if interlaced_image is None:
             raise InputImageException('{} not found'.format(image_name))
         else:
             deinterlaced_image = []
-            deinterlaced_image.append(image_interlaced[:,:,0])
-            deinterlaced_image.append(image_interlaced[:,:,1])
-            deinterlaced_image.append(image_interlaced[:,:,2])
+            deinterlaced_image.append(interlaced_image[:,:,0])
+            deinterlaced_image.append(interlaced_image[:,:,1])
+            deinterlaced_image.append(interlaced_image[:,:,2])
             return deinterlaced_image
 
 class ImageWritter:
