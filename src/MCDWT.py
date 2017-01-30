@@ -140,7 +140,7 @@ class ImageReader:
         self.image_path = path 
 
     def read(self, image_number):
-        '''Read a image from disk.
+        '''Read an image from disk.
 
         Parameters
         ----------
@@ -155,7 +155,8 @@ class ImageReader:
             A [numpy.ndarray]*3 structure.
 
         '''
-        image_name = '{}{image_number:03d}.png'.format(self.image_path,image_number=0)
+
+        image_name = '{}{:03d}.png'.format(self.image_path, image_number)
         interlaced_image = cv2.imread(image_name)
         if interlaced_image is None:
             raise InputImageException('{} not found'.format(image_name))
@@ -196,8 +197,8 @@ class ImageWritter:
 
         self.image_path = path 
 
-    def write(self, image, image_number):
-        '''Write a image to disk.
+    def write(self, image, image_number=0):
+        '''Write an image to disk.
 
         Parameters
         ----------
@@ -213,10 +214,10 @@ class ImageWritter:
         Returns
         -------
 
-            A 3 * 2D numpy.ndarray, one for each color component.
+            A [numpy.ndarray]*3 structure.
 
         '''
-        image_name = '{}{image_number:03d}.png'.format(self.image_path,image_number=0)
+        image_name = '{}{:03d}.png'.format(self.image_path,image_number)
         interlaced_image = np.ndarray((image[0].shape[0], image[0].shape[1], 3), np.uint8)
         interlaced_image[:,:,0] = image[0]
         interlaced_image[:,:,1] = image[1]
@@ -236,23 +237,28 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
     ---------
 
         input : str
+
             Directory of the input images that must be named
             000.png, 001.png, etc.
 
         output : str
+
             Directory fo the output (transformed) pyramids
             (named 000.png, 001.png, etc.).
 
          n : int
+
             Number of images of the input.
 
          l : int
+
             Number of leves of the MCDWT (temporal scales). Controls
             the GOP size. Examples: `l`=0 -> GOP_size = 1, `l`=1 ->
             GOP_size = 2, `l`=2 -> GOP_size = 4. etc.
 
     Returns
     -------
+
         None.
 
     '''
@@ -262,19 +268,36 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
     iw.set_path(output)
     x = 2
     for j in range(l): # Number of temporal scales
+        #import ipdb; ipdb.set_trace()
         A = ir.read(0)
-        iw.write(A, 0)
-        tmp = _2D_DWT(A)
-        zero = np.zeros(tmp[0][0].shape, np.uint8)
+        tmpA = _2D_DWT(A)
+        #pw.write(tmpA, 0)        
+        zero = np.zeros(tmpA[0][0].shape, np.uint8)
         zero_L = [zero, zero, zero]
         zero_H = [(zero, zero, zero), (zero, zero, zero), (zero, zero, zero)]
-        import ipdb; ipdb.set_trace()
-        AL = _2D_iDWT(tmp[0], zero_H)
+        AL = _2D_iDWT(tmpA[0], zero_H)
+        #iw.write(AL, 1)
+        AH = _2D_iDWT(zero_L, tmpA[1])
+        #iw.write(AH, 1)
         i = 0
         while i < (n//x):
-            print('A = ', x*i)
-            print('B = ', x*i+x//2)
-            print('C = ', x*i+x)
+            B = ir.read(x*i+x//2)
+            tmpB = _2D_DWT(B)
+            BL = _2D_iDWT(tmpB[0], zero_H)
+            BH = _2D_iDWT(zero_L, tmpB[1])
+            C = ir.read(x*i+x)
+            tmpC = _2D_DWT(C)
+            #pw.write(tmpC, x*i+x)
+            CL = _2D_iDWT(tmpC[0], zero_H)
+            CH = _2D_iDWT(zero_L, tmpC[1])
+            BHA = AH # No ME (yet)
+            BHC = CH # No ME
+            rBH = BH - (BHA + BHC) / 2
+            rBH = _2D_DWT(rBH)
+            rBH[0] = tmpB[0]
+            #pw.write(rBH, x*i+x//2)
+            AL = CL
+            AH = CH
             i += 1
             print('i = ', i)
         x *= 2
