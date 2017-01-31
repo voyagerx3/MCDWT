@@ -443,32 +443,27 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
         AL = _2D_iDWT(A[0], zero_H)
         AH = _2D_iDWT(zero_L, A[1])
         A = AL + AH
+        iw.write(A, 0)
         i = 0
         while i < (n//x):
             B = pr.read(x*i+x//2)
             BL = _2D_iDWT(B[0], zero_H)
-
-            
-            B = ir.read(x*i+x//2)
-            tmpB = _2D_DWT(B)
-            BL = _2D_iDWT(tmpB[0], zero_H)
-            BH = _2D_iDWT(zero_L, tmpB[1])
-            C = ir.read(x*i+x)
-            tmpC = _2D_DWT(C)
-            pw.write(tmpC, x*i+x)
-            CL = _2D_iDWT(tmpC[0], zero_H)
-            CH = _2D_iDWT(zero_L, tmpC[1])
+            rBH = _2D_iDWT(L_zero, B[1])
+            C = pr.read(x*i+x)
+            CL = _2D_iDWT(C[0], zero_H)
+            CH = _2D_iDWT(zero_L, C[1])
+            C = CL + CH
+            iw.write(C, x*i+x)
             BHA = AH # No ME (yet)
             BHC = CH # No ME
-            rBH = BH - (BHA + BHC) / 2
-            rBH = _2D_DWT(rBH)
-            #import ipdb; ipdb.set_trace()
-            rBH[0][0:L_y,0:L_x,:] = tmpB[0]
-            pw.write(rBH, x*i+x//2)
+            BH = rBH + (BHA + BHC) / 2
+            B = BL + BH
+            iw.write(B, x*i+x//2)
             AL = CL
             AH = CH
             i += 1
             print('i =', i)
-        x /= 2
+        x //= 2
 
 MCDWT('../input/','/tmp/',5,1)
+iMCDWT('../tmp/','/tmp/res',5,1)
