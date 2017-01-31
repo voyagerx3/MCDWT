@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import pywt
+import math
 
 def _2D_DWT(image):
     '''2D DWT of a color image.
@@ -8,55 +9,60 @@ def _2D_DWT(image):
     Arguments
     ---------
 
-        image : [numpy.ndarray]*3 structure.
+        image : [:,:,:].
 
             A color frame.
 
     Returns
     -------
 
-        A ([(numpy.ndarray (LL))]*3,[(numpy.ndarray (LH), numpy.ndarray (HL),
-        numpy.ndarray (HH))]*3) structure.
+        (L,H) where L=[:,:,:] and H=(LH,HL,HH), where LH,HL,HH=[:,:,:].
 
             A color pyramid.
 
     '''
-    L = [None]*3
-    H = [None]*3
-    for c in range(3):
-        tmp = pywt.dwt2(image[c], 'db5')
-        L[c] = tmp[0]
-        H[c] = tmp[1]
-    return (L, H)
 
-def _2D_iDWT(subband_L, subbands_H):
+    y = math.ceil(image.shape[0]/2)
+    x = math.ceil(image.shape[1]/2)
+    LL = np.ndarray((y, x, 3), np.float64)
+    LH = np.ndarray((y, x, 3), np.float64)
+    HL = np.ndarray((y, x, 3), np.float64)
+    HH = np.ndarray((y, x, 3), np.float64)
+    for c in range(3):
+        (LL[:,:,c], (LH[:,:,c], HL[:,:,c], HH[:,:,c])) = pywt.dwt2(image[:,:,c], 'db5', mode='per')
+
+    return (LL, (LH, HL, HH))
+
+def _2D_iDWT(L, H):
     '''2D 1-iteration inverse DWT of a color pyramid.
 
     Arguments
     ---------
 
-        subband_L : [numpy.ndarray (LL)]*3 structure.
+        L : [:,:,:].
 
             Low-frequency color subband.
 
-        subbands_H : [numpy.ndarray (LH), numpy.ndarray (HL),
-        numpy.ndarray (HH)]*3 structure.
+        H : (LH, HL, HH), where LH,HL,HH=[:,:,:].
 
             High-frequency color subbands.
 
     Returns
     -------
 
-        [numpy.ndarray]*3 structure.
+        [:,:,:].
 
             A color frame.
 
     '''
-    frame = [None]*3
-    for c in range(3):
-        frame[c] = pywt.idwt2((subband_L[c], subbands_H[c]), 'db5')
-    return frame
 
+    LH = H[0]
+    HL = H[1]
+    HH = H[2]
+    frame = np.ndarray((L.shape[0]*2, L.shape[1]*2, 3), np.float64)
+    for c in range(3):
+        frame[:,:,c] = pywt.idwt2((L[:,:,c], (LH[:,:,c], HL[:,:,c], HH[:,:,c])), 'db5', mode='per')
+    return frame
 
 class InputImageException(Exception):
     pass
@@ -64,8 +70,8 @@ class InputImageException(Exception):
 class ImageReader:
     '''Read PNG images from disk.
     
-    Files should be called something like: "image000.png,
-    image001.png, ..."
+    Images must be enumerated. Example: "image000.png, image001.png,
+    ..."
 
     '''
 
@@ -81,7 +87,7 @@ class ImageReader:
             path : str
 
                 The image path (directory and file prefix). Example:
-                'input/image'.
+                '../input/image'.
 
         Returns
         -------
@@ -105,26 +111,23 @@ class ImageReader:
         Returns
         -------
 
-            A [numpy.ndarray]*3 structure.
+            [:,:,:].
+
+                A color image.
 
         '''
 
         file_name = '{}{:03d}.png'.format(self.path, number)
-        interlaced_image = cv2.imread(file_name)
-        if interlaced_image is None:
+        image = cv2.imread(file_name)
+        if image is None:
             raise InputImageException('{} not found'.format(file_name))
         else:
-            deinterlaced_image = []
-            deinterlaced_image.append(interlaced_image[:,:,0])
-            deinterlaced_image.append(interlaced_image[:,:,1])
-            deinterlaced_image.append(interlaced_image[:,:,2])
-            return deinterlaced_image
+            return image
 
 class ImageWritter:
     '''Write PNG images to disk.
 
-    Files should be called something like: "image000.png,
-    image001.png, ..."
+    Images should be enumerated. Example: "image000.png, image001.png, ..."
 
     '''
 
@@ -132,7 +135,7 @@ class ImageWritter:
         pass
 
     def set_path(self, path='../output/'):
-        '''Set up the path where the images are.
+        '''Set up the path where the images will be.
 
         Parameters
         ----------
@@ -140,7 +143,7 @@ class ImageWritter:
             path : str
 
                 The image path (directory and file prefix). Example:
-                'output/image'.
+                '../output/image'.
 
         Returns
         -------
@@ -157,9 +160,9 @@ class ImageWritter:
         Parameters
         ----------
 
-            image : [numpy.ndarray] * 3 structure.
+            image : [:,:,:].
 
-                The image to write.
+                The color image to write.
 
             number : int.
 
@@ -168,20 +171,17 @@ class ImageWritter:
         Returns
         -------
 
-            A [numpy.ndarray]*3 structure.
+            None.
 
         '''
+
         file_name = '{}{:03d}.png'.format(self.path, number)
-        interlaced_image = np.ndarray((image[0].shape[0], image[0].shape[1], 3), np.uint8)
-        interlaced_image[:,:,0] = image[0]
-        interlaced_image[:,:,1] = image[1]
-        interlaced_image[:,:,2] = image[2]
-        cv2.imwrite(file_name, interlaced_image)
+        cv2.imwrite(file_name, image)
 
 class PyramidReader:
     '''Read PNG pyramids from disk.
 
-    Files should be called something like: "pyramid000.png,
+    Pyramids should be enumerated. Example: "pyramid000.png,
     pyramid001.png, ..."
 
     '''
@@ -198,7 +198,7 @@ class PyramidReader:
             path : str
 
                 The pyramid path (directory and file prefix). Example:
-                'input/pyramid'.
+                '../input/pyramid'.
 
         Returns
         -------
@@ -222,8 +222,7 @@ class PyramidReader:
         Returns
         -------
 
-            A ([(numpy.ndarray (LL))]*3,[(numpy.ndarray (LH),
-            numpy.ndarray (HL), numpy.ndarray (HH))]*3) structure.
+            (L,H) where L=[:,:,:] and H=(LH,HL,HH), where LH,HL,HH=[:,:,:].
 
                 A color pyramid.
 
@@ -231,30 +230,21 @@ class PyramidReader:
 
         file_name = '{}{:03d}.png'.format(self.path, number)
         buf = cv2.imread(file_name)
-        if interlaced_pyramid is None:
+        if buf is None:
             raise InputImageException('{} not found'.format(file_name))
         else:
-            y = buf.shape[0]
-            x = buf.shape[1]
-            LL = [None]*3
-            LH = [None]*3
-            HL = [None]*3
-            HH = [None]*3
-            for c in range(3):
-                LL[c] = buf[0::y//2,0::x//2,c]
-                LH[c] = buf[0::y//2,x//2::x,c]
-                HL[c] = buf[y//2::y,0::x//2,c]
-                HH[c] = buf[y//2::y,x//2::x,c]
+            y = math.ceil(buf.shape[0]/2)
+            x = math.ceil(buf.shape[1]/2)
+            LL = buf[0:y,0:x,:]
+            LH = buf[0:y,x:buf.shape[1],:]
+            HL = buf[y:buf.shape[0],0:x,:]
+            HH = buf[y:buf.shape[0],x:buf.shape[1],:]
             return (LL, (LH, HL, HH))
-            L = [None]*3
-            H = [None]*3
-            for c in range(3):
-                
 
 class PyramidWritter:
     '''Write PNG pyramids to disk.
 
-    Files should be called something like: "pyramid000.png,
+    Pyramids must be enumerated. Example: "pyramid000.png,
     pyramid001.png, ..."
 
     '''
@@ -271,7 +261,7 @@ class PyramidWritter:
             path : str
 
                 The pyramid path (directory and file prefix). Example:
-                'output/pyramid'.
+                '../output/pyramid'.
 
         Returns
         -------
@@ -288,10 +278,13 @@ class PyramidWritter:
         Parameters
         ----------
 
-            pyramid : A ([(numpy.ndarray (LL))]*3,[(numpy.ndarray (LH),
-            numpy.ndarray (HL), numpy.ndarray (HH))]*3) structure.
+            L : [:,:,:].
 
-                The pyramid to write.
+                LL subband.
+
+            H : (LH, HL, HH), where LH,HL,HH=[:,:,:].
+
+                H subbands.
 
             number : int.
 
@@ -304,13 +297,18 @@ class PyramidWritter:
 
         '''
         file_name = '{}{:03d}.png'.format(self.path, number)
-        y = pyramid[0][0].shape[0]*2
-        x = pyramid[0][0].shape[1]*2
-        buf = np.ndarray((pyramid[0][0].shape[0]*2, pyramid[0][0].shape[1]*2, 3), np.uint8)
-        buf[0::y//2,0::x//2,:] = pyramid[0][:][0] # LL, all components
-        buf[0::y//2,x//2::x,:] = pyramid[1][:][0] # LH
-        buf[y//2::y,0::x//2,:] = pyramid[1][:][1] # HL
-        buf[y//2::y,x//2::x,:] = pyramid[1][:][2] # HH
+        #import ipdb; ipdb.set_trace()
+        LL = pyramid[0]
+        LH = pyramid[1][0]
+        HL = pyramid[1][1]
+        HH = pyramid[1][2]
+        y = LL.shape[0]
+        x = LL.shape[1]
+        buf = np.ndarray((y*2, x*2, 3), np.float64)
+        buf[0:y,0:x,:] = LL
+        buf[0:y,x:x*2,:] = LH
+        buf[y:y*2,0:x,:] = HL
+        buf[y:y*2,x:x*2,:] = HH
         cv2.imwrite(file_name, buf)
 
 def MCDWT(input = '../input/', output='../output/', n=5, l=2):
@@ -327,17 +325,17 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
 
         input : str
 
-            Directory of the input images that must be named
-            000.png, 001.png, etc.
+            Path where the input images are. Example:
+            "../input/image".
 
         output : str
 
-            Directory fo the output (transformed) pyramids
-            (named 000.png, 001.png, etc.).
+            Path where the (transformed) pyramids will be. Example:
+            "../output/pyramid".
 
          n : int
 
-            Number of images of the input.
+            Number of images to process.
 
          l : int
 
@@ -353,17 +351,20 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
     '''
     ir = ImageReader()
     iw = ImageWritter()
+    pw = PyramidWritter()
     ir.set_path(input)
     iw.set_path(output)
+    pw.set_path(output)
     x = 2
     for j in range(l): # Number of temporal scales
         #import ipdb; ipdb.set_trace()
         A = ir.read(0)
         tmpA = _2D_DWT(A)
-        #pw.write(tmpA, 0)        
-        zero = np.zeros(tmpA[0][0].shape, np.uint8)
-        zero_L = [zero, zero, zero]
-        zero_H = [(zero, zero, zero), (zero, zero, zero), (zero, zero, zero)]
+        L_y = tmpA[0].shape[0]
+        L_x = tmpA[0].shape[1]
+        pw.write(tmpA, 0)        
+        zero_L = np.zeros(tmpA[0].shape, np.uint8)
+        zero_H = (zero_L, zero_L, zero_L)
         AL = _2D_iDWT(tmpA[0], zero_H)
         #iw.write(AL, 1)
         AH = _2D_iDWT(zero_L, tmpA[1])
@@ -376,64 +377,20 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
             BH = _2D_iDWT(zero_L, tmpB[1])
             C = ir.read(x*i+x)
             tmpC = _2D_DWT(C)
-            #pw.write(tmpC, x*i+x)
+            pw.write(tmpC, x*i+x)
             CL = _2D_iDWT(tmpC[0], zero_H)
             CH = _2D_iDWT(zero_L, tmpC[1])
             BHA = AH # No ME (yet)
             BHC = CH # No ME
             rBH = BH - (BHA + BHC) / 2
             rBH = _2D_DWT(rBH)
-            rBH[0] = tmpB[0]
-            #pw.write(rBH, x*i+x//2)
+            #import ipdb; ipdb.set_trace()
+            rBH[0][0:L_y,0:L_x,:] = tmpB[0]
+            pw.write(rBH, x*i+x//2)
             AL = CL
             AH = CH
             i += 1
-            print('i = ', i)
+            print('i =', i)
         x *= 2
 
-        def _L_zero(y, x):
-    '''Generates a matrix of (\'y\' * \'x\') unsigned int8 zeros.
-
-    Arguments
-    ---------
-
-        y : int
-
-            Number of zeros in the Y dimension.
-
-        x : int
-
-            Number of zeros in the X dimension.
-
-    Returns
-    -------
-
-        A np.array structure.
-
-            The matrix.
-
-    '''
-    return np.zeros((y, x), np.uint8)
-
-def _H_zero(y, x):
-    ''' Generates a tuple of matrices of (\'y \'* \'x\') unsigned int8 zeros.
-
-    Arguments
-    ---------
-
-        y : int
-
-            Number of zeros in the Y dimension of each matrix.
-
-        x : int
-
-            Number of zeros in the X dimension of each matrix.
-
-    Returns
-    -------
-
-        A (np.array, np.array, np.array) structure.
-
-            The tuple of matrices.
-    '''
-    return (L_zero, L_zero, L_zero)
+MCDWT('../input/','/tmp/',5,1)
