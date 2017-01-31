@@ -393,4 +393,82 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
             print('i =', i)
         x *= 2
 
+def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
+    '''A (Inverse) Motion Compensated Discrete Wavelet Transform.
+
+    iMCDWT is the inverse transform of MCDWT. Inputs a sequence of
+    pyramids and outputs a sequence of images.
+
+    Arguments
+    ---------
+
+        input : str
+
+            Path where the input pyramids are. Example:
+            "../input/image".
+
+        output : str
+
+            Path where the (inversely transformed) images will
+            be. Example: "../output/pyramid".
+
+         n : int
+
+            Number of pyramids to process.
+
+         l : int
+
+            Number of leves of the MCDWT (temporal scales). Controls
+            the GOP size. Examples: `l`=0 -> GOP_size = 1, `l`=1 ->
+            GOP_size = 2, `l`=2 -> GOP_size = 4. etc.
+
+    Returns
+    -------
+
+        None.
+
+    '''
+    ir = ImageReader()
+    iw = ImageWritter()
+    pr = PyramidReader()
+    ir.set_path(input)
+    iw.set_path(output)
+    pr.set_path(output)
+    x = 2**l
+    for j in range(l): # Number of temporal scales
+        #import ipdb; ipdb.set_trace()
+        A = pr.read(0)
+        zero_L = np.zeros(A[0].shape, np.uint8)
+        zero_H = (zero_L, zero_L, zero_L)
+        AL = _2D_iDWT(A[0], zero_H)
+        AH = _2D_iDWT(zero_L, A[1])
+        A = AL + AH
+        i = 0
+        while i < (n//x):
+            B = pr.read(x*i+x//2)
+            BL = _2D_iDWT(B[0], zero_H)
+
+            
+            B = ir.read(x*i+x//2)
+            tmpB = _2D_DWT(B)
+            BL = _2D_iDWT(tmpB[0], zero_H)
+            BH = _2D_iDWT(zero_L, tmpB[1])
+            C = ir.read(x*i+x)
+            tmpC = _2D_DWT(C)
+            pw.write(tmpC, x*i+x)
+            CL = _2D_iDWT(tmpC[0], zero_H)
+            CH = _2D_iDWT(zero_L, tmpC[1])
+            BHA = AH # No ME (yet)
+            BHC = CH # No ME
+            rBH = BH - (BHA + BHC) / 2
+            rBH = _2D_DWT(rBH)
+            #import ipdb; ipdb.set_trace()
+            rBH[0][0:L_y,0:L_x,:] = tmpB[0]
+            pw.write(rBH, x*i+x//2)
+            AL = CL
+            AH = CH
+            i += 1
+            print('i =', i)
+        x /= 2
+
 MCDWT('../input/','/tmp/',5,1)
