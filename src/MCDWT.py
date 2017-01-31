@@ -64,7 +64,7 @@ def _2D_iDWT(L, H):
         frame[:,:,c] = pywt.idwt2((L[:,:,c], (LH[:,:,c], HL[:,:,c], HH[:,:,c])), 'db5', mode='per')
     return frame
 
-class InputImageException(Exception):
+class InputFileException(Exception):
     pass
 
 class ImageReader:
@@ -120,7 +120,7 @@ class ImageReader:
         file_name = '{}{:03d}.png'.format(self.path, number)
         image = cv2.imread(file_name)
         if image is None:
-            raise InputImageException('{} not found'.format(file_name))
+            raise InputFileException('{} not found'.format(file_name))
         else:
             return image
 
@@ -231,7 +231,7 @@ class PyramidReader:
         file_name = '{}{:03d}.png'.format(self.path, number)
         buf = cv2.imread(file_name)
         if buf is None:
-            raise InputImageException('{} not found'.format(file_name))
+            raise InputFileException('{} not found'.format(file_name))
         else:
             y = math.ceil(buf.shape[0]/2)
             x = math.ceil(buf.shape[1]/2)
@@ -436,7 +436,7 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
     pr.set_path(output)
     x = 2**l
     for j in range(l): # Number of temporal scales
-        #import ipdb; ipdb.set_trace()
+        import ipdb; ipdb.set_trace()
         A = pr.read(0)
         zero_L = np.zeros(A[0].shape, np.uint8)
         zero_H = (zero_L, zero_L, zero_L)
