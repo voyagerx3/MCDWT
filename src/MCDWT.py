@@ -433,10 +433,10 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
     pr = PyramidReader()
     ir.set_path(input)
     iw.set_path(output)
-    pr.set_path(output)
+    pr.set_path(input)
     x = 2**l
     for j in range(l): # Number of temporal scales
-        import ipdb; ipdb.set_trace()
+        #import ipdb; ipdb.set_trace()
         A = pr.read(0)
         zero_L = np.zeros(A[0].shape, np.uint8)
         zero_H = (zero_L, zero_L, zero_L)
@@ -448,7 +448,7 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
         while i < (n//x):
             B = pr.read(x*i+x//2)
             BL = _2D_iDWT(B[0], zero_H)
-            rBH = _2D_iDWT(L_zero, B[1])
+            rBH = _2D_iDWT(zero_L, B[1])
             C = pr.read(x*i+x)
             CL = _2D_iDWT(C[0], zero_H)
             CH = _2D_iDWT(zero_L, C[1])
@@ -466,4 +466,4 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
         x //= 2
 
 MCDWT('../input/','/tmp/',5,1)
-iMCDWT('../tmp/','/tmp/res',5,1)
+iMCDWT('/tmp/','/tmp/res',5,1)
