@@ -64,7 +64,7 @@ def _2D_iDWT(L, H):
         frame[:,:,c] = pywt.idwt2((L[:,:,c], (LH[:,:,c], HL[:,:,c], HH[:,:,c])), 'db5', mode='per')
     return frame
 
-class InputImageException(Exception):
+class InputFileException(Exception):
     pass
 
 class ImageReader:
@@ -120,7 +120,7 @@ class ImageReader:
         file_name = '{}{:03d}.png'.format(self.path, number)
         image = cv2.imread(file_name)
         if image is None:
-            raise InputImageException('{} not found'.format(file_name))
+            raise InputFileException('{} not found'.format(file_name))
         else:
             return image
 
@@ -231,7 +231,7 @@ class PyramidReader:
         file_name = '{}{:03d}.png'.format(self.path, number)
         buf = cv2.imread(file_name)
         if buf is None:
-            raise InputImageException('{} not found'.format(file_name))
+            raise InputFileException('{} not found'.format(file_name))
         else:
             y = math.ceil(buf.shape[0]/2)
             x = math.ceil(buf.shape[1]/2)
@@ -393,4 +393,77 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
             print('i =', i)
         x *= 2
 
+def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
+    '''A (Inverse) Motion Compensated Discrete Wavelet Transform.
+
+    iMCDWT is the inverse transform of MCDWT. Inputs a sequence of
+    pyramids and outputs a sequence of images.
+
+    Arguments
+    ---------
+
+        input : str
+
+            Path where the input pyramids are. Example:
+            "../input/image".
+
+        output : str
+
+            Path where the (inversely transformed) images will
+            be. Example: "../output/pyramid".
+
+         n : int
+
+            Number of pyramids to process.
+
+         l : int
+
+            Number of leves of the MCDWT (temporal scales). Controls
+            the GOP size. Examples: `l`=0 -> GOP_size = 1, `l`=1 ->
+            GOP_size = 2, `l`=2 -> GOP_size = 4. etc.
+
+    Returns
+    -------
+
+        None.
+
+    '''
+    ir = ImageReader()
+    iw = ImageWritter()
+    pr = PyramidReader()
+    ir.set_path(input)
+    iw.set_path(output)
+    pr.set_path(input)
+    x = 2**l
+    for j in range(l): # Number of temporal scales
+        #import ipdb; ipdb.set_trace()
+        A = pr.read(0)
+        zero_L = np.zeros(A[0].shape, np.uint8)
+        zero_H = (zero_L, zero_L, zero_L)
+        AL = _2D_iDWT(A[0], zero_H)
+        AH = _2D_iDWT(zero_L, A[1])
+        A = AL + AH
+        iw.write(A, 0)
+        i = 0
+        while i < (n//x):
+            B = pr.read(x*i+x//2)
+            BL = _2D_iDWT(B[0], zero_H)
+            rBH = _2D_iDWT(zero_L, B[1])
+            C = pr.read(x*i+x)
+            CL = _2D_iDWT(C[0], zero_H)
+            CH = _2D_iDWT(zero_L, C[1])
+            C = CL + CH
+            iw.write(C, x*i+x)
+            BHA = AH # No ME (yet)
+            BHC = CH # No ME
+            BH = rBH + (BHA + BHC) / 2
+            B = BL + BH
+            iw.write(B, x*i+x//2)
+            AL = CL
+            AH = CH
+            i += 1
+            print('i =', i)
+        x //= 2
+
 MCDWT('../input/','/tmp/',5,1)
+iMCDWT('/tmp/','/tmp/res',5,1)
