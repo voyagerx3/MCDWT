@@ -16,7 +16,7 @@ Each choice has a number of pros and cons. For example, in a `t+2D` transform we
 [Friendly Guide]: http://www.polyvalens.com/blog/wavelets/theory
 
 ## Wavelet and pyramid domains
-Indeed, the DWT allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. However, this can be also done with [Gaussian and Laplacian pyramids][Laplacian Pyramids]. Image pyramids are interesting because they are shift invariant and therefore, one can operate within the scales as they are *normal* images. Unfortunately, as a consecuence of pyramids representations are not critically sampled, they need more picture elements than in [wavelet pyramids](Wavelet Pyramids) and this is a drawback when compressing. Luckily, it is very fast to convert a laplacian pyramid representation into it DWT equivalent representation, and viceversa. For this reason, even if we use the wavelet pyramids to work with our images, we can suppose at any moment that we are working with the laplacian pyramid of those images.
+Indeed, the DWT allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. However, this can be also done with [Gaussian and Laplacian pyramids][Laplacian Pyramids]. Image pyramids are interesting because they are shift invariant and therefore, one can operate within the scales as they are *normal* images. Unfortunately, as a consecuence of pyramids representations are not critically sampled, they need more picture elements than in [Wavelet pyramids](Wavelet Pyramids) and this is a drawback when compressing. Luckily, it is very fast to convert a Laplacian pyramid representation into it DWT equivalent representation, and viceversa. For this reason, even if we use the Wavelet pyramids to work with our images, we can suppose at any moment that we are working with the Laplacian pyramid of those images.
 
 [Laplacian Pyramids]: https://en.wikipedia.org/wiki/Pyramid_(image_processing)
 [Wavelet Pyranids]: http://www.vtvt.ece.vt.edu/research/references/video/DCT_Video_Compression/Zhang92a.pdf
@@ -53,8 +53,7 @@ A sequence `S` of `n` "pyramids". For example, a 2-levels 2D-DWT looks like:
 |       |       |  |       |       |     |       |       |
 |  LH1  |  HH1  |  |       |       |     |       |       |
 |       |       |  |       |       |     |       |       |        
-+-------+-------+  +-------+-------+     +-------+-------+
-       S[0]               S[1]                  S[2]
++-------+-------+  +-------+-------+     +-------+-------+       S[0]               S[1]                  S[2]
 ```
 where `L` and `H` stands for *low-pass filtered* and *high-pass filtered*, respectively. The integer > 1 that follows these letters represents the subband level. For the sake of simplicity, we will denote the subbands `{LH, HL, HH}` as only `H`, and `LL` as only `L`. 
 
@@ -93,7 +92,7 @@ As we have said, the 2D-DWT does not exploit the temporal redundancy of a video.
 A sequence `V` of `n` images.
 
 ### MCDWT output
-A sequence `T` of `n` (wavelet) pyramids, organized in `l` temporal subbands, where each subband is a sequence of pyramids. The number of input and output pyramids is the same.
+A sequence `T` of `n` (Wavelet) pyramids, organized in `l` temporal subbands, where each subband is a sequence of pyramids. The number of input and output pyramids is the same.
 
 For example, if `l=2` and `n=5`:
 
