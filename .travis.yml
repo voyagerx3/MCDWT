@@ -7,8 +7,10 @@ install:
   - "pip install opencv-python"
   - "easy_install sphinx"
 script:
-# command to generate docs
+# commands to generate docs
   - sphinx-quickstart
-# command to run tests
+  - 
+  
+# commands to run tests
   - cd tests
   - pytest
