@@ -63,9 +63,13 @@ while(cap.isOpened()):
             rdwt[0:height//2, width//2:width] = rhl
             rdwt[height//2:height, 0:width//2] = rlh
             rdwt[height//2:height, width//2:width] = rhh
+            print(rhl.max())
+            print(rlh.max())
+            print(rhh.max())
             
-            out.write(cv2.convertScaleAbs(np.uint16(rdwt)))
-            out.write(cv2.convertScaleAbs(np.uint16(dwt)))
+            
+            out.write(np.uint16(rdwt))
+            out.write(np.uint16(dwt))
 
             # clean cache
             cache = []
@@ -75,7 +79,7 @@ while(cap.isOpened()):
         cache.append(AH)
 
         if first_time:
-            out.write(cv2.convertScaleAbs(np.uint16(dwt)))
+            out.write(np.uint16(dwt))
             first_time = False
     else:
         break
