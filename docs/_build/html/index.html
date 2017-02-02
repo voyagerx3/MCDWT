@@ -8,7 +8,7 @@
     
     <title>Welcome to MCDWT’s documentation! &#8212; MCDWT  documentation</title>
     
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -26,16 +26,21 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="MCDWT module" href="MCDWT.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
+    <link rel="next" title="MCDWT module" href="MCDWT.html" /> 
   </head>
   <body role="document">
-  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="MCDWT.html" title="MCDWT module"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">MCDWT  documentation</a> &#187;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -60,6 +65,235 @@
 <li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
 </ul>
 </div>
+<div class="section" id="mcdwt-module">
+<h1>MCDWT module<a class="headerlink" href="#mcdwt-module" title="Permalink to this headline">¶</a></h1>
+<p># Motion Compensated Discrete Wavelet Transform (MCDWT)</p>
+<p>## MCDWT and video scalabilty
+<strong>MCDWT inputs a [video][video] and outputs a video</strong>, in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution ([temporal scalability][Scalability]), lower spatial resolution ([spatial scalability][Scalability]) or/and lower quality ([quality scalability][Scalability]) can be generated. If all the transformed data is used, then the original video is obtained (MCDWT es is a lossless transform). The video output has exactly the same number of elements than the input video (for example, no extra motion fields are produced). At this moment, we will focuse only on spatial scalability.</p>
+<p>[Scalability]:__ <a class="reference external" href="http://inst.eecs.berkeley.edu/~ee290t/sp04/lectures/videowavelet_UCB1-3.pdf">http://inst.eecs.berkeley.edu/~ee290t/sp04/lectures/videowavelet_UCB1-3.pdf</a>
+[video]: __ <a class="reference external" href="https://en.wikipedia.org/wiki/Video">https://en.wikipedia.org/wiki/Video</a></p>
+<p>## Video transform choices
+To obtain a multiresolution version or a video, the&lt;sup&gt;[1](#myfootnote1)&lt;/sup&gt; [DWT (Discrete Wavelet Transform)][DWT] can be applied along temporal (<cite>t</cite>) and spatial domains (<cite>2D</cite>). At this point, two alternatives arise: (1) a <cite>t+2D</cite> transform or (2) a <cite>2D+t</cite> transform. In a <cite>t+2D</cite> transform, the video is first analyzed over the time domain and next, over the spatial domain. A <cite>2D+t</cite> transform does just the opposite.</p>
+<p>[DWT]: __ <a class="reference external" href="https://en.wikipedia.org/wiki/Discrete_wavelet_transform">https://en.wikipedia.org/wiki/Discrete_wavelet_transform</a></p>
+<p>Each choice has a number of pros and cons. For example, in a <cite>t+2D</cite> transform we can apply directly any image predictor based on motion estimation because the input is a normal video. However, if we implement a <cite>2D+t</cite> transform, the input to the motion estimator is a sequence of images in the DWT domain. [The overwhelming majority of DWT&#8217;s are not shift invariant][Friendly Guide], which basically means that DWT(<cite>s(t)</cite>) <cite>!=</cite> DWT(<cite>s(t+x)</cite>), where <cite>x</cite> is a displacement of the signal <cite>s(t)</cite> along the time domain. Therefore, motion estimators which compare pixel values will not work on the DWT domain. On the other hand, if we want to provide true spatial scalability (processing only those spatial resolutions (scales) necessary to get a spatially scaled of our video), a <cite>t+2D</cite> transformed video is not suitable because the first step of the forward transform (<cite>t</cite>) should be reversed at full resolution in the backward transform (as the forward transform did).</p>
+<p>[Friendly Guide]: __ <a class="reference external" href="http://www.polyvalens.com/blog/wavelets/theory">http://www.polyvalens.com/blog/wavelets/theory</a></p>
+<p>## Wavelet and pyramid domains
+Indeed, the DWT allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. However, this can be also done with [Gaussian and Laplacian pyramids][Pyramids]. Image pyramids are interesting because they are shift invariant and therefore, one can operate within the scales as they are <em>normal</em> images. However, as a consecuence of image pyramids representations are not critically sampled, they need more memory than DWT ones and this is a drawback when compressing. Luckily, it is very fast to convert a laplacian pyramid representation into a DWT representation, and viceversa. For this reason, even if we use the DWT to work with our images, we can suppose at any moment that we are working with the pyramid of those images.</p>
+<p>[Pyramids]: __ <a class="reference external" href="https://en.wikipedia.org/wiki/Pyramid_(image_processing">https://en.wikipedia.org/wiki/Pyramid_(image_processing</a>)</p>
+<p>## The &#8216;s&#8217;-levels 2D Discrete Wavelet Transform
+A&lt;sup&gt;[1](#myfootnote1)&lt;/sup&gt; [2D-DWT][2D-DWT] (2 Dimensions - Discrete Wavelet Transform) generates a scalable representation of an image and by extension, of a video if we apply the DWT on all the images of the video. This is done, for example, in [the JPEG2000 image and video compression standard][J2K]. Notice that only the spatial redundancy is exploited. All the temporal redundancy is still in the video.</p>
+<p>[J2K]: __ <a class="reference external" href="https://en.wikipedia.org/wiki/JPEG_2000">https://en.wikipedia.org/wiki/JPEG_2000</a>
+[2D-DWT]: __ <a class="reference external" href="https://en.wikipedia.org/wiki/Discrete_wavelet_transform">https://en.wikipedia.org/wiki/Discrete_wavelet_transform</a></p>
+<p>### Input
+A sequence <cite>V</cite> of <cite>n</cite> images:
+<a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a></p>
+<blockquote>
+<div>x</div></blockquote>
+<p>+&#8212;&#8212;&#8212;&#8212;&#8212;+  +&#8212;&#8212;&#8212;&#8212;&#8212;+     +&#8212;&#8212;&#8212;&#8212;&#8212;+
+|               |  |               |     |            |  |
+|               |  |               |   y <a href="#id5"><span class="problematic" id="id6">|</span></a>&#8212;&#8212;&#8212;&#8211; O &lt;&#8212;- V[n-1][y][x]
+|               |  |               | ... |               |
+|               |  |               |     |               |
+|               |  |               |     |               |
+|               |  |               |     |               |
++&#8212;&#8212;&#8212;&#8212;&#8212;+  +&#8212;&#8212;&#8212;&#8212;&#8212;+     +&#8212;&#8212;&#8212;&#8212;&#8212;+</p>
+<blockquote>
+<div>V[0]               V[1]                 V[n-1]</div></blockquote>
+<p><a href="#id7"><span class="problematic" id="id8">``</span></a><a href="#id9"><span class="problematic" id="id10">`</span></a></p>
+<p>### Output
+A sequence <cite>S</cite> of <cite>n</cite> &#8220;pyramids&#8221;. For example, a 2-levels 2D-DWT looks like:
+<a href="#id11"><span class="problematic" id="id12">``</span></a>`
++&#8212;+&#8212;+&#8212;&#8212;-+  +&#8212;+&#8212;+&#8212;&#8212;-+     +&#8212;+&#8212;+&#8212;&#8212;-+
+<a href="#id63"><span class="problematic" id="id64">|LL2|HL2|</span></a>       |  |   |   |       |     |   |   |       |
++&#8212;+&#8212;+  HL1  |  +&#8212;+&#8212;+       |     +&#8212;+&#8212;+       |
+<a href="#id65"><span class="problematic" id="id66">|LH2|HH2|</span></a>       |  |   |   |       |     |   |   |       |
++&#8212;+&#8212;+&#8212;&#8212;-+  +&#8212;+&#8212;+&#8212;&#8212;-+ ... +&#8212;+&#8212;+&#8212;&#8212;-+
+|       |       |  |       |       |     |       |       |
+|  LH1  |  HH1  |  |       |       |     |       |       |
+|       |       |  |       |       |     |       |       |
++&#8212;&#8212;-+&#8212;&#8212;-+  +&#8212;&#8212;-+&#8212;&#8212;-+ &nbsp; &nbsp; +&#8212;&#8212;-+&#8212;&#8212;-+</p>
+<blockquote>
+<div>S[0]               S[1]                  S[2]</div></blockquote>
+<p><a href="#id13"><span class="problematic" id="id14">``</span></a>`
+where <cite>L</cite> and <cite>H</cite> stands for <em>low-pass filtered</em> and <em>high-pass filtered</em>, respectively. The integer &gt; 1 that follows these letters represents the subband level. For the sake of simplicity, we will denote the subbands <cite>{LH, HL, HH}</cite> as only <cite>H</cite>, and <cite>LL</cite> as only <cite>L</cite>.</p>
+<p>### Algorithm
+<a href="#id15"><span class="problematic" id="id16">``</span></a><a href="#id17"><span class="problematic" id="id18">`</span></a>pytho
+for image in V:</p>
+<blockquote>
+<div>2D_DWT(image) # In place</div></blockquote>
+<p>S = V # Pointer copy
+<a href="#id19"><span class="problematic" id="id20">``</span></a><a href="#id21"><span class="problematic" id="id22">`</span></a></p>
+<p>### Scalability
+The 2D-DWT applied to a video produces a representation scalable in the space (we can extract different videos with different spatial scales or resolutions), in the time (we can extract diferent videos with different number of frames) and in quality (we can get the DWT coefficients with different quantization steps to reconstruct videos of different quality).</p>
+<p>### Inverse &#8216;s&#8217;-levels inverse 2D-DWT
+In the last example, subbands <cite>V2={S[0].LL2, S[1].LL2, ..., S[n-1].LL2}</cite> represent the scale (number) 2 of the original video (the spatial resolution of this <cite>V2</cite> is the resolution of <cite>V</cite> divided by 4 in each spatial dimension).</p>
+<p>To reconstruct the scale 1, we apply the 2D_iDWT (1-level 2D inverse DWT) in place (this means that the output of the transform replaces all or a part of the input data):
+<a href="#id23"><span class="problematic" id="id24">``</span></a><a href="#id25"><span class="problematic" id="id26">`</span></a>python
+for pyramid in S:</p>
+<blockquote>
+<div>2D_iDWT(pyramid) # In place</div></blockquote>
+<p>V = S # Pointer copy
+<a href="#id27"><span class="problematic" id="id28">``</span></a><a href="#id29"><span class="problematic" id="id30">`</span></a></p>
+<p>And finally, to get the original video, we need to apply again the previous code over <cite>S = V</cite>.</p>
+<p>### Implementation of 2D_DWT and 2D_iDWT
+See for example, [pywt.wavedec2()] __(<a class="reference external" href="https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2">https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2</a>) at [PyWavelets] __(<a class="reference external" href="https://pywavelets.readthedocs.io/en/latest/index.html">https://pywavelets.readthedocs.io/en/latest/index.html</a>).</p>
+<p>### Redundancy and compression
+The 2D-DWT provides an interesting feature to <cite>S</cite>: usually, <cite>H</cite> subbands has a lower entropy than <cite>V</cite>. This means that if we apply to <cite>S</cite> an entropy encoder, we can get a shorter representation of the video than if we encode <cite>V</cite> directly. This is a consequence of 2D-DWT exploits the spatial redudancy of the images of the video (neighboring pixels tend to have similar values and when they are substracted, they tend to produce zeros).</p>
+<p>## Why MCDWT?
+As we have said, the 2D-DWT does not exploit the temporal redundancy of a video. This means that we can achieve higher compression ratios if (in addition to the 2D-DWT) we apply a 1D-DWT along the temporal domain. This is exactly what MCDWT does. However, due to the temporal redundancy is generated mainly by the presence of objects in the scene of the video which are moving with respect to the camera, some sort of motion estimation and compensation should be used.</p>
+<p>### MCDWT input
+A sequence <cite>V</cite> of <cite>n</cite> images.</p>
+<p>### MCDWT output
+A sequence <cite>T</cite> of <cite>n</cite> pyramids, organized in <cite>l</cite> temporal subbands, where each subband is a sequence of pyramids. The number of input and output pyramids is the same.</p>
+<p>For example, if <cite>l=2</cite> and <cite>n=5</cite>:</p>
+<dl class="docutils">
+<dt><a href="#id31"><span class="problematic" id="id32">``</span></a><a href="#id33"><span class="problematic" id="id34">`</span></a></dt>
+<dd><p class="first">Spatial
+scale 0 1 2       t = 1                               t = 3</p>
+<blockquote>
+<div><p>^&nbsp;^&nbsp;^ +&#8212;+&#8212;+&#8212;&#8212;-+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; +&#8212;+&#8212;+&#8212;&#8212;-+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;^
+| | | |   |   | &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; | &nbsp; | &nbsp;   &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  |
+| | v +&#8212;+&#8212;+ &nbsp;   &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; +&#8212;+&#8212;+    O &lt;&#8212;- T[3][y][x] &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; |
+| |   |   |   |       |                   |   |   |       |                                |
+| v   +&#8212;+&#8212;+&#8212;&#8212;-+                   +&#8212;+&#8212;+&#8212;&#8212;-+ l = 0                          |
+|     |       |       |                   |       |       |                                |
+|     |       |       |                   |       |       |                                |
+|     |       |       |                   |       |       |                                |
+v     +&#8212;&#8212;-+&#8212;&#8212;-+       t = 2       +&#8212;&#8212;-+&#8212;&#8212;-+                                |</p>
+<blockquote>
+<div><a href="#id67"><span class="problematic" id="id68">|&nbsp; &nbsp; &nbsp; &nbsp;|</span></a> &nbsp; &nbsp; +&#8212;+&#8212;+&#8212;&#8212;-+ &nbsp; &nbsp;&nbsp;| &nbsp; &nbsp; &nbsp; &nbsp;| &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ^ |
+<a href="#id69"><span class="problematic" id="id70">|&nbsp; &nbsp; &nbsp; &nbsp;|</span></a>&nbsp; &nbsp; &nbsp;| &nbsp; | &nbsp; | &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; <a href="#id35"><span class="problematic" id="id36">|</span></a>&nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | |
+|       +&#8212;-&gt;+&#8212;+&#8212;+       <a href="#id37"><span class="problematic" id="id38">|</span></a>&lt;&#8212;-+        |                                 | |
+|             |   |   |       |              |                                 | |
+|             +&#8212;+&#8212;+&#8212;&#8212;-+ l = 1        |                                 | |
+|             |       |       |              |                                 | |
+|             |       |       |              |                                 | |
+|             |       |       |              |                                 | |</div></blockquote>
+</div></blockquote>
+<p class="last">t = 0           |             +&#8212;&#8212;-+&#8212;&#8212;-+              |           t = 4                 | |</p>
+</dd>
+</dl>
+<p>+&#8212;+&#8212;+&#8212;&#8212;-+ &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a href="#id71"><span class="problematic" id="id72">|&nbsp; &nbsp; &nbsp; &nbsp;|</span></a>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; +&#8212;+&#8212;+&#8212;&#8212;-+ &nbsp; &nbsp; &nbsp; &nbsp; ^ | |
+| &nbsp; | &nbsp; | &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  | &nbsp; &nbsp; | &nbsp; | &nbsp; | &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; | | |
++&#8212;+&#8212;+       <a href="#id73"><span class="problematic" id="id74">|&lt;&#8212;-+                 |       |                  +&#8212;-&gt;+&#8212;+&#8212;+       |         | | |
+|   |   |       |                       |       |                        |   |   |       |         | | |
++&#8212;+&#8212;+&#8212;&#8212;-+                       |       |                        +&#8212;+&#8212;+&#8212;&#8212;-+  l = 2  | | |
+|       |       |                       |       |                        |       |       |         | | |
+|       |       |&lt;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;-+       +&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8211;&gt;|</span></a>       |       |         | | |
+|       |       |                                                        |       |       |         | | |
++&#8212;&#8212;-+&#8212;&#8212;-+                                                        +&#8212;&#8212;-+&#8212;&#8212;-+         v v v</p>
+<blockquote>
+<div>GOP 0&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;GOP 1 &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;          Temporal scale 2 1 0</div></blockquote>
+<p>&lt;&#8212;&#8212;&#8212;&#8212;&#8212;&gt;&lt;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8211;&gt;</p>
+<p>(X &#8211;&gt; Y) = X depends on Y (X has been encoded using Y)
+<a href="#id39"><span class="problematic" id="id40">``</span></a><a href="#id41"><span class="problematic" id="id42">`</span></a></p>
+<p>### Forward (direct) MCDWT step
+![MCDWT](forward.png)</p>
+<p>### Backward (inverse) MCDWT step
+![MCDWT](backward.png)</p>
+<p>### Forward MCDWT
+<a href="#id43"><span class="problematic" id="id44">``</span></a>`
+n = 5 # Number of frames of the video
+l = 2 # Number of temporal scales to generate</p>
+<p>x = 2 # A constant
+for j in range(l):</p>
+<blockquote>
+<div><p>2D_DWT(V[0]) # 1-level 2D-DWT
+[A.L] = 2D_iDWT(V[0].L, 0)
+[A.H] = 2D_iDWT(0, V[0].H)
+i = 0 # Image index
+while i &lt; (n//x):</p>
+<blockquote>
+<div>2D_DWT(V[x*i+x//2])
+[B.L] = 2D_iDWT(V[x*i+x//2].L, 0)
+[B.H] = 2D_iDWT(0, V[x*i+x//2].L)
+2D_DWT(V[x*i+x])
+[C.L] = 2D_iDWT(V[x*i+x].L, 0)
+[C.H] = 2D_iDWT(0, V[x*i+x].L)
+[B.L]-&gt;[A.L] = ME([B.L], [A.L])
+[B.L]-&gt;[C.L] = ME([B.L], [C.L])
+[B.H]_A = MC([A.H], [B.L]-&gt;[A.L])
+[B.H]_C = MC([C.H], [B.L]-&gt;[C.L])
+[~B.H] = [B.H] - int(round(([B.H]_A + [B.H]_C)/2.0))
+2D_DWT([~B.H])
+[~B.H].L = B.L
+[A.L] = [C.L]
+[A.H] = [C.H]
+i += 1</div></blockquote>
+<p>x <a href="#id45"><span class="problematic" id="id46">*</span></a>= 2</p>
+</div></blockquote>
+<p><a href="#id47"><span class="problematic" id="id48">``</span></a><a href="#id49"><span class="problematic" id="id50">`</span></a></p>
+<p>Example (3 temporal scales (<cite>l=2</cite> iterations of the transform) and <cite>n=5</cite> images):
+<a href="#id51"><span class="problematic" id="id52">``</span></a>`
+V[0] V[1] V[2] V[3] V[4]</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>A    B    C              &lt;- First call of MCDWT_step</dt>
+<dd>A    B    C    &lt;- Second call of MCDWT_step</dd>
+</dl>
+<p>A         B         C    &lt;- Third call of MCDWT_step</p>
+</div></blockquote>
+<p>&#8212;- &#8212;&#8212;&#8212;&#8212;&#8212;&#8212;-
+GOP0        GOP1
+<a href="#id53"><span class="problematic" id="id54">``</span></a><a href="#id55"><span class="problematic" id="id56">`</span></a></p>
+<p>### Backward MCDWT
+<a href="#id57"><span class="problematic" id="id58">``</span></a>`
+n = 5 # Number of images
+l = 2 # Number of temporal scales</p>
+<p>x = 2**l
+for j in range(l):</p>
+<blockquote>
+<div><p>[A.L] = 2D_iDWT(V[0].L, 0)
+[A.H] = 2D_iDWT(0, V[0].H)
+V[0] = [A.L] + [A.H]
+i = 0 # Image index
+while i &lt; (n//x):</p>
+<blockquote>
+<div>[B.L] = 2D_iDWT(V[x*i+x//2].L, 0)
+[~B.H] = 2D_iDWT(0, V[x*i+x//2].H)
+[C.L] = 2D_iDWT(V[x*i+x].L, 0)
+[C.H] = 2D_iDWT(0, V[x*i+x].H)
+V[x*i+x] = [C.L] + [C.H]
+[B.L]-&gt;[A.L] = ME([B.L], [A.L])
+[B.L]-&gt;[C.L] = ME([B.L], [C.L])
+[B.H]_A = MC([A.H], [B.L]-&gt;[A.L])
+[B.H]_C = MC([C.H], [B.L]-&gt;[C.L])
+[B.H] = [~B.H] + int(round(([B.H]_A + [B.H]_C)/2.0))
+V[x*i+x//2] = [B.L] + [B.H]
+[A.L] = [C.L]
+[A.H] = [C.H]
+i += 1</div></blockquote>
+<p>x //= 2</p>
+</div></blockquote>
+<p><a href="#id59"><span class="problematic" id="id60">``</span></a><a href="#id61"><span class="problematic" id="id62">`</span></a></p>
+<p>### Data extraction examples</p>
+<p>#### Spatial scalability</p>
+<p>Scale 2:</p>
+<p>Provided by subbands L of the pyramids.</p>
+<p>Scale 1:</p>
+<p>Provided after running iMCDWT one iteration. For 3 pyramids A={A.L,A.H}, B={B.L,~B.H} and C={C.L,C.H} where the subband L is the scale 2, the scale 1 is recostructed by (see Algoithm iMCDWT_step):</p>
+<p>[A.L] = iDWT(A.L,0);
+[A.H] = iDWT(0,A.H);
+V[0] = [A.L] + [A.H];
+[B.L] = 2D_iDWT(V[1].L,0);
+[~B.H] = 2D_iDWT(0,V[1].H);
+[C.L] = 2D_iDWT(V[2].L,0);
+[C.H] = 2D_iDWT(0,V[2].H);
+V[2] = [C.L] + [C.H]
+[B.L]-&gt;[A.L] = ME([B.L], [A.L])
+[B.L]-&gt;[C.L] = ME([B.L], [C.L])
+[B.H]_A = MC([A.H], [B.L]-&gt;[A.L])
+[B.H]_C = MC([C.H], [B.L]-&gt;[C.L])
+[B.H] = [~B.H] + int(round(([B.H]_A + [B.H]_C)/2.0))
+V[1] = [B.L] + [B.H]
+[A.L] = [C.L]
+[A.H] = [C.H]
+...</p>
+<p>Scale 2:</p>
+<p>Repeat the previous computations.</p>
+<p>Scale -1:</p>
+<p>Repeat the previous computations, placing 0&#8217;s in the H subbands.</p>
+</div>
 
 
           </div>
@@ -71,15 +305,12 @@
   <ul>
 <li><a class="reference internal" href="#">Welcome to MCDWT&#8217;s documentation!</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li><a class="reference internal" href="#mcdwt-module">MCDWT module</a></li>
 </ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="MCDWT.html" title="next chapter">MCDWT module</a></li>
-  </ul></li>
-</ul>
-</div>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="MCDWT.html"
+                        title="next chapter">MCDWT module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -101,20 +332,21 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2017, Multimedia Systems UAL.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
-      
-      |
-      <a href="_sources/index.rst.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="MCDWT.html" title="MCDWT module"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">MCDWT  documentation</a> &#187;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.2.
+    </div>
   </body>
 </html>
