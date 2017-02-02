@@ -1,5 +1,7 @@
 # Motion Compensated Discrete Wavelet Transform (MCDWT)
 
+:-)
+
 ## MCDWT and video scalabilty
 **MCDWT inputs a [video][video] and outputs a video**, in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution ([temporal scalability][Scalability]), lower spatial resolution ([spatial scalability][Scalability]) or/and lower quality ([quality scalability][Scalability]) can be generated. If all the transformed data is used, then the original video is obtained (MCDWT es is a lossless transform). The video output has exactly the same number of elements than the input video (for example, no extra motion fields are produced). At this moment, we will focuse only on spatial scalability.
 
@@ -11,14 +13,15 @@ To obtain a multiresolution version or a video, the<sup>[1](#myfootnote1)</sup> 
 
 [DWT]: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
 
-Each choice has a number of pros and cons. For example, in a `t+2D` transform we can apply directly any image predictor based on motion estimation because the input is a normal video. However, if we implement a `2D+t` transform, the input to the motion estimator is a sequence of images in the DWT domain. [The overwhelming majority of DWT's are not shift invariant][Friendly Guide], which basically means that DWT(`s(t)`) `!=` DWT(`s(t+x)`), where `x` is a displacement of the signal `s(t)` along the time domain. Therefore, motion estimators which compare pixel values will not work on the DWT domain. On the other hand, if we want to provide true spatial scalability (processing only those spatial resolutions (scales) necessary to get a spatially scaled of our video), a `t+2D` transformed video is not suitable because the first step of the forward transform (`t`) should be reversed at full resolution in the backward transform (as the forward transform did).
+Each choice has a number of pros and cons. For example, in a `t+2D` transform we can apply directly any image predictor based on motion estimation because the input is a normal video. However, if we implement a `2D+t` transform, the input to the motion estimator is a sequence of images in the DWT domain. [The overwhelming majority of DWT's are not shift invariant][Friendly Guide], which basically means that DWT(`s(t)`) `!=` DWT(`s(t+x)`), where `x` is a displacement of the signal `s(t)` throughout the time domain. Therefore, motion estimators which compare pixel values will not work properly on the DWT domain. On the other hand, if we want to provide true spatial scalability (processing only those spatial resolutions (scales) necessary to get a spatially scaled of our video), a `t+2D` transformed video is not suitable because the first step of the forward transform (`t`) should be reversed at full resolution in the backward transform (as the forward transform did).
 
 [Friendly Guide]: http://www.polyvalens.com/blog/wavelets/theory
 
 ## Wavelet and pyramid domains
-Indeed, the DWT allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. However, this can be also done with [Gaussian and Laplacian pyramids][Pyramids]. Image pyramids are interesting because they are shift invariant and therefore, one can operate within the scales as they are *normal* images. However, as a consecuence of image pyramids representations are not critically sampled, they need more memory than DWT ones and this is a drawback when compressing. Luckily, it is very fast to convert a laplacian pyramid representation into a DWT representation, and viceversa. For this reason, even if we use the DWT to work with our images, we can suppose at any moment that we are working with the pyramid of those images.
+Indeed, the DWT allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. However, this can be also done with [Gaussian and Laplacian pyramids][Laplacian Pyramids]. Image pyramids are interesting because they are shift invariant and therefore, one can operate within the scales as they are *normal* images. Unfortunately, as a consecuence of pyramids representations are not critically sampled, they need more picture elements than in [Wavelet pyramids](Wavelet Pyramids) and this is a drawback when compressing. Luckily, it is very fast to convert a Laplacian pyramid representation into it DWT equivalent representation, and viceversa. For this reason, even if we use the Wavelet pyramids to work with our images, we can suppose at any moment that we are working with the Laplacian pyramid of those images.
 
-[Pyramids]: https://en.wikipedia.org/wiki/Pyramid_(image_processing)
+[Laplacian Pyramids]: https://en.wikipedia.org/wiki/Pyramid_(image_processing)
+[Wavelet Pyranids]: http://www.vtvt.ece.vt.edu/research/references/video/DCT_Video_Compression/Zhang92a.pdf
 
 ## The 's'-levels 2D Discrete Wavelet Transform
 A<sup>[1](#myfootnote1)</sup> [2D-DWT][2D-DWT] (2 Dimensions - Discrete Wavelet Transform) generates a scalable representation of an image and by extension, of a video if we apply the DWT on all the images of the video. This is done, for example, in [the JPEG2000 image and video compression standard][J2K]. Notice that only the spatial redundancy is exploited. All the temporal redundancy is still in the video.
@@ -52,8 +55,7 @@ A sequence `S` of `n` "pyramids". For example, a 2-levels 2D-DWT looks like:
 |       |       |  |       |       |     |       |       |
 |  LH1  |  HH1  |  |       |       |     |       |       |
 |       |       |  |       |       |     |       |       |        
-+-------+-------+  +-------+-------+     +-------+-------+
-       S[0]               S[1]                  S[2]
++-------+-------+  +-------+-------+     +-------+-------+       S[0]               S[1]                  S[2]
 ```
 where `L` and `H` stands for *low-pass filtered* and *high-pass filtered*, respectively. The integer > 1 that follows these letters represents the subband level. For the sake of simplicity, we will denote the subbands `{LH, HL, HH}` as only `H`, and `LL` as only `L`. 
 
@@ -92,7 +94,7 @@ As we have said, the 2D-DWT does not exploit the temporal redundancy of a video.
 A sequence `V` of `n` images.
 
 ### MCDWT output
-A sequence `T` of `n` pyramids, organized in `l` temporal subbands, where each subband is a sequence of pyramids. The number of input and output pyramids is the same.
+A sequence `T` of `n` (Wavelet) pyramids, organized in `l` temporal subbands, where each subband is a sequence of pyramids. The number of input and output pyramids is the same.
 
 For example, if `l=2` and `n=5`:
 
