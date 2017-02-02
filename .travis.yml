@@ -5,7 +5,10 @@ python:
 install:
   - "pip install -r requirements.txt"
   - "pip install opencv-python"
-# command to run tests
+  - "easy_install sphinx"
 script:
+# command to generate docs
+  - sphinx-quickstart
+# command to run tests
   - cd tests
   - pytest
