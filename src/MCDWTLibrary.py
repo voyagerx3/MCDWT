@@ -20,7 +20,7 @@ def split_video_in_frames_to_disk(filename):
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
 
 
-        cv2.imwrite('output/PNG/imagen'+str(num_frame)+'.png',image)
+        cv2.imwrite('test_images/'+str(num_frame)+'.png',image)
         
         num_frame = num_frame + 1
 
@@ -117,12 +117,43 @@ def forward_MCDWT(imageA, imageB, imageC):
     outputR[384:768, 0:640] = Rlh
     outputR[384:768, 640:1280] = Rhh
 
-    cv2.imwrite('output/PNG/A.png',outputA)
-    cv2.imwrite('output/PNG/R.png',outputR)
-    cv2.imwrite('output/PNG/C.png',outputC)
+    # cv2.imwrite('test_images/A.png',outputA)
+    # cv2.imwrite('test_images/R.png',outputR)
+    # cv2.imwrite('test_images/C.png',outputC)
 
+    return outputA, outputR, outputC
+
+def video_converter (file_in, file_out):
+
+    cap = cv2.VideoCapture(file_in)
+    ret, frame1 = cap.read()
+
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter(file_out,fourcc, 50.0, (1280,768))
+
+
+    while(cap.isOpened()):
+
+        ret, frame2 = cap.read()
+        ret, frame3 = cap.read()
         
-    
+        if frame3 is None or frame2 is None or frame3 is None :
+            break
+        image1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2YCrCb)
+        image2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2YCrCb)
+        image3 = cv2.cvtColor(frame3, cv2.COLOR_BGR2YCrCb)
+
+        image1, image2, image3 = forward_MCDWT(image1,image2,image3)
+        
+        
+        out.write(np.uint8(image1))
+        out.write(np.uint8(image2))
+        out.write(np.uint8(image3))
+        frame1 = frame3
+
+    cap.release()
+    out.release()
+
 # forward_MCDWT(read_frame('output/PNG/imagen56.png'),read_frame('output/PNG/imagen57.png'),read_frame('output/PNG/imagen58.png'))
 
 # read_video('stockholm_1280x768x50x420x578.avi')
