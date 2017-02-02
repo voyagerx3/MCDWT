@@ -8,9 +8,9 @@ install:
   - "easy_install sphinx"
 script:
 # commands to generate docs
-  - sphinx-quickstart
-  - 
+  - sphinx-quickstart << EQF
   
+  EQF
 # commands to run tests
   - cd tests
   - pytest
