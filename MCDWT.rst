@@ -140,11 +140,13 @@ For example, if `l=2` and `n=5`:
 (X --> Y) = X depends on Y (X has been encoded using Y)
 ```
 
-### Forward (direct) MCDWT step
-![MCDWT](forward.png)
+### Forward (direct) MCDWT st
+
+.. image:: ../forward.png
 
 ### Backward (inverse) MCDWT step
-![MCDWT](backward.png)
+
+.. image:: ../backward.png 
 
 ### Forward MCDWT
 ```
