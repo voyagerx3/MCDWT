@@ -465,5 +465,6 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
             print('i =', i)
         x //= 2
 
-MCDWT('../input/','/tmp/',5,1)
-iMCDWT('/tmp/','/tmp/res',5,1)
+if __name__ == '__main__':
+    MCDWT('../test_images/','/tmp/',5,1)
+    iMCDWT('/tmp/','/tmp/res',5,1)
