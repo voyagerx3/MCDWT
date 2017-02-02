@@ -12,6 +12,7 @@ Welcome to MCDWT's documentation!
 
    MCDWT
    iMCDWT
+   docstring
 
 
 Indices and tables
@@ -22,4 +23,5 @@ Indices and tables
 * :ref:`search`
 
 
-.. include:: ../MCDWT.rst
+.. include:: MCDWT.rst
+.. include:: docstring.rst
