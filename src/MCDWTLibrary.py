@@ -145,9 +145,11 @@ def video_converter (file_in, file_out):
 
         image1, image2, image3 = forward_MCDWT(image1,image2,image3)
         
-        
+        image1 = 256*((image1+512)/1024)
+        image2 = 256*((image2+512)/1024)
+        image3 = 256*((image3+512)/1024)
+
         image1 = np.uint8(image1)
-        print(str(np.amax(image1))+ '>' +str(np.amax(image2)))
         image2 = np.uint8(image2)
         image3 = np.uint8(image3)
 
