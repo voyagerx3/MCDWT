@@ -128,8 +128,8 @@ def video_converter (file_in, file_out):
     cap = cv2.VideoCapture(file_in)
     ret, frame1 = cap.read()
 
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter(file_out,fourcc, 50.0, (1280,768))
+    fourcc = cv2.VideoWriter_fourcc(*'X264')
+    out = cv2.VideoWriter(file_out,fourcc, 50.0, (1280,768), False)
 
 
     while(cap.isOpened()):
@@ -146,9 +146,15 @@ def video_converter (file_in, file_out):
         image1, image2, image3 = forward_MCDWT(image1,image2,image3)
         
         
-        out.write(np.uint8(image1))
-        out.write(np.uint8(image2))
-        out.write(np.uint8(image3))
+        image1 = np.uint8(image1)
+        print(str(np.amax(image1))+ '>' +str(np.amax(image2)))
+        image2 = np.uint8(image2)
+        image3 = np.uint8(image3)
+
+
+        out.write(image1)
+        out.write(image2)
+        out.write(image3)
         frame1 = frame3
 
     cap.release()
