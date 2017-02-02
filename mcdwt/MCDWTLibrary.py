@@ -55,6 +55,8 @@ def dwt2d_to_image(coeffs):
 
 def forward_MCDWT(imageA, imageB, imageC):
 
+    height = imageA.shape[0]
+    width = imageA.shape[1]
     coeffA=image_to_dwt2d(imageA[:,:,0])
     coeffB=image_to_dwt2d(imageB[:,:,0])
     coeffC=image_to_dwt2d(imageC[:,:,0])
@@ -74,7 +76,7 @@ def forward_MCDWT(imageA, imageB, imageC):
     Clh = coeffC[1][1]
     Chh = coeffC[1][2]
     
-    zeroes = np.zeros((384, 640), dtype="float64")
+    zeroes = np.zeros((height//2, width//2), dtype="float64")
         
     iAl = dwt2d_to_image((All,(zeroes,zeroes,zeroes)))
     iAh = dwt2d_to_image((zeroes,(Ahl,Alh,Ahh)))
@@ -99,23 +101,23 @@ def forward_MCDWT(imageA, imageB, imageC):
 
     Rll = Bll
 
-    outputA = np.zeros((768, 1280), dtype="int16")
-    outputA[0:384, 0:640] = All
-    outputA[0:384, 640:1280] = Ahl
-    outputA[384:768, 0:640] = Alh
-    outputA[384:768, 640:1280] = Ahh
+    outputA = np.zeros((height, width), dtype="int16")
+    outputA[0:height//2, 0:width//2] = All
+    outputA[0:height//2, width//2:width] = Ahl
+    outputA[height//2:height, 0:width//2] = Alh
+    outputA[height//2:height, width//2:width] = Ahh
 
-    outputC = np.zeros((768, 1280), dtype="int16")
-    outputC[0:384, 0:640] = Cll
-    outputC[0:384, 640:1280] = Chl
-    outputC[384:768, 0:640] = Clh
-    outputC[384:768, 640:1280] = Chh
+    outputC = np.zeros((height, width), dtype="int16")
+    outputC[0:height//2, 0:width//2] = Cll
+    outputC[0:height//2, width//2:width] = Chl
+    outputC[height//2:height, 0:width//2] = Clh
+    outputC[height//2:height, width//2:width] = Chh
 
-    outputR = np.zeros((768, 1280), dtype="int16")
-    outputR[0:384, 0:640] = Rll
-    outputR[0:384, 640:1280] = Rhl
-    outputR[384:768, 0:640] = Rlh
-    outputR[384:768, 640:1280] = Rhh
+    outputR = np.zeros((height, width), dtype="int16")
+    outputR[0:height//2, 0:width//2] = Rll
+    outputR[0:height//2, width//2:width] = Rhl
+    outputR[height//2:height, 0:width//2] = Rlh
+    outputR[height//2:height, width//2:width] = Rhh
 
     # cv2.imwrite('test_images/A.png',outputA)
     # cv2.imwrite('test_images/R.png',outputR)
@@ -129,7 +131,7 @@ def video_converter (file_in, file_out):
     ret, frame1 = cap.read()
 
     fourcc = cv2.VideoWriter_fourcc(*'X264')
-    out = cv2.VideoWriter(file_out,fourcc, 50.0, (1280,768), False)
+    out = cv2.VideoWriter(file_out,fourcc, 50.0, (frame1.shape[0],frame1.shape[1]), False)
 
 
     while(cap.isOpened()):
