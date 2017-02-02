@@ -250,3 +250,6 @@ ModelManifest.xml
 # Added virtual env
 
 venv/
+
+#remove cache folder
+__pycache__
