@@ -8,6 +8,7 @@ install:
   - "pip install sphinx"
 script:
 # commands to generate docs
+  - cd docs
   - sphinx-build -nW -b html -d _build/doctrees . _build/html
 # commands to run tests
   - cd tests
