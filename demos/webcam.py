@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 import pywt
 import argparse
+from mcdwt import motion
 
 parser = argparse.ArgumentParser(description='video cam recorder')
 parser.add_argument('--width', dest='width', help='width', required=True)
@@ -23,9 +24,6 @@ l = 1
 
 cache = []
 first_time = True
-
-def motion_estimation(src, dest, base):
-    return base
 
 while(cap.isOpened()):
     ret, frame = cap.read()
@@ -49,8 +47,9 @@ while(cap.isOpened()):
         AH  = pywt.idwt2((zero_quarter, coeff[1]), "haar")
         if len(cache) == 2*l*3:
             # process
-            BAH = motion_estimation(cache[1], cache[4], cache[2])
-            BCH = motion_estimation(AL, cache[4], AH)
+            BAH = motion.motion_compensation((cache[1], None, None), (cache[4], None, None), (cache[2], None, None))
+            BAH = motion.motion_compensation((AL, None, None), (cache[4], None, None), (AH, None, None))
+            #BCH = motion.motion_compensation(AL, cache[4], AH)
             residuo = cache[5] - (BAH + BCH)/2
             residuo_coeff = pywt.dwt2(residuo, "haar")
             rll = residuo_coeff[0]
@@ -68,8 +67,8 @@ while(cap.isOpened()):
             print(rhh.max())
             
             
-            out.write(np.uint16(rdwt))
-            out.write(np.uint16(dwt))
+            out.write(np.uint8(rdwt))
+            out.write(np.uint8(dwt))
 
             # clean cache
             cache = []
@@ -79,7 +78,7 @@ while(cap.isOpened()):
         cache.append(AH)
 
         if first_time:
-            out.write(np.uint16(dwt))
+            out.write(np.uint8(dwt))
             first_time = False
     else:
         break
