@@ -10,6 +10,7 @@ script:
 # commands to generate docs
   - cd docs
   - sphinx-build -nW -b html -d _build/doctrees . _build/html
+  - cd ..
 # commands to run tests
   - cd tests
   - pytest
