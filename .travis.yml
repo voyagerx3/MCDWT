@@ -5,7 +5,13 @@ python:
 install:
   - "pip install -r requirements.txt"
   - "pip install opencv-python"
-# command to run tests
+  - "pip install sphinx"
 script:
+# commands to generate docs
+  - cd docs
+  - sphinx-build -nW -b html -d _build/doctrees . _build/html
+  - make html
+  - cd ..
+# commands to run tests
   - cd tests
   - pytest
