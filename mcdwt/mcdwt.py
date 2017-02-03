@@ -313,6 +313,141 @@ class PyramidWritter:
         buf[y:y*2,x:x*2,:] = HH
         cv2.imwrite(file_name, buf)
 
+class PyramidReaderLH:
+    '''Read PNG pyramids from disk.
+
+    Pyramids should be enumerated. Example: "pyramid000.png,
+    pyramid001.png, ..."
+
+    '''
+
+    def __init__(self):
+        pass
+
+    def set_path(self, path='../input/'):
+        '''Set up the path where the pyramids are.
+
+        Parameters
+        ----------
+
+            path : str
+
+                The pyramid path (directory and file prefix). Example:
+                '../input/pyramid'.
+
+        Returns
+        -------
+
+            None.
+
+        '''
+
+        self.path = path 
+
+    def read(self, number):
+        '''Read a pyramid from disk.
+
+        Parameters
+        ----------
+
+            number : int.
+
+                Index of the pyramid in the sequence.
+
+        Returns
+        -------
+
+            (L,H) where L=[:,:,:] and H=(LH,HL,HH), where LH,HL,HH=[:,:,:].
+
+                A color pyramid.
+
+        '''
+
+        file_name = '{}{:03d}L.png'.format(self.path, number)
+        LL = cv2.imread(file_name)
+        if LL is None:
+            raise InputFileException('{} not found'.format(file_name))
+        file_name = '{}{:03d}H.png'.format(self.path, number)
+        buf = cv2.imread(file_name)
+        if buf is None:
+            raise InputFileException('{} not found'.format(file_name))
+        else:
+            y = math.ceil(buf.shape[0]/2)
+            x = math.ceil(buf.shape[1]/2)
+            LH = buf[0:y,x:buf.shape[1],:]
+            HL = buf[y:buf.shape[0],0:x,:]
+            HH = buf[y:buf.shape[0],x:buf.shape[1],:]
+            return (LL, (LH, HL, HH))
+
+class PyramidWritterLH:
+    '''Write PNG pyramids to disk.
+
+    Pyramids must be enumerated. Example: "pyramid000{L|H}.png,
+    pyramid001{L|H}.png, ...", being 'L' used for the low-frequency
+    subband LL and H for the subbands LH, HL and HH.
+
+    '''
+
+    def __init__(self):
+        pass
+
+    def set_path(self, path='../output/'):
+        '''Set up the path where the pyramids are.
+
+        Parameters
+        ----------
+
+            path : str
+
+                The pyramid path (directory and file prefix). Example:
+                '../output/pyramid'.
+
+        Returns
+        -------
+
+            None.
+
+        '''
+
+        self.path = path 
+
+    def write(self, pyramid, number=0):
+        '''Write a pyramid to disk.
+
+        Parameters
+        ----------
+
+            L : [:,:,:].
+
+                LL subband.
+
+            H : (LH, HL, HH), where LH,HL,HH=[:,:,:].
+
+                H subbands.
+
+            number : int.
+
+                Index of the pyramid in the sequence.
+
+        Returns
+        -------
+
+            None.
+
+        '''
+        #import ipdb; ipdb.set_trace()
+        file_name = '{}{:03d}L.png'.format(self.path, number)
+        cv2.imwrite(file_name, pyramid[0])
+        y = pyramid[0].shape[0]
+        x = pyramid[0].shape[1]
+        buf = np.ndarray((y*2, x*2, 3), np.float64)
+        buf[0:y,0:x,:] = np.zeros((y, x, 3), np.float64)
+        buf[0:y,x:x*2,:] = pyramid[1][0]
+        buf[y:y*2,0:x,:] = pyramid[1][1]
+        buf[y:y*2,x:x*2,:] = pyramid[1][2]
+        file_name = '{}{:03d}H.png'.format(self.path, number)
+        cv2.imwrite(file_name, buf)
+
 def MCDWT(input = '../input/', output='../output/', n=5, l=2):
     '''A Motion Compensated Discrete Wavelet Transform.
 
@@ -353,7 +488,7 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
     '''
     ir = ImageReader()
     iw = ImageWritter()
-    pw = PyramidWritter()
+    pw = PyramidWritterLH()
     ir.set_path(input)
     iw.set_path(output)
     pw.set_path(output)
@@ -432,7 +567,7 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
     '''
     ir = ImageReader()
     iw = ImageWritter()
-    pr = PyramidReader()
+    pr = PyramidReaderLH()
     ir.set_path(input)
     iw.set_path(output)
     pr.set_path(input)
