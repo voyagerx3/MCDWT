@@ -26,10 +26,10 @@ def _2D_DWT(image):
 
     y = math.ceil(image.shape[0]/2)
     x = math.ceil(image.shape[1]/2)
-    LL = np.ndarray((y, x, 3), np.int16)
-    LH = np.ndarray((y, x, 3), np.int16)
-    HL = np.ndarray((y, x, 3), np.int16)
-    HH = np.ndarray((y, x, 3), np.int16)
+    LL = np.ndarray((y, x, 3), np.float64)
+    LH = np.ndarray((y, x, 3), np.float64)
+    HL = np.ndarray((y, x, 3), np.float64)
+    HH = np.ndarray((y, x, 3), np.float64)
     for c in range(3):
         (LL[:,:,c], (LH[:,:,c], HL[:,:,c], HH[:,:,c])) = pywt.dwt2(image[:,:,c], 'db5', mode='per')
 
@@ -61,10 +61,10 @@ def _2D_iDWT(L, H):
     LH = H[0]
     HL = H[1]
     HH = H[2]
-    frame = np.ndarray((L.shape[0]*2, L.shape[1]*2, 3), np.float64) # Ojo
+    frame = np.ndarray((L.shape[0]*2, L.shape[1]*2, 3), np.float64)
     for c in range(3):
         frame[:,:,c] = pywt.idwt2((L[:,:,c], (LH[:,:,c], HL[:,:,c], HH[:,:,c])), 'db5', mode='per')
-    return frame.astype('int16') # Ojo
+    return frame
 
 class InputFileException(Exception):
     pass
@@ -364,24 +364,23 @@ class PyramidReaderLH:
         '''
 
         file_name = '{}{:03d}L.png'.format(self.path, number)
-        LL = cv2.imread(file_name, -1).astype('int')
-        LL -= 32768
-        LL = LL.astype('int16')
+        LL = cv2.imread(file_name, -1).astype('float64')
+        LL -= 128
         if LL is None:
             raise InputFileException('{} not found'.format(file_name))
         file_name = '{}{:03d}H.png'.format(self.path, number)
-        buf = cv2.imread(file_name, -1).astype('int')
+        buf = cv2.imread(file_name, -1).astype('float64')
         if buf is None:
             raise InputFileException('{} not found'.format(file_name))
         else:
             y = math.ceil(buf.shape[0]/2)
             x = math.ceil(buf.shape[1]/2)
-            LH = buf[0:y,x:buf.shape[1],:] - 32768
-            LH = LH.astype('int16')
-            HL = buf[y:buf.shape[0],0:x,:] - 32768
-            HL = HL.astype('int16')
-            HH = buf[y:buf.shape[0],x:buf.shape[1],:] - 32768
-            HH = HH.astype('int16')
+            LH = buf[0:y,x:buf.shape[1],:]
+            LH -= 128
+            HL = buf[y:buf.shape[0],0:x,:]
+            HL -= 128
+            HH = buf[y:buf.shape[0],x:buf.shape[1],:]
+            HH -= 128
             return (LL, (LH, HL, HH))
 
 class PyramidWritterLH:
@@ -442,7 +441,9 @@ class PyramidWritterLH:
         '''
         #import ipdb; ipdb.set_trace()
         file_name = '{}{:03d}L.png'.format(self.path, number)
-        LL = (pyramid[0].astype('int') + 32768).astype('uint16')
+        LL = pyramid[0]
+        LL += 128
+        LL = LL.astype('uint16')
         cv2.imwrite(file_name, LL)
         y = pyramid[0].shape[0]
         x = pyramid[0].shape[1]
@@ -450,11 +451,11 @@ class PyramidWritterLH:
         #buf[0:y,x:x*2,:] = np.round(pyramid[1][0] + 128)
         #buf[y:y*2,0:x,:] = np.round(pyramid[1][1] + 128)
         #buf[y:y*2,x:x*2,:] = np.round(pyramid[1][2] + 128)
-        LH = pyramid[1][0].astype('int') + 32768
+        LH = pyramid[1][0] + 128
         buf[0:y,x:x*2,:] = LH.astype('uint16')
-        HL = pyramid[1][1].astype('int') + 32768
-        buf[y:y*2,0:x,:] = HL.astype('uint16')
-        HH = pyramid[1][2].astype('int') + 32768
+        HL = pyramid[1][1] + 128
+        buf[y:y*2,0:x,:]= HL.astype('uint16')
+        HH = pyramid[1][2] + 128
         buf[y:y*2,x:x*2,:] = HH.astype('uint16')
         file_name = '{}{:03d}H.png'.format(self.path, number)
         cv2.imwrite(file_name, buf)
@@ -497,7 +498,7 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
         None.
 
     '''
-    import ipdb; ipdb.set_trace()
+    #import ipdb; ipdb.set_trace()
     ir = ImageReader()
     iw = ImageWritter()
     pw = PyramidWritterLH()
@@ -512,7 +513,7 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
         L_y = tmpA[0].shape[0]
         L_x = tmpA[0].shape[1]
         pw.write(tmpA, 0)        
-        zero_L = np.zeros(tmpA[0].shape, np.int16)
+        zero_L = np.zeros(tmpA[0].shape, np.float64)
         zero_H = (zero_L, zero_L, zero_L)
         AL = _2D_iDWT(tmpA[0], zero_H)
         #iw.write(AL, 1)
@@ -532,10 +533,11 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
             BHA = motion_compensation(BL, AL, AH)
             BHC = motion_compensation(BL, CL, CH)
             iw.write(BH, x*i+x//2 + 10)
-            rBH = BH - ((BHA + BHC) / 2).astype('int16')
+            rBH = BH - (BHA + BHC) / 2
             iw.write(rBH, x*i+x//2 + 100)
             rBH = _2D_DWT(rBH)
             #import ipdb; ipdb.set_trace()
+            pw.write(rBH, x*i+x//2 + 1000)
             rBH[0][0:L_y,0:L_x,:] = tmpB[0]
             pw.write(rBH, x*i+x//2)
             AL = CL
@@ -579,7 +581,7 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
         None.
 
     '''
-    import ipdb; ipdb.set_trace()
+    #import ipdb; ipdb.set_trace()
     ir = ImageReader()
     iw = ImageWritter()
     pr = PyramidReaderLH()
@@ -590,7 +592,7 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
     for j in range(l): # Number of temporal scales
         #import ipdb; ipdb.set_trace()
         A = pr.read(0)
-        zero_L = np.zeros(A[0].shape, np.int16)
+        zero_L = np.zeros(A[0].shape, np.float64)
         zero_H = (zero_L, zero_L, zero_L)
         AL = _2D_iDWT(A[0], zero_H)
         AH = _2D_iDWT(zero_L, A[1])
@@ -608,7 +610,7 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
             iw.write(C, x*i+x)
             BHA = motion_compensation(BL, AL, AH)
             BHC = motion_compensation(BL, CL, CH)
-            BH = rBH + ((BHA + BHC) / 2).astype('int16')
+            BH = rBH + (BHA + BHC) / 2
             B = BL + BH
             iw.write(B, x*i+x//2)
             AL = CL
