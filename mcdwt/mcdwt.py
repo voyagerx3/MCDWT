@@ -374,9 +374,9 @@ class PyramidReaderLH:
         else:
             y = math.ceil(buf.shape[0]/2)
             x = math.ceil(buf.shape[1]/2)
-            LH = buf[0:y,x:buf.shape[1],:]
-            HL = buf[y:buf.shape[0],0:x,:]
-            HH = buf[y:buf.shape[0],x:buf.shape[1],:]
+            LH = buf[0:y,x:buf.shape[1],:] - 128.0
+            HL = buf[y:buf.shape[0],0:x,:] - 128.0
+            HH = buf[y:buf.shape[0],x:buf.shape[1],:] - 128.0
             return (LL, (LH, HL, HH))
 
 class PyramidWritterLH:
@@ -437,14 +437,16 @@ class PyramidWritterLH:
         '''
         #import ipdb; ipdb.set_trace()
         file_name = '{}{:03d}L.png'.format(self.path, number)
-        cv2.imwrite(file_name, pyramid[0])
+        cv2.imwrite(file_name, np.round(pyramid[0]))
         y = pyramid[0].shape[0]
         x = pyramid[0].shape[1]
-        buf = np.ndarray((y*2, x*2, 3), np.float64)
-        buf[0:y,0:x,:] = np.zeros((y, x, 3), np.float64)
-        buf[0:y,x:x*2,:] = pyramid[1][0]
-        buf[y:y*2,0:x,:] = pyramid[1][1]
-        buf[y:y*2,x:x*2,:] = pyramid[1][2]
+        buf = np.full((y*2, x*2, 3), 128.0, np.float64)
+        #buf[0:y,x:x*2,:] = np.round(pyramid[1][0] + 128.0)
+        #buf[y:y*2,0:x,:] = np.round(pyramid[1][1] + 128.0)
+        #buf[y:y*2,x:x*2,:] = np.round(pyramid[1][2] + 128.0)
+        buf[0:y,x:x*2,:] = pyramid[1][0] + 128.0
+        buf[y:y*2,0:x,:] = pyramid[1][1] + 128.0
+        buf[y:y*2,x:x*2,:] = pyramid[1][2] + 128.0
         file_name = '{}{:03d}H.png'.format(self.path, number)
         cv2.imwrite(file_name, buf)
 
@@ -519,7 +521,9 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
             CH = _2D_iDWT(zero_L, tmpC[1])
             BHA = motion_compensation(BL, AL, AH)
             BHC = motion_compensation(BL, CL, CH)
+            iw.write(BH, x*i+x//2 + 10)
             rBH = BH - (BHA + BHC) / 2
+            iw.write(rBH, x*i+x//2 + 100)
             rBH = _2D_DWT(rBH)
             #import ipdb; ipdb.set_trace()
             rBH[0][0:L_y,0:L_x,:] = tmpB[0]
@@ -603,6 +607,7 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
         x //=2
 
 if __name__ == '__main__':
-    MCDWT('../test_images/','/tmp/',5,1)
+    #MCDWT('../test_images/','/tmp/',5,1)
+    MCDWT('/tmp/pru/','/tmp/',5,1)
     iMCDWT('/tmp/','/tmp/res',5,1)
 
