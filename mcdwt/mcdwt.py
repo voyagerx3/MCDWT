@@ -3,6 +3,8 @@ import numpy as np
 import pywt
 import math
 
+from motion import motion_compensation
+
 def _2D_DWT(image):
     '''2D DWT of a color image.
 
@@ -380,8 +382,8 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
             pw.write(tmpC, x*i+x)
             CL = _2D_iDWT(tmpC[0], zero_H)
             CH = _2D_iDWT(zero_L, tmpC[1])
-            BHA = AH # No ME (yet)
-            BHC = CH # No ME
+            BHA = motion_compensation(BL, AL, AH)
+            BHC = motion_compensation(BL, CL, CH)
             rBH = BH - (BHA + BHC) / 2
             rBH = _2D_DWT(rBH)
             #import ipdb; ipdb.set_trace()
@@ -454,8 +456,8 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
             CH = _2D_iDWT(zero_L, C[1])
             C = CL + CH
             iw.write(C, x*i+x)
-            BHA = AH # No ME (yet)
-            BHC = CH # No ME
+            BHA = motion_compensation(BL, AL, AH)
+            BHC = motion_compensation(BL, CL, CH)
             BH = rBH + (BHA + BHC) / 2
             B = BL + BH
             iw.write(B, x*i+x//2)
@@ -463,8 +465,9 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
             AH = CH
             i += 1
             print('i =', i)
-        x //= 2
+        x //=2
 
 if __name__ == '__main__':
     MCDWT('../test_images/','/tmp/',5,1)
     iMCDWT('/tmp/','/tmp/res',5,1)
+
