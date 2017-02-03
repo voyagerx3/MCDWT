@@ -1,5 +1,11 @@
 default:	forward.png backward.png
 
+forward.pdf:	forward.tex
+		pdflatex forward
+
+backward.pdf:	backward.tex
+		pdflatex backward
+
 forward.png:	forward.pdf
 		convert -density 150 forward.pdf forward.png
 

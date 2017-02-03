@@ -26,10 +26,10 @@ def _2D_DWT(image):
 
     y = math.ceil(image.shape[0]/2)
     x = math.ceil(image.shape[1]/2)
-    LL = np.ndarray((y, x, 3), np.float64)
-    LH = np.ndarray((y, x, 3), np.float64)
-    HL = np.ndarray((y, x, 3), np.float64)
-    HH = np.ndarray((y, x, 3), np.float64)
+    LL = np.ndarray((y, x, 3), np.uint16)
+    LH = np.ndarray((y, x, 3), np.int16)
+    HL = np.ndarray((y, x, 3), np.int16)
+    HH = np.ndarray((y, x, 3), np.int16)
     for c in range(3):
         (LL[:,:,c], (LH[:,:,c], HL[:,:,c], HH[:,:,c])) = pywt.dwt2(image[:,:,c], 'db5', mode='per')
 
@@ -120,7 +120,7 @@ class ImageReader:
         '''
 
         file_name = '{}{:03d}.png'.format(self.path, number)
-        image = cv2.imread(file_name)
+        image = cv2.imread(file_name, -1)
         if image is None:
             raise InputFileException('{} not found'.format(file_name))
         else:
@@ -231,7 +231,7 @@ class PyramidReader:
         '''
 
         file_name = '{}{:03d}.png'.format(self.path, number)
-        buf = cv2.imread(file_name)
+        buf = cv2.imread(file_name, -1)
         if buf is None:
             raise InputFileException('{} not found'.format(file_name))
         else:
@@ -364,11 +364,11 @@ class PyramidReaderLH:
         '''
 
         file_name = '{}{:03d}L.png'.format(self.path, number)
-        LL = cv2.imread(file_name)
+        LL = cv2.imread(file_name, -1)
         if LL is None:
             raise InputFileException('{} not found'.format(file_name))
         file_name = '{}{:03d}H.png'.format(self.path, number)
-        buf = cv2.imread(file_name)
+        buf = cv2.imread(file_name, -1)
         if buf is None:
             raise InputFileException('{} not found'.format(file_name))
         else:
@@ -502,7 +502,7 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
         L_y = tmpA[0].shape[0]
         L_x = tmpA[0].shape[1]
         pw.write(tmpA, 0)        
-        zero_L = np.zeros(tmpA[0].shape, np.uint8)
+        zero_L = np.zeros(tmpA[0].shape, np.uint16)
         zero_H = (zero_L, zero_L, zero_L)
         AL = _2D_iDWT(tmpA[0], zero_H)
         #iw.write(AL, 1)
@@ -569,6 +569,7 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
         None.
 
     '''
+    #import ipdb; ipdb.set_trace()
     ir = ImageReader()
     iw = ImageWritter()
     pr = PyramidReaderLH()
