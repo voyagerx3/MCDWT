@@ -26,7 +26,7 @@ def _2D_DWT(image):
 
     y = math.ceil(image.shape[0]/2)
     x = math.ceil(image.shape[1]/2)
-    LL = np.ndarray((y, x, 3), np.uint16)
+    LL = np.ndarray((y, x, 3), np.int16)
     LH = np.ndarray((y, x, 3), np.int16)
     HL = np.ndarray((y, x, 3), np.int16)
     HH = np.ndarray((y, x, 3), np.int16)
@@ -61,10 +61,10 @@ def _2D_iDWT(L, H):
     LH = H[0]
     HL = H[1]
     HH = H[2]
-    frame = np.ndarray((L.shape[0]*2, L.shape[1]*2, 3), np.float64)
+    frame = np.ndarray((L.shape[0]*2, L.shape[1]*2, 3), np.float64) # Ojo
     for c in range(3):
         frame[:,:,c] = pywt.idwt2((L[:,:,c], (LH[:,:,c], HL[:,:,c], HH[:,:,c])), 'db5', mode='per')
-    return frame
+    return frame.astype('int16') # Ojo
 
 class InputFileException(Exception):
     pass
@@ -306,7 +306,7 @@ class PyramidWritter:
         HH = pyramid[1][2]
         y = LL.shape[0]
         x = LL.shape[1]
-        buf = np.ndarray((y*2, x*2, 3), np.float64)
+        buf = np.ndarray((y*2, x*2, 3), np.int16)
         buf[0:y,0:x,:] = LL
         buf[0:y,x:x*2,:] = LH
         buf[y:y*2,0:x,:] = HL
@@ -364,19 +364,24 @@ class PyramidReaderLH:
         '''
 
         file_name = '{}{:03d}L.png'.format(self.path, number)
-        LL = cv2.imread(file_name, -1)
+        LL = cv2.imread(file_name, -1).astype('int')
+        LL -= 32768
+        LL = LL.astype('int16')
         if LL is None:
             raise InputFileException('{} not found'.format(file_name))
         file_name = '{}{:03d}H.png'.format(self.path, number)
-        buf = cv2.imread(file_name, -1)
+        buf = cv2.imread(file_name, -1).astype('int')
         if buf is None:
             raise InputFileException('{} not found'.format(file_name))
         else:
             y = math.ceil(buf.shape[0]/2)
             x = math.ceil(buf.shape[1]/2)
-            LH = buf[0:y,x:buf.shape[1],:] - 128.0
-            HL = buf[y:buf.shape[0],0:x,:] - 128.0
-            HH = buf[y:buf.shape[0],x:buf.shape[1],:] - 128.0
+            LH = buf[0:y,x:buf.shape[1],:] - 32768
+            LH = LH.astype('int16')
+            HL = buf[y:buf.shape[0],0:x,:] - 32768
+            HL = HL.astype('int16')
+            HH = buf[y:buf.shape[0],x:buf.shape[1],:] - 32768
+            HH = HH.astype('int16')
             return (LL, (LH, HL, HH))
 
 class PyramidWritterLH:
@@ -437,16 +442,20 @@ class PyramidWritterLH:
         '''
         #import ipdb; ipdb.set_trace()
         file_name = '{}{:03d}L.png'.format(self.path, number)
-        cv2.imwrite(file_name, np.round(pyramid[0]))
+        LL = (pyramid[0].astype('int') + 32768).astype('uint16')
+        cv2.imwrite(file_name, LL)
         y = pyramid[0].shape[0]
         x = pyramid[0].shape[1]
-        buf = np.full((y*2, x*2, 3), 128.0, np.float64)
-        #buf[0:y,x:x*2,:] = np.round(pyramid[1][0] + 128.0)
-        #buf[y:y*2,0:x,:] = np.round(pyramid[1][1] + 128.0)
-        #buf[y:y*2,x:x*2,:] = np.round(pyramid[1][2] + 128.0)
-        buf[0:y,x:x*2,:] = pyramid[1][0] + 128.0
-        buf[y:y*2,0:x,:] = pyramid[1][1] + 128.0
-        buf[y:y*2,x:x*2,:] = pyramid[1][2] + 128.0
+        buf = np.full((y*2, x*2, 3), 32768, np.uint16)
+        #buf[0:y,x:x*2,:] = np.round(pyramid[1][0] + 128)
+        #buf[y:y*2,0:x,:] = np.round(pyramid[1][1] + 128)
+        #buf[y:y*2,x:x*2,:] = np.round(pyramid[1][2] + 128)
+        LH = pyramid[1][0].astype('int') + 32768
+        buf[0:y,x:x*2,:] = LH.astype('uint16')
+        HL = pyramid[1][1].astype('int') + 32768
+        buf[y:y*2,0:x,:] = HL.astype('uint16')
+        HH = pyramid[1][2].astype('int') + 32768
+        buf[y:y*2,x:x*2,:] = HH.astype('uint16')
         file_name = '{}{:03d}H.png'.format(self.path, number)
         cv2.imwrite(file_name, buf)
 
@@ -488,6 +497,7 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
         None.
 
     '''
+    import ipdb; ipdb.set_trace()
     ir = ImageReader()
     iw = ImageWritter()
     pw = PyramidWritterLH()
@@ -502,7 +512,7 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
         L_y = tmpA[0].shape[0]
         L_x = tmpA[0].shape[1]
         pw.write(tmpA, 0)        
-        zero_L = np.zeros(tmpA[0].shape, np.uint16)
+        zero_L = np.zeros(tmpA[0].shape, np.int16)
         zero_H = (zero_L, zero_L, zero_L)
         AL = _2D_iDWT(tmpA[0], zero_H)
         #iw.write(AL, 1)
@@ -522,7 +532,7 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
             BHA = motion_compensation(BL, AL, AH)
             BHC = motion_compensation(BL, CL, CH)
             iw.write(BH, x*i+x//2 + 10)
-            rBH = BH - (BHA + BHC) / 2
+            rBH = BH - ((BHA + BHC) / 2).astype('int16')
             iw.write(rBH, x*i+x//2 + 100)
             rBH = _2D_DWT(rBH)
             #import ipdb; ipdb.set_trace()
@@ -569,7 +579,7 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
         None.
 
     '''
-    #import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
     ir = ImageReader()
     iw = ImageWritter()
     pr = PyramidReaderLH()
@@ -580,7 +590,7 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
     for j in range(l): # Number of temporal scales
         #import ipdb; ipdb.set_trace()
         A = pr.read(0)
-        zero_L = np.zeros(A[0].shape, np.uint8)
+        zero_L = np.zeros(A[0].shape, np.int16)
         zero_H = (zero_L, zero_L, zero_L)
         AL = _2D_iDWT(A[0], zero_H)
         AH = _2D_iDWT(zero_L, A[1])
@@ -598,7 +608,7 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
             iw.write(C, x*i+x)
             BHA = motion_compensation(BL, AL, AH)
             BHC = motion_compensation(BL, CL, CH)
-            BH = rBH + (BHA + BHC) / 2
+            BH = rBH + ((BHA + BHC) / 2).astype('int16')
             B = BL + BH
             iw.write(B, x*i+x//2)
             AL = CL
@@ -608,7 +618,7 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
         x //=2
 
 if __name__ == '__main__':
-    #MCDWT('../test_images/','/tmp/',5,1)
-    MCDWT('/tmp/pru/','/tmp/',5,1)
+    MCDWT('../test_images/','/tmp/',5,1)
+    #MCDWT('/tmp/pru/','/tmp/',5,1)
     iMCDWT('/tmp/','/tmp/res',5,1)
 
