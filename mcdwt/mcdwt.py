@@ -80,53 +80,7 @@ class ImageReader:
     def __init__(self):
         pass
 
-    def set_path(self, path='../input/image'):
-        '''Set up the path where the images are.
-
-        Parameters
-        ----------
-
-            path : str
-
-                The image path (directory and file prefix). Example:
-                '../input/image'.
-
-        Returns
-        -------
-
-            None.
-
-        '''
-
-        self.path = path 
-
-    def read(self, number):
-        '''Read an image from disk.
-
-        Parameters
-        ----------
-
-            number : int.
-
-                Index of the image in the sequence.
-
-        Returns
-        -------
-
-            [:,:,:].
-
-                A color image.
-
-        '''
-
-        file_name = '{}{:03d}.png'.format(self.path, number)
-        image = cv2.imread(file_name, -1)
-        if image is None:
-            raise InputFileException('{} not found'.format(file_name))
-        else:
-            return image
-
-    def read(self, number, path):
+    def read(self, number, path='./'):
         '''Read an image from disk.
 
         Parameters
@@ -149,8 +103,12 @@ class ImageReader:
 
         '''
 
-        self.path = path
-        return self.read(number, path)
+        file_name = '{}{:03d}.png'.format(self.path, number)
+        image = cv2.imread(file_name, -1)
+        if image is None:
+            raise InputFileException('{} not found'.format(file_name))
+        else:
+            return image
 
 class ImageWritter:
     '''Write PNG images to disk.
@@ -162,51 +120,7 @@ class ImageWritter:
     def __init__(self):
         pass
 
-    def set_path(self, path='../output/'):
-        '''Set up the path where the images will be.
-
-        Parameters
-        ----------
-
-            path : str
-
-                The image path (directory and file prefix). Example:
-                '../output/image'.
-
-        Returns
-        -------
-
-            None.
-
-        '''
-
-        self.path = path 
-
-    def write(self, image, number=0):
-        '''Write an image to disk.
-
-        Parameters
-        ----------
-
-            image : [:,:,:].
-
-                The color image to write.
-
-            number : int.
-
-                Index of the image in the sequence.
-
-        Returns
-        -------
-
-            None.
-
-        '''
-
-        file_name = '{}{:03d}.png'.format(self.path, number)
-        cv2.imwrite(file_name, image)
-
-    def write(self, image, number, path):
+    def write(self, image, number=0, path='./'):
         '''Write an image to disk.
 
         Parameters
@@ -231,8 +145,283 @@ class ImageWritter:
 
         '''
 
-        self.path = path
-        self.write(image, number)
+        file_name = '{}{:03d}.png'.format(self.path, number)
+        cv2.imwrite(file_name, image)
+
+class PyramidReaderLH:
+    '''Read PNG pyramids from disk.
+
+    Pyramids should be enumerated. Example: "pyramid000.png,
+    pyramid001.png, ..."
+
+    '''
+
+    def __init__(self):
+        pass
+
+    def read(self, number=0, path='./'):
+        '''Read a pyramid from disk.
+
+        Parameters
+        ----------
+
+            number : int.
+
+                Index of the pyramid in the sequence.
+
+            path : str.
+
+                Path to the pyramid.
+
+        Returns
+        -------
+
+            (L,H) where L=[:,:,:] and H=(LH,HL,HH), where LH,HL,HH=[:,:,:].
+
+                A color pyramid.
+
+        '''
+
+        file_name = '{}{:03d}L.png'.format(self.path, number)
+        LL = cv2.imread(file_name, -1).astype('float64')
+        LL -= 128
+        if LL is None:
+            raise InputFileException('{} not found'.format(file_name))
+        file_name = '{}{:03d}H.png'.format(self.path, number)
+        buf = cv2.imread(file_name, -1).astype('float64')
+        if buf is None:
+            raise InputFileException('{} not found'.format(file_name))
+        else:
+            y = math.ceil(buf.shape[0]/2)
+            x = math.ceil(buf.shape[1]/2)
+            LH = buf[0:y,x:buf.shape[1],:]
+            LH -= 128
+            HL = buf[y:buf.shape[0],0:x,:]
+            HL -= 128
+            HH = buf[y:buf.shape[0],x:buf.shape[1],:]
+            HH -= 128
+            return (LL, (LH, HL, HH))
+        
+class PyramidWritterLH:
+    '''Write PNG pyramids to disk.
+
+    Pyramids must be enumerated. Example: "pyramid000{L|H}.png,
+    pyramid001{L|H}.png, ...", being 'L' used for the low-frequency
+    subband LL and H for the subbands LH, HL and HH.
+
+    '''
+
+    def __init__(self):
+        pass
+
+    def write(self, pyramid, number=0, path='./'):
+        '''Write a pyramid to disk.
+
+        Parameters
+        ----------
+
+            L : [:,:,:].
+
+                LL subband.
+
+            H : (LH, HL, HH), where LH,HL,HH=[:,:,:].
+
+                H subbands.
+
+            number : int.
+
+                Index of the pyramid in the sequence.
+
+            path : str.
+
+                Path to the pyramid.
+
+        Returns
+        -------
+
+            None.
+
+        '''
+        #import ipdb; ipdb.set_trace()
+        file_name = '{}{:03d}L.png'.format(self.path, number)
+        LL = pyramid[0]
+        LL += 128
+        LL = LL.astype('uint16')
+        cv2.imwrite(file_name, LL)
+        y = pyramid[0].shape[0]
+        x = pyramid[0].shape[1]
+        buf = np.full((y*2, x*2, 3), 32768, np.uint16)
+        #buf[0:y,x:x*2,:] = np.round(pyramid[1][0] + 128)
+        #buf[y:y*2,0:x,:] = np.round(pyramid[1][1] + 128)
+        #buf[y:y*2,x:x*2,:] = np.round(pyramid[1][2] + 128)
+        LH = pyramid[1][0] + 128
+        buf[0:y,x:x*2,:] = LH.astype('uint16')
+        HL = pyramid[1][1] + 128
+        buf[y:y*2,0:x,:]= HL.astype('uint16')
+        HH = pyramid[1][2] + 128
+        buf[y:y*2,x:x*2,:] = HH.astype('uint16')
+        file_name = '{}{:03d}H.png'.format(self.path, number)
+        cv2.imwrite(file_name, buf)
+
+def MCDWT(input = '../input/', output='../output/', n=5, l=2):
+    '''A Motion Compensated Discrete Wavelet Transform.
+
+    Compute the 1D-DWT along motion trajectories. The input video (as
+    a sequence of images) must be stored in disk (<input> directory)
+    and the output (as a sequence of DWT coefficients that are called
+    pyramids) will be stored in disk (<output> directory). So, this
+    MCDWT implementation does not transform the video on the fly.
+
+    Arguments
+    ---------
+
+        input : str
+
+            Path where the input images are. Example:
+            "../input/image".
+
+        output : str
+
+            Path where the (transformed) pyramids will be. Example:
+            "../output/pyramid".
+
+         n : int
+
+            Number of images to process.
+
+         l : int
+
+            Number of leves of the MCDWT (temporal scales). Controls
+            the GOP size. Examples: `l`=0 -> GOP_size = 1, `l`=1 ->
+            GOP_size = 2, `l`=2 -> GOP_size = 4. etc.
+
+    Returns
+    -------
+
+        None.
+
+    '''
+    #import ipdb; ipdb.set_trace()
+    ir = ImageReader()
+    iw = ImageWritter()
+    pw = PyramidWritterLH()
+    x = 2
+    for j in range(l): # Number of temporal scales
+        #import ipdb; ipdb.set_trace()
+        A = ir.read(0, input)
+        tmpA = _2D_DWT(A)
+        L_y = tmpA[0].shape[0]
+        L_x = tmpA[0].shape[1]
+        pw.write(tmpA, 0, output)        
+        zero_L = np.zeros(tmpA[0].shape, np.float64)
+        zero_H = (zero_L, zero_L, zero_L)
+        AL = _2D_iDWT(tmpA[0], zero_H)
+        #iw.write(AL, 1)
+        AH = _2D_iDWT(zero_L, tmpA[1])
+        #iw.write(AH, 1)
+        i = 0
+        while i < (n//x):
+            B = ir.read(x*i+x//2, input)
+            tmpB = _2D_DWT(B)
+            BL = _2D_iDWT(tmpB[0], zero_H)
+            BH = _2D_iDWT(zero_L, tmpB[1])
+            C = ir.read(x*i+x, input)
+            tmpC = _2D_DWT(C)
+            pw.write(tmpC, x*i+x, output)
+            CL = _2D_iDWT(tmpC[0], zero_H)
+            CH = _2D_iDWT(zero_L, tmpC[1])
+            BHA = motion_compensation(BL, AL, AH)
+            BHC = motion_compensation(BL, CL, CH)
+            iw.write(BH, x*i+x//2, output+'predicted')
+            rBH = BH - (BHA + BHC) / 2
+            iw.write(rBH, x*i+x//2, output+'prediction')
+            rBH = _2D_DWT(rBH)
+            #import ipdb; ipdb.set_trace()
+            pw.write(rBH, x*i+x//2 + 1000)
+            rBH[0][0:L_y,0:L_x,:] = tmpB[0]
+            pw.write(rBH, x*i+x//2, output)
+            AL = CL
+            AH = CH
+            i += 1
+            print('i =', i)
+        x *= 2
+
+def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
+    '''A (Inverse) Motion Compensated Discrete Wavelet Transform.
+
+    iMCDWT is the inverse transform of MCDWT. Inputs a sequence of
+    pyramids and outputs a sequence of images.
+
+    Arguments
+    ---------
+
+        input : str
+
+            Path where the input pyramids are. Example:
+            "../input/image".
+
+        output : str
+
+            Path where the (inversely transformed) images will
+            be. Example: "../output/pyramid".
+
+         n : int
+
+            Number of pyramids to process.
+
+         l : int
+
+            Number of leves of the MCDWT (temporal scales). Controls
+            the GOP size. Examples: `l`=0 -> GOP_size = 1, `l`=1 ->
+            GOP_size = 2, `l`=2 -> GOP_size = 4. etc.
+
+    Returns
+    -------
+
+        None.
+
+    '''
+    #import ipdb; ipdb.set_trace()
+    ir = ImageReader()
+    iw = ImageWritter()
+    pr = PyramidReaderLH()
+    x = 2**l
+    for j in range(l): # Number of temporal scales
+        #import ipdb; ipdb.set_trace()
+        A = pr.read(0, input)
+        zero_L = np.zeros(A[0].shape, np.float64)
+        zero_H = (zero_L, zero_L, zero_L)
+        AL = _2D_iDWT(A[0], zero_H)
+        AH = _2D_iDWT(zero_L, A[1])
+        A = AL + AH
+        iw.write(A, 0)
+        i = 0
+        while i < (n//x):
+            B = pr.read(x*i+x//2, input)
+            BL = _2D_iDWT(B[0], zero_H)
+            rBH = _2D_iDWT(zero_L, B[1])
+            C = pr.read(x*i+x, input)
+            CL = _2D_iDWT(C[0], zero_H)
+            CH = _2D_iDWT(zero_L, C[1])
+            C = CL + CH
+            iw.write(C, x*i+x, output)
+            BHA = motion_compensation(BL, AL, AH)
+            BHC = motion_compensation(BL, CL, CH)
+            BH = rBH + (BHA + BHC) / 2
+            B = BL + BH
+            iw.write(B, x*i+x//2, output)
+            AL = CL
+            AH = CH
+            i += 1
+            print('i =', i)
+        x //=2
+
+if __name__ == '__main__':
+    MCDWT('../test_images/','/tmp/',5,1)
+    #MCDWT('/tmp/pru/','/tmp/',5,1)
+    iMCDWT('/tmp/','/tmp/res',5,1)
+
+###############
 
 class PyramidReader:
     '''Read PNG pyramids from disk.
@@ -366,315 +555,4 @@ class PyramidWritter:
         buf[y:y*2,0:x,:] = HL
         buf[y:y*2,x:x*2,:] = HH
         cv2.imwrite(file_name, buf)
-
-class PyramidReaderLH:
-    '''Read PNG pyramids from disk.
-
-    Pyramids should be enumerated. Example: "pyramid000.png,
-    pyramid001.png, ..."
-
-    '''
-
-    def __init__(self):
-        pass
-
-    def set_path(self, path='../input/'):
-        '''Set up the path where the pyramids are.
-
-        Parameters
-        ----------
-
-            path : str
-
-                The pyramid path (directory and file prefix). Example:
-                '../input/pyramid'.
-
-        Returns
-        -------
-
-            None.
-
-        '''
-
-        self.path = path 
-
-    def read(self, number):
-        '''Read a pyramid from disk.
-
-        Parameters
-        ----------
-
-            number : int.
-
-                Index of the pyramid in the sequence.
-
-        Returns
-        -------
-
-            (L,H) where L=[:,:,:] and H=(LH,HL,HH), where LH,HL,HH=[:,:,:].
-
-                A color pyramid.
-
-        '''
-
-        file_name = '{}{:03d}L.png'.format(self.path, number)
-        LL = cv2.imread(file_name, -1).astype('float64')
-        LL -= 128
-        if LL is None:
-            raise InputFileException('{} not found'.format(file_name))
-        file_name = '{}{:03d}H.png'.format(self.path, number)
-        buf = cv2.imread(file_name, -1).astype('float64')
-        if buf is None:
-            raise InputFileException('{} not found'.format(file_name))
-        else:
-            y = math.ceil(buf.shape[0]/2)
-            x = math.ceil(buf.shape[1]/2)
-            LH = buf[0:y,x:buf.shape[1],:]
-            LH -= 128
-            HL = buf[y:buf.shape[0],0:x,:]
-            HL -= 128
-            HH = buf[y:buf.shape[0],x:buf.shape[1],:]
-            HH -= 128
-            return (LL, (LH, HL, HH))
-
-class PyramidWritterLH:
-    '''Write PNG pyramids to disk.
-
-    Pyramids must be enumerated. Example: "pyramid000{L|H}.png,
-    pyramid001{L|H}.png, ...", being 'L' used for the low-frequency
-    subband LL and H for the subbands LH, HL and HH.
-
-    '''
-
-    def __init__(self):
-        pass
-
-    def set_path(self, path='../output/'):
-        '''Set up the path where the pyramids are.
-
-        Parameters
-        ----------
-
-            path : str
-
-                The pyramid path (directory and file prefix). Example:
-                '../output/pyramid'.
-
-        Returns
-        -------
-
-            None.
-
-        '''
-
-        self.path = path 
-
-    def write(self, pyramid, number=0):
-        '''Write a pyramid to disk.
-
-        Parameters
-        ----------
-
-            L : [:,:,:].
-
-                LL subband.
-
-            H : (LH, HL, HH), where LH,HL,HH=[:,:,:].
-
-                H subbands.
-
-            number : int.
-
-                Index of the pyramid in the sequence.
-
-        Returns
-        -------
-
-            None.
-
-        '''
-        #import ipdb; ipdb.set_trace()
-        file_name = '{}{:03d}L.png'.format(self.path, number)
-        LL = pyramid[0]
-        LL += 128
-        LL = LL.astype('uint16')
-        cv2.imwrite(file_name, LL)
-        y = pyramid[0].shape[0]
-        x = pyramid[0].shape[1]
-        buf = np.full((y*2, x*2, 3), 32768, np.uint16)
-        #buf[0:y,x:x*2,:] = np.round(pyramid[1][0] + 128)
-        #buf[y:y*2,0:x,:] = np.round(pyramid[1][1] + 128)
-        #buf[y:y*2,x:x*2,:] = np.round(pyramid[1][2] + 128)
-        LH = pyramid[1][0] + 128
-        buf[0:y,x:x*2,:] = LH.astype('uint16')
-        HL = pyramid[1][1] + 128
-        buf[y:y*2,0:x,:]= HL.astype('uint16')
-        HH = pyramid[1][2] + 128
-        buf[y:y*2,x:x*2,:] = HH.astype('uint16')
-        file_name = '{}{:03d}H.png'.format(self.path, number)
-        cv2.imwrite(file_name, buf)
-
-def MCDWT(input = '../input/', output='../output/', n=5, l=2):
-    '''A Motion Compensated Discrete Wavelet Transform.
-
-    Compute the 1D-DWT along motion trajectories. The input video (as
-    a sequence of images) must be stored in disk (<input> directory)
-    and the output (as a sequence of DWT coefficients that are called
-    pyramids) will be stored in disk (<output> directory). So, this
-    MCDWT implementation does not transform the video on the fly.
-
-    Arguments
-    ---------
-
-        input : str
-
-            Path where the input images are. Example:
-            "../input/image".
-
-        output : str
-
-            Path where the (transformed) pyramids will be. Example:
-            "../output/pyramid".
-
-         n : int
-
-            Number of images to process.
-
-         l : int
-
-            Number of leves of the MCDWT (temporal scales). Controls
-            the GOP size. Examples: `l`=0 -> GOP_size = 1, `l`=1 ->
-            GOP_size = 2, `l`=2 -> GOP_size = 4. etc.
-
-    Returns
-    -------
-
-        None.
-
-    '''
-    #import ipdb; ipdb.set_trace()
-    ir = ImageReader()
-    iw = ImageWritter()
-    pw = PyramidWritterLH()
-    ir.set_path(input)
-    iw.set_path(output)
-    pw.set_path(output)
-    x = 2
-    for j in range(l): # Number of temporal scales
-        #import ipdb; ipdb.set_trace()
-        A = ir.read(0)
-        tmpA = _2D_DWT(A)
-        L_y = tmpA[0].shape[0]
-        L_x = tmpA[0].shape[1]
-        pw.write(tmpA, 0)        
-        zero_L = np.zeros(tmpA[0].shape, np.float64)
-        zero_H = (zero_L, zero_L, zero_L)
-        AL = _2D_iDWT(tmpA[0], zero_H)
-        #iw.write(AL, 1)
-        AH = _2D_iDWT(zero_L, tmpA[1])
-        #iw.write(AH, 1)
-        i = 0
-        while i < (n//x):
-            B = ir.read(x*i+x//2)
-            tmpB = _2D_DWT(B)
-            BL = _2D_iDWT(tmpB[0], zero_H)
-            BH = _2D_iDWT(zero_L, tmpB[1])
-            C = ir.read(x*i+x)
-            tmpC = _2D_DWT(C)
-            pw.write(tmpC, x*i+x)
-            CL = _2D_iDWT(tmpC[0], zero_H)
-            CH = _2D_iDWT(zero_L, tmpC[1])
-            BHA = motion_compensation(BL, AL, AH)
-            BHC = motion_compensation(BL, CL, CH)
-            iw.write(BH, x*i+x//2 + 10)
-            rBH = BH - (BHA + BHC) / 2
-            iw.write(rBH, x*i+x//2 + 100)
-            rBH = _2D_DWT(rBH)
-            #import ipdb; ipdb.set_trace()
-            pw.write(rBH, x*i+x//2 + 1000)
-            rBH[0][0:L_y,0:L_x,:] = tmpB[0]
-            pw.write(rBH, x*i+x//2)
-            AL = CL
-            AH = CH
-            i += 1
-            print('i =', i)
-        x *= 2
-
-def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
-    '''A (Inverse) Motion Compensated Discrete Wavelet Transform.
-
-    iMCDWT is the inverse transform of MCDWT. Inputs a sequence of
-    pyramids and outputs a sequence of images.
-
-    Arguments
-    ---------
-
-        input : str
-
-            Path where the input pyramids are. Example:
-            "../input/image".
-
-        output : str
-
-            Path where the (inversely transformed) images will
-            be. Example: "../output/pyramid".
-
-         n : int
-
-            Number of pyramids to process.
-
-         l : int
-
-            Number of leves of the MCDWT (temporal scales). Controls
-            the GOP size. Examples: `l`=0 -> GOP_size = 1, `l`=1 ->
-            GOP_size = 2, `l`=2 -> GOP_size = 4. etc.
-
-    Returns
-    -------
-
-        None.
-
-    '''
-    #import ipdb; ipdb.set_trace()
-    ir = ImageReader()
-    iw = ImageWritter()
-    pr = PyramidReaderLH()
-    ir.set_path(input)
-    iw.set_path(output)
-    pr.set_path(input)
-    x = 2**l
-    for j in range(l): # Number of temporal scales
-        #import ipdb; ipdb.set_trace()
-        A = pr.read(0)
-        zero_L = np.zeros(A[0].shape, np.float64)
-        zero_H = (zero_L, zero_L, zero_L)
-        AL = _2D_iDWT(A[0], zero_H)
-        AH = _2D_iDWT(zero_L, A[1])
-        A = AL + AH
-        iw.write(A, 0)
-        i = 0
-        while i < (n//x):
-            B = pr.read(x*i+x//2)
-            BL = _2D_iDWT(B[0], zero_H)
-            rBH = _2D_iDWT(zero_L, B[1])
-            C = pr.read(x*i+x)
-            CL = _2D_iDWT(C[0], zero_H)
-            CH = _2D_iDWT(zero_L, C[1])
-            C = CL + CH
-            iw.write(C, x*i+x)
-            BHA = motion_compensation(BL, AL, AH)
-            BHC = motion_compensation(BL, CL, CH)
-            BH = rBH + (BHA + BHC) / 2
-            B = BL + BH
-            iw.write(B, x*i+x//2)
-            AL = CL
-            AH = CH
-            i += 1
-            print('i =', i)
-        x //=2
-
-if __name__ == '__main__':
-    MCDWT('../test_images/','/tmp/',5,1)
-    #MCDWT('/tmp/pru/','/tmp/',5,1)
-    iMCDWT('/tmp/','/tmp/res',5,1)
 
