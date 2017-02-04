@@ -4,8 +4,8 @@ import numpy as np
 import cv2
 import itertools
 
-import mcdwt
 import motion
+import image_io
 
 def pairwise(iterable):
     a, b = itertools.tee(iterable)
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     input_path = '../test_images/'
     output_path = '/tmp/duplicator'
 
-    ir = mcdwt.ImageReader()
+    ir = image_io.ImageReader()
     ir.set_path(input_path)
     frames = []
     for i in range(n):
@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     output = framerate_duplicator(frames)
 
-    iw = mcdwt.ImageWritter()
+    iw = image_io.ImageWritter()
     iw.set_path(output_path)
     for i in range(len(output)):
         iw.write(output[i], i)
