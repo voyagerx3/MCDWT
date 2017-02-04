@@ -103,7 +103,7 @@ class ImageReader:
 
         '''
 
-        file_name = '{}{:03d}.png'.format(self.path, number)
+        file_name = '{}{:03d}.png'.format(path, number)
         image = cv2.imread(file_name, -1)
         if image is None:
             raise InputFileException('{} not found'.format(file_name))
@@ -145,7 +145,7 @@ class ImageWritter:
 
         '''
 
-        file_name = '{}{:03d}.png'.format(self.path, number)
+        file_name = '{}{:03d}.png'.format(path, number)
         cv2.imwrite(file_name, image)
 
 class PyramidReaderLH:
@@ -182,12 +182,12 @@ class PyramidReaderLH:
 
         '''
 
-        file_name = '{}{:03d}L.png'.format(self.path, number)
+        file_name = '{}{:03d}L.png'.format(path, number)
         LL = cv2.imread(file_name, -1).astype('float64')
         LL -= 128
         if LL is None:
             raise InputFileException('{} not found'.format(file_name))
-        file_name = '{}{:03d}H.png'.format(self.path, number)
+        file_name = '{}{:03d}H.png'.format(path, number)
         buf = cv2.imread(file_name, -1).astype('float64')
         if buf is None:
             raise InputFileException('{} not found'.format(file_name))
@@ -243,7 +243,7 @@ class PyramidWritterLH:
 
         '''
         #import ipdb; ipdb.set_trace()
-        file_name = '{}{:03d}L.png'.format(self.path, number)
+        file_name = '{}{:03d}L.png'.format(path, number)
         LL = pyramid[0]
         LL += 128
         LL = LL.astype('uint16')
@@ -260,7 +260,7 @@ class PyramidWritterLH:
         buf[y:y*2,0:x,:]= HL.astype('uint16')
         HH = pyramid[1][2] + 128
         buf[y:y*2,x:x*2,:] = HH.astype('uint16')
-        file_name = '{}{:03d}H.png'.format(self.path, number)
+        file_name = '{}{:03d}H.png'.format(path, number)
         cv2.imwrite(file_name, buf)
 
 def MCDWT(input = '../input/', output='../output/', n=5, l=2):
@@ -416,10 +416,10 @@ def iMCDWT(input = '../input/', output='../output/', n=5, l=2):
             print('i =', i)
         x //=2
 
-if __name__ == '__main__':
-    MCDWT('../test_images/','/tmp/',5,1)
-    #MCDWT('/tmp/pru/','/tmp/',5,1)
-    iMCDWT('/tmp/','/tmp/res',5,1)
+#if __name__ == '__main__':
+#    MCDWT('../test_images/','/tmp/',5,1)
+#    #MCDWT('/tmp/pru/','/tmp/',5,1)
+#    iMCDWT('/tmp/','/tmp/res',5,1)
 
 ###############
 
