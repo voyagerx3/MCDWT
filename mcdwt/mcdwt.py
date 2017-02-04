@@ -126,6 +126,32 @@ class ImageReader:
         else:
             return image
 
+    def read(self, number, path):
+        '''Read an image from disk.
+
+        Parameters
+        ----------
+
+            number : int.
+
+                Index of the image in the sequence.
+
+            path : str.
+
+                Image path.
+
+        Returns
+        -------
+
+            [:,:,:].
+
+                A color image.
+
+        '''
+
+        self.path = path
+        return self.read(number, path)
+
 class ImageWritter:
     '''Write PNG images to disk.
 
@@ -179,6 +205,34 @@ class ImageWritter:
 
         file_name = '{}{:03d}.png'.format(self.path, number)
         cv2.imwrite(file_name, image)
+
+    def write(self, image, number, path):
+        '''Write an image to disk.
+
+        Parameters
+        ----------
+
+            image : [:,:,:].
+
+                The color image to write.
+
+            number : int.
+
+                Index of the image in the sequence.
+
+            path : str.
+
+                Path to the image.
+
+        Returns
+        -------
+
+            None.
+
+        '''
+
+        self.path = path
+        self.write(image, number)
 
 class PyramidReader:
     '''Read PNG pyramids from disk.
