@@ -333,8 +333,10 @@ def MCDWT(input = '../input/', output='../output/', n=5, l=2):
             BHA = motion_compensation(BL, AL, AH)
             BHC = motion_compensation(BL, CL, CH)
             iw.write(BH, x*i+x//2, output+'predicted')
-            rBH = BH - (BHA + BHC) / 2
-            iw.write(rBH, x*i+x//2, output+'prediction')
+            prediction = (BHA + BHC) / 2
+            iw.write(prediction, x*i+x//2, output+'prediction')
+            rBH = BH - prediction
+            iw.write(rBH, x*i+x//2, output+'residue')
             rBH = _2D_DWT(rBH)
             #import ipdb; ipdb.set_trace()
             pw.write(rBH, x*i+x//2 + 1000)
