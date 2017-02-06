@@ -3,7 +3,6 @@ import numpy as np
 import pywt
 import math
 
-#from motion import motion_compensation
 from mcdwt import image_io
 from mcdwt import pyramid_io
 from mcdwt import motion
