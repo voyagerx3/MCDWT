@@ -3,9 +3,10 @@ import numpy as np
 import pywt
 import math
 
-from motion import motion_compensation
-import image_io
-import pyramid_io
+#from motion import motion_compensation
+from mcdwt import image_io
+from mcdwt import pyramid_io
+from mcdwt import motion
 
 def _2D_DWT(image):
     '''2D DWT of a color image.
