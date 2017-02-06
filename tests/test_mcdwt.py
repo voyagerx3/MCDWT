@@ -15,4 +15,5 @@ subprocess.call(["cp", "../images/000.png", "/tmp/eq/003.png"])
 subprocess.call(["cp", "../images/000.png", "/tmp/eq/004.png"])
 transform_step.forward('/tmp/eq/','/tmp/',5,1)
 transform_step.backward('/tmp/','/tmp/res',5,1)
+subprocess.call(["ls", "-l", "/tmp/*.png"])
 

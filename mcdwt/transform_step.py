@@ -137,8 +137,8 @@ def forward(input = '../input/', output='../output/', n=5, l=2):
             pw.write(tmpC, x*i+x, output)
             CL = _2D_iDWT(tmpC[0], zero_H)
             CH = _2D_iDWT(zero_L, tmpC[1])
-            BHA = motion_compensation(BL, AL, AH)
-            BHC = motion_compensation(BL, CL, CH)
+            BHA = motion.motion_compensation(BL, AL, AH)
+            BHC = motion.motion_compensation(BL, CL, CH)
             iw.write(BH, x*i+x//2, output+'predicted')
             prediction = (BHA + BHC) / 2
             iw.write(prediction, x*i+x//2, output+'prediction')
@@ -214,8 +214,8 @@ def backward(input = '../input/', output='../output/', n=5, l=2):
             CH = _2D_iDWT(zero_L, C[1])
             C = CL + CH
             iw.write(C, x*i+x, output)
-            BHA = motion_compensation(BL, AL, AH)
-            BHC = motion_compensation(BL, CL, CH)
+            BHA = motion.motion_compensation(BL, AL, AH)
+            BHC = motion.motion_compensation(BL, CL, CH)
             BH = rBH + (BHA + BHC) / 2
             B = BL + BH
             iw.write(B, x*i+x//2, output)
