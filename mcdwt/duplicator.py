@@ -26,7 +26,7 @@ def framerate_duplicator(frames):
 if __name__ == '__main__':
 
     n = 5
-    input_path = '../test_images/'
+    input_path = '../images/'
     output_path = '/tmp/duplicator'
 
     ir = image_io.ImageReader()
