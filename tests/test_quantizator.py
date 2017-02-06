@@ -5,10 +5,10 @@ from mcdwt.quantizator import quantizator, unQuantizator
 
 coef = 2
 
-frame = cv2.imread("../test_images/001.png")
+frame = cv2.imread("../images/001.png")
 outputQuantizated = quantizator(frame, coef)
 
-cv2.imwrite("../test_images/001quantizates.png", outputQuantizated)
+cv2.imwrite("../images/001quantizates.png", outputQuantizated)
 
 outputUnQuantizated = unQuantizator(outputQuantizated, coef)
-cv2.imwrite("../test_images/001unQuantizates.png", outputUnQuantizated)
+cv2.imwrite("../images/001unQuantizates.png", outputUnQuantizated)

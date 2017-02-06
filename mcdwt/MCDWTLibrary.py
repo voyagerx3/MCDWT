@@ -20,7 +20,7 @@ def split_video_in_frames_to_disk(filename):
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
 
 
-        cv2.imwrite('test_images/'+str(num_frame)+'.png',image)
+        cv2.imwrite('images/'+str(num_frame)+'.png',image)
         
         num_frame = num_frame + 1
 
