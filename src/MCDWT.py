@@ -178,6 +178,53 @@ class ImageWritter:
         file_name = '{}{:03d}.png'.format(self.path, number)
         cv2.imwrite(file_name, image)
 
+class ImageColorConverter:
+    '''Convert PNG image color from YCbCr to RGB and vice versa.
+
+
+    '''
+
+    def __init__(self):
+        pass
+
+    def convertRGB2YCbCr(self, image):
+        '''Convert YCbCr to RGB
+ 
+            Parameters
+            ----------
+
+                image : [:,:,:].
+
+            Returns
+            -------
+
+                image : [:,:,:].
+
+                A image in YCbCr.
+        '''
+        
+        imYCC = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
+        return imYCC
+
+    def convertYCbCr2RGB(self, image):
+        '''Convert YCbCr to RGB
+ 
+            Parameters
+            ----------
+
+                image : [:,:,:].
+
+            Returns
+            -------
+
+                image : [:,:,:].
+
+                A image in RGB.
+        '''
+
+        imRGB = cv2.cvtColor(image, cv2.COLOR_YCR_CB2BGR)
+        return imRGB
+
 class PyramidReader:
     '''Read PNG pyramids from disk.
 
