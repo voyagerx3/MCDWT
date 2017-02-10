@@ -33,5 +33,5 @@ def ME(frame1_path, frame2_path):
 '''Test, We use 2 image for this example'''
 flow = ME("../images/000.png", "../images/001.png")
 np.savetxt('/tmp/ME.txt',flow.reshape(-1,flow.shape[-1]), delimiter=',',fmt='%.18e')
-print(type(flow))
+#print(type(flow))
 cv2.destroyAllWindows()
