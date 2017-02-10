@@ -6,6 +6,7 @@ import subprocess
 from mcdwt import MCDWTLibrary as ML
 from mcdwt import transform_step as M
 #import MCDWT.py as M
+import cv2
 
 class Test_Video_MCDWT(unittest.TestCase):
 
@@ -22,11 +23,13 @@ class Test_Video_MCDWT(unittest.TestCase):
         M.forward(input='../images/', output='/tmp/', n=5, l=2)
         M.backward(input='/tmp/', output='/tmp/out', n=5, l=2)
 
+        #### MAYBE THIS IS WRONG ??
         diff_total000 = cv2.absdiff('images/000.png', '/tmp/out/000.png')
         diff_total001 = cv2.absdiff('images/001.png', '/tmp/out/001.png')
         diff_total002 = cv2.absdiff('images/002.png', '/tmp/out/002.png')
         diff_total003 = cv2.absdiff('images/003.png', '/tmp/out/003.png')
         diff_total004 = cv2.absdiff('images/004.png', '/tmp/out/004.png')
+        ####
 
         value0 = assertIs(diff_total000, 0)
         value1 = assertIs(diff_total001, 0)
