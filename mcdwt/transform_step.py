@@ -69,7 +69,7 @@ def _2D_iDWT(L, H):
     return frame
 
 
-def forward(input = '../input/', output='../output/', n=5, l=2):
+def forward(input = '../input/', output='/tmp/', n=5, l=2):
     '''A Motion Compensated Discrete Wavelet Transform.
 
     Compute the 1D-DWT along motion trajectories. The input video (as
@@ -154,7 +154,7 @@ def forward(input = '../input/', output='../output/', n=5, l=2):
             print('i =', i)
         x *= 2
 
-def backward(input = '../input/', output='../output/', n=5, l=2):
+def backward(input = '/tmp/', output='/tmp/', n=5, l=2):
     '''A (Inverse) Motion Compensated Discrete Wavelet Transform.
 
     iMCDWT is the inverse transform of MCDWT. Inputs a sequence of
