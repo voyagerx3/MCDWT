@@ -81,4 +81,11 @@ class ImageWritter:
         '''
 
         file_name = '{}{:03d}.png'.format(path, number)
-        cv2.imwrite(file_name, image)
+
+        for y in range(image.shape[0]):
+            for x in range(image.shape[1]):
+                for c in range(image.shape[2]):
+                    if image[y,x,c] < 0:
+                        print(image[y,x,c])
+
+        cv2.imwrite(file_name, np.rint(image).astype(np.uint16))

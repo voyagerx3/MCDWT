@@ -107,7 +107,7 @@ def forward(input = '../input/', output='/tmp/', n=5, l=2):
         None.
 
     '''
-    #import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
     ir = image_io.ImageReader()
     iw = image_io.ImageWritter()
     pw = pyramid_io.PyramidWritter()
@@ -122,9 +122,9 @@ def forward(input = '../input/', output='/tmp/', n=5, l=2):
         zero_L = np.zeros(tmpA[0].shape, np.float64)
         zero_H = (zero_L, zero_L, zero_L)
         AL = _2D_iDWT(tmpA[0], zero_H)
-        #iw.write(AL, 1)
+        iw.write(AL, 1)
         AH = _2D_iDWT(zero_L, tmpA[1])
-        #iw.write(AH, 1)
+        iw.write(AH+128, 1)
         i = 0
         while i < (n//x):
             B = ir.read(x*i+x//2, input)
@@ -138,11 +138,11 @@ def forward(input = '../input/', output='/tmp/', n=5, l=2):
             CH = _2D_iDWT(zero_L, tmpC[1])
             BHA = motion.motion_compensation(BL, AL, AH)
             BHC = motion.motion_compensation(BL, CL, CH)
-            iw.write(BH, x*i+x//2, output+'predicted')
+            iw.write(BH+128, x*i+x//2, output+'predicted')
             prediction = (BHA + BHC) / 2
-            iw.write(prediction, x*i+x//2, output+'prediction')
+            iw.write(prediction+128, x*i+x//2, output+'prediction')
             rBH = BH - prediction
-            iw.write(rBH, x*i+x//2, output+'residue')
+            iw.write(rBH+128, x*i+x//2, output+'residue')
             rBH = _2D_DWT(rBH)
             #import ipdb; ipdb.set_trace()
             pw.write(rBH, x*i+x//2 + 1000)
