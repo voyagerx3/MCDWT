@@ -107,7 +107,7 @@ def forward(input = '../input/', output='/tmp/', n=5, l=2):
         None.
 
     '''
-    #import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
     ir = image_io.ImageReader()
     iw = image_io.ImageWritter()
     pw = pyramid_io.PyramidWritter()
@@ -122,9 +122,9 @@ def forward(input = '../input/', output='/tmp/', n=5, l=2):
         zero_L = np.zeros(tmpA[0].shape, np.float64)
         zero_H = (zero_L, zero_L, zero_L)
         AL = _2D_iDWT(tmpA[0], zero_H)
-        #iw.write(AL, 1)
+        iw.write(AL, 1)
         AH = _2D_iDWT(zero_L, tmpA[1])
-        #iw.write(AH, 1)
+        iw.write(AH, 1)
         i = 0
         while i < (n//x):
             B = ir.read(x*i+x//2, input)
