@@ -107,7 +107,7 @@ def forward(input = '../input/', output='/tmp/', n=5, l=2):
         None.
 
     '''
-    import ipdb; ipdb.set_trace()
+    #import ipdb; ipdb.set_trace()
     ir = image_io.ImageReader()
     iw = image_io.ImageWritter()
     pw = pyramid_io.PyramidWritter()
