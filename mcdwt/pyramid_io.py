@@ -101,14 +101,15 @@ class PyramidWritter:
         '''
         #import ipdb; ipdb.set_trace()
         file_name = '{}{:03d}L.png'.format(path, number)
-        LL = pyramid[0]
-        LL += 128
+        LL = pyramid[0] + 32768
 
-        for yy in range(LL.shape[0]):
-            for xx in range(LL.shape[1]):
-                for cc in range(LL.shape[2]):
-                    if (LL[yy,xx,cc] < 0) | (LL[yy,xx,cc] > 65535):
-                        print(LL[yy,xx,cc])
+        assert (np.amax(LL) < 65536), '16 bit unsigned int range overflow'
+        assert (np.amin(LL) > -1), '16 bit unsigned int range underflow'
+        #for yy in range(LL.shape[0]):
+        #    for xx in range(LL.shape[1]):
+        #        for cc in range(LL.shape[2]):
+        #            if (LL[yy,xx,cc] < 0) | (LL[yy,xx,cc] > 65535):
+        #                print(LL[yy,xx,cc])
 
         LL = np.rint(LL).astype('uint16')
         cv2.imwrite(file_name, LL)
@@ -120,29 +121,35 @@ class PyramidWritter:
         #buf[y:y*2,x:x*2,:] = np.round(pyramid[1][2] + 128)
         LH = pyramid[1][0] + 32768
 
-        for yy in range(LH.shape[0]):
-            for xx in range(LH.shape[1]):
-                for cc in range(LH.shape[2]):
-                    if (LH[yy,xx,cc] < 0) | (LH[yy,xx,cc] > 65535):
-                        print(LH[yy,xx,cc])
+        assert (np.amax(LH) < 65536), '16 bit unsigned int range overflow'
+        assert (np.amin(LH) > -1), '16 bit unsigned int range underflow'
+        #for yy in range(LH.shape[0]):
+        #    for xx in range(LH.shape[1]):
+        #        for cc in range(LH.shape[2]):
+        #            if (LH[yy,xx,cc] < 0) | (LH[yy,xx,cc] > 65535):
+        #                print(LH[yy,xx,cc])
 
         buf[0:y,x:x*2,:] = np.rint(LH).astype('uint16')
         HL = pyramid[1][1] + 32768
 
-        for yy in range(HL.shape[0]):
-            for xx in range(HL.shape[1]):
-                for cc in range(HL.shape[2]):
-                    if (HL[yy,xx,cc] < 0) | (HL[yy,xx,cc] > 65535):
-                        print(HL[yy,xx,cc])
+        assert (np.amax(HL) < 65536), '16 bit unsigned int range overflow'
+        assert (np.amin(HL) > -1), '16 bit unsigned int range underflow'
+        #for yy in range(HL.shape[0]):
+        #    for xx in range(HL.shape[1]):
+        #        for cc in range(HL.shape[2]):
+        #            if (HL[yy,xx,cc] < 0) | (HL[yy,xx,cc] > 65535):
+        #                print(HL[yy,xx,cc])
 
         buf[y:y*2,0:x,:]= np.rint(HL).astype('uint16')
         HH = pyramid[1][2] + 32768
 
-        for yy in range(HH.shape[0]):
-            for xx in range(HH.shape[1]):
-                for cc in range(HH.shape[2]):
-                    if (HH[yy,xx,cc] < 0) | (HH[yy,xx,cc] > 65535):
-                        print(HH[yy,xx,cc])
+        assert (np.amax(HH) < 65536), '16 bit unsigned int range overflow'
+        assert (np.amin(HH) > -1), '16 bit unsigned int range underflow'
+        #for yy in range(HH.shape[0]):
+        #    for xx in range(HH.shape[1]):
+        #        for cc in range(HH.shape[2]):
+        #            if (HH[yy,xx,cc] < 0) | (HH[yy,xx,cc] > 65535):
+        #                print(HH[yy,xx,cc])
         
         buf[y:y*2,x:x*2,:] = np.rint(HH).astype('uint16')
         file_name = '{}{:03d}H.png'.format(path, number)

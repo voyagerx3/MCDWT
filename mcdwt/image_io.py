@@ -82,10 +82,13 @@ class ImageWritter:
 
         file_name = '{}{:03d}.png'.format(path, number)
 
-        for y in range(image.shape[0]):
-            for x in range(image.shape[1]):
-                for c in range(image.shape[2]):
-                    if image[y,x,c] < 0:
-                        print(image[y,x,c])
+        assert (np.amax(image) < 65536), '16 bit unsigned int range overflow'
+        assert (np.amin(image) > -1), '16 bit unsigned int range underflow'
+        
+        #for y in range(image.shape[0]):
+        #    for x in range(image.shape[1]):
+        #        for c in range(image.shape[2]):
+        #            if image[y,x,c] < 0:
+        #                print(image[y,x,c])
 
         cv2.imwrite(file_name, np.rint(image).astype(np.uint16))
