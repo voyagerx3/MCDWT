@@ -1,8 +1,9 @@
 import cv2
-import numpy as np
+
 
 class InputFileException(Exception):
     pass
+
 
 class ImageReader:
     '''Read PNG images from disk.
@@ -45,6 +46,7 @@ class ImageReader:
         else:
             image -= 32768
             return image
+
 
 class ImageWritter:
     '''Write PNG images to disk.
