@@ -43,6 +43,7 @@ class ImageReader:
         if image is None:
             raise InputFileException('{} not found'.format(file_name))
         else:
+            image -= 32768
             return image
 
 class ImageWritter:
@@ -82,8 +83,10 @@ class ImageWritter:
 
         file_name = '{}{:03d}.png'.format(path, number)
 
+        image += 32768
+        
         assert (np.amax(image) < 65536), '16 bit unsigned int range overflow'
-        assert (np.amin(image) > -1), '16 bit unsigned int range underflow'
+        assert (np.amin(image) >= 0), '16 bit unsigned int range underflow'
         
         #for y in range(image.shape[0]):
         #    for x in range(image.shape[1]):

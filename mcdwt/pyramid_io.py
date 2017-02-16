@@ -103,8 +103,8 @@ class PyramidWritter:
         file_name = '{}{:03d}L.png'.format(path, number)
         LL = pyramid[0] + 32768
 
-        assert (np.amax(LL) < 65536), '16 bit unsigned int range overflow'
-        assert (np.amin(LL) > -1), '16 bit unsigned int range underflow'
+        assert (np.amax(LL) < 65536), 'range overflow'
+        assert (np.amin(LL) >= 0), 'range underflow'
         #for yy in range(LL.shape[0]):
         #    for xx in range(LL.shape[1]):
         #        for cc in range(LL.shape[2]):
@@ -121,8 +121,8 @@ class PyramidWritter:
         #buf[y:y*2,x:x*2,:] = np.round(pyramid[1][2] + 128)
         LH = pyramid[1][0] + 32768
 
-        assert (np.amax(LH) < 65536), '16 bit unsigned int range overflow'
-        assert (np.amin(LH) > -1), '16 bit unsigned int range underflow'
+        assert (np.amax(LH) < 65536), 'range overflow'
+        assert (np.amin(LH) >= 0), 'range underflow'
         #for yy in range(LH.shape[0]):
         #    for xx in range(LH.shape[1]):
         #        for cc in range(LH.shape[2]):
@@ -132,8 +132,8 @@ class PyramidWritter:
         buf[0:y,x:x*2,:] = np.rint(LH).astype('uint16')
         HL = pyramid[1][1] + 32768
 
-        assert (np.amax(HL) < 65536), '16 bit unsigned int range overflow'
-        assert (np.amin(HL) > -1), '16 bit unsigned int range underflow'
+        assert (np.amax(HL) < 65536), 'range overflow'
+        assert (np.amin(HL) >= 0), 'range underflow'
         #for yy in range(HL.shape[0]):
         #    for xx in range(HL.shape[1]):
         #        for cc in range(HL.shape[2]):
@@ -143,8 +143,8 @@ class PyramidWritter:
         buf[y:y*2,0:x,:]= np.rint(HL).astype('uint16')
         HH = pyramid[1][2] + 32768
 
-        assert (np.amax(HH) < 65536), '16 bit unsigned int range overflow'
-        assert (np.amin(HH) > -1), '16 bit unsigned int range underflow'
+        assert (np.amax(HH) < 65536), 'range overflow'
+        assert (np.amin(HH) >= 0), 'range underflow'
         #for yy in range(HH.shape[0]):
         #    for xx in range(HH.shape[1]):
         #        for cc in range(HH.shape[2]):
