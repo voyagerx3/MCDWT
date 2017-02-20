@@ -6,6 +6,21 @@
 python setup.py install
 ```
 
+## Tests:
+
+### A test of the dense optical flow computation.
+
+```
+python tests/test_ME.py
+```
+
+### 
+
+## Tools:
+
+```
+```
+
 :-)
 
 ## MCDWT and video scalabilty
