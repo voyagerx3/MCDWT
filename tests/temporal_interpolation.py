@@ -15,7 +15,7 @@ output_path = tf.gettempdir()
 
 frames = []
 for i in range(n):
-    path = os.path.join(input_path, 'r_{:03d}.png'.format(i))
+    path = os.path.join(input_path, '{:03d}.png'.format(i))
     print('Reading frame:', path)
     frames.append(cv2.imread(path))
 
