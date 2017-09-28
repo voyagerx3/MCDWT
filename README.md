@@ -1,5 +1,20 @@
 # Motion Compensated Discrete Wavelet Transform (MCDWT)
 
+MCDWT is a video decorrelator and visual information organizer. The
+input sequence of pixels are decorrelated in the temporal and in the
+spatial domains, and the output sequence of coefficients have a
+smaller entropy than the original pixels and the information is
+represented by resolution levels.
+
+Temporal decorrelation is provided by Motion Compensation, conducted
+by a computation of the dense optical flow in the video. Spatial
+decorrelation is achieved by using the 2D-DWT. The resulting
+coefficients can be compressed more than the original pixels and the
+video information is organized in a multiresolution (temporal and
+spatial) representation.
+
+MCDWT coefficients are compressed with EBCOT.
+
 ## Install
 
 ```
