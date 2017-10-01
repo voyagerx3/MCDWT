@@ -2,22 +2,38 @@
 Motion Compensated Discrete Wavelet Transform (MCDWT)
 -----------------------------------------------------
 
-MCDWT is a video decorrelator and visual information organizer. The
-input sequence of pixels are decorrelated in the temporal and in the
-spatial domains. The output sequence of coefficients have a
-smaller entropy than the original pixels, and the information is
-represented by resolution levels.
+MCDWT is a video__ decorrelator and visual__ information organizer. The
+input sequence of pixels__ are decorrelated__ in the time__ and in the
+spatial__ domains. The output sequence of coefficients__ have a
+smaller entropy__ than the original pixels, and the information is
+represented by `resolution levels`__.
 
-Temporal decorrelation is provided by Motion Compensation, where the
-prediction images are generated with an algorithm that uses only the
-information available at the decoder. This means that the motion
+Temporal decorrelation is provided by `Motion Compensation`__, where the
+`prediction images`__ are generated with an algorithm that uses only the
+information available at the decoder__. This means that the motion
 information used in the predictions do not need to be sent to the
 decoder.
 
-Spatial decorrelation is performed by the analysis filter used in the
-2D-DWT.
+Spatial decorrelation is performed by the `analysis filter`__ used in the
+2D-DWT__.
 
-MCDWT coefficients are compressed with EBCOT.
+MCDWT coefficients are compressed with EBCOT__.
+
+.. _video: https://en.wikipedia.org/wiki/Video
+.. _visual: https://en.wikipedia.org/wiki/Visual_perception
+.. _pixel: https://en.wikipedia.org/wiki/Pixel
+.. _decorrelated: https://en.wikipedia.org/wiki/Decorrelation
+.. _time: https://en.wikipedia.org/wiki/Time_domain
+.. _spatial: https://www.quora.com/What-is-spatial-domain-in-image-processing
+.. _coefficients: https://www.quora.com/What-is-spatial-domain-in-image-processing
+.. _entropy: https://en.wikipedia.org/wiki/Entropy
+.. _`resolution levels`: https://en.wikipedia.org/wiki/Image_resolution
+.. _`Motion Compensation`: https://en.wikipedia.org/wiki/Motion_compensation
+.. _decoder: https://en.wikipedia.org/wiki/Decoder
+.. _`prediction images`: https://en.wikipedia.org/wiki/Decoder
+.. _`analysis filter' : https://en.wikipedia.org/wiki/Digital_filter#Analysis_techniques
+.. _ 2D-DWT: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
+.. _EBCOT: http://nptel.ac.in/courses/117105083/pdf/ssg_m5l15.pdf
 
 -----------------
 
