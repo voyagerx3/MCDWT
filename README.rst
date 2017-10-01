@@ -31,7 +31,7 @@ MCDWT coefficients are compressed with EBCOT_.
 .. _`Motion Compensation`: https://en.wikipedia.org/wiki/Motion_compensation
 .. _decoder: https://en.wikipedia.org/wiki/Decoder
 .. _`prediction images`: https://en.wikipedia.org/wiki/Decoder
-.. _`analysis filter' : https://en.wikipedia.org/wiki/Digital_filter#Analysis_techniques
+.. _analysis filter: https://en.wikipedia.org/wiki/Digital_filter#Analysis_techniques
 .. _2D-DWT: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
 .. _EBCOT: http://nptel.ac.in/courses/117105083/pdf/ssg_m5l15.pdf
 
