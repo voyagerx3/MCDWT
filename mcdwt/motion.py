@@ -19,4 +19,5 @@ def estimate_frame(base, flow):
     map_xy = (flow + np.dstack((map_x, map_y))).astype('float32')
 
     return cv2.remap(base, map_xy, None, 
-            interpolation=cv2.INTER_LINEAR)
+            interpolation=cv2.INTER_LINEAR,
+            borderMode=cv2.BORDER_REPLICATE)

@@ -3,7 +3,7 @@
 import numpy as np
 import itertools
 
-import motion
+from motion import motion_estimation, estimate_frame
 import image_io
 
 def pairwise(iterable):
@@ -32,8 +32,8 @@ def framerate_duplicator(frames):
 
     for curr, next in pairwise(frames):
         output.append(curr)
-        flow = motion.motion_estimation(curr, next)
-        output.append(motion.estimate_frame(curr, flow / 2))
+        flow = motion_estimation(next, curr) / 2
+        output.append(estimate_frame(next, flow))
     output.append(frames[-1])
 
     return output
