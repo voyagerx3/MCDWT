@@ -12,20 +12,21 @@ Motion Compensated Discrete Wavelet Transform (MCDWT)
 
 1. MCDWT and video scalabilty
 
-   *MCDWT inputs a video_ and outputs a video*, in a way
-   that when using only a portion of the data of the transformed
-   video, a video with a lower temporal resolution ([temporal
-   scalability][Scalability]), lower spatial resolution ([spatial
-   scalability][Scalability]) or/and lower quality ([quality
-   scalability][Scalability]) can be generated. If all the transformed
-   data is used, then the original video is obtained (MCDWT es is a
-   lossless transform). The video output has exactly the same number
-   of elements than the input video (for example, no extra motion
-   fields are produced). At this moment, we will focuse only on
-   spatial scalability.
+   *MCDWT inputs a video_ and outputs a video*, in a way that when
+   using only a portion of the data of the transformed video, a video
+   with a lower `temporal resolution`_, lower `spatial resolution`_
+   or/and lower quality can be generated.
 
-[Scalability]:__ http://inst.eecs.berkeley.edu/~ee290t/sp04/lectures/videowavelet_UCB1-3.pdf
-.. _video]: https://en.wikipedia.org/wiki/Video
+   If all the transformed data is used, then the original video is
+   obtained (MCDWT is a lossless transform). The video output has
+   exactly the same number of elements than the input video (for
+   example, no extra motion fields are produced). At this moment, we
+   will focuse only on spatial scalability.
+
+.. _temporal resolution: https://en.wikipedia.org/wiki/Temporal_resolution
+.. _spatial resolution: https://en.wikipedia.org/wiki/Image_resolution#Spatial_resolution
+.. _scalability: http://inst.eecs.berkeley.edu/~ee290t/sp04/lectures/videowavelet_UCB1-3.pdf
+.. _video: https://en.wikipedia.org/wiki/Video
 
 ## Video transform choices
 To obtain a multiresolution version or a video, the<sup>[1](#myfootnote1)</sup> [DWT (Discrete Wavelet Transform)][DWT] can be applied along temporal (`t`) and spatial domains (`2D`). At this point, two alternatives arise: (1) a `t+2D` transform or (2) a `2D+t` transform. In a `t+2D` transform, the video is first analyzed over the time domain and next, over the spatial domain. A `2D+t` transform does just the opposite.
