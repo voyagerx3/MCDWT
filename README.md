@@ -2,44 +2,34 @@
 
 MCDWT is a video decorrelator and visual information organizer. The
 input sequence of pixels are decorrelated in the temporal and in the
-spatial domains, and the output sequence of coefficients have a
-smaller entropy than the original pixels and the information is
+spatial domains. The output sequence of coefficients have a
+smaller entropy than the original pixels, and the information is
 represented by resolution levels.
 
-Temporal decorrelation is provided by Motion Compensation, conducted
-by a computation of the dense optical flow in the video. Spatial
-decorrelation is achieved by using the 2D-DWT. The resulting
-coefficients can be compressed more than the original pixels and the
-video information is organized in a multiresolution (temporal and
-spatial) representation.
+Temporal decorrelation is provided by Motion Compensation, where the
+prediction images are generated with an algorithm that uses only the
+information available at the decoder. This means that the motion
+information used in the predictions do not need to be sent to the
+decoder.
+
+Spatial decorrelation is performed by the analysis filter used in the
+2D-DWT.
 
 MCDWT coefficients are compressed with EBCOT.
 
-## Install
-
-```
-python setup.py install
-```
-
-## Tests:
-
-### A test of the dense optical flow computation.
-
-```
-python tests/test_ME.py
-```
-
-### 
-
-## Tools:
-
-```
-```
-
-:-)
+-----------------
 
 ## MCDWT and video scalabilty
-**MCDWT inputs a [video][video] and outputs a video**, in a way that when using only a portion of the data of the transformed video, a video with a lower temporal resolution ([temporal scalability][Scalability]), lower spatial resolution ([spatial scalability][Scalability]) or/and lower quality ([quality scalability][Scalability]) can be generated. If all the transformed data is used, then the original video is obtained (MCDWT es is a lossless transform). The video output has exactly the same number of elements than the input video (for example, no extra motion fields are produced). At this moment, we will focuse only on spatial scalability.
+**MCDWT inputs a [video][video] and outputs a video**, in a way that
+when using only a portion of the data of the transformed video, a
+video with a lower temporal resolution ([temporal
+scalability][Scalability]), lower spatial resolution ([spatial
+scalability][Scalability]) or/and lower quality ([quality
+scalability][Scalability]) can be generated. If all the transformed
+data is used, then the original video is obtained (MCDWT es is a
+lossless transform). The video output has exactly the same number of
+elements than the input video (for example, no extra motion fields are
+produced). At this moment, we will focuse only on spatial scalability.
 
 [Scalability]: http://inst.eecs.berkeley.edu/~ee290t/sp04/lectures/videowavelet_UCB1-3.pdf
 [video]: https://en.wikipedia.org/wiki/Video
