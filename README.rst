@@ -14,10 +14,10 @@ information available at the decoder_. This means that the motion
 information used in the predictions do not need to be sent to the
 decoder.
 
-Spatial decorrelation is performed by the `analysis filter`_ used in the
+Spatial decorrelation is performed by the `analysis filter`__ used in the
 2D-DWT_.
 
-MCDWT coefficients are compressed with EBCOT__.
+MCDWT coefficients are compressed with EBCOT_.
 
 .. _video: https://en.wikipedia.org/wiki/Video
 .. _visual: https://en.wikipedia.org/wiki/Visual_perception
@@ -32,7 +32,7 @@ MCDWT coefficients are compressed with EBCOT__.
 .. _decoder: https://en.wikipedia.org/wiki/Decoder
 .. _`prediction images`: https://en.wikipedia.org/wiki/Decoder
 .. _`analysis filter' : https://en.wikipedia.org/wiki/Digital_filter#Analysis_techniques
-.. _ 2D-DWT: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
+.. _2D-DWT: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
 .. _EBCOT: http://nptel.ac.in/courses/117105083/pdf/ssg_m5l15.pdf
 
 -----------------
