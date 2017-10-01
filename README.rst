@@ -1,4 +1,6 @@
-# Motion Compensated Discrete Wavelet Transform (MCDWT)
+-----------------------------------------------------
+Motion Compensated Discrete Wavelet Transform (MCDWT)
+-----------------------------------------------------
 
 MCDWT is a video decorrelator and visual information organizer. The
 input sequence of pixels are decorrelated in the temporal and in the
