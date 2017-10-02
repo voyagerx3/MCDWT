@@ -99,8 +99,11 @@ A sequence :math:`V` of :math:`n` images::
  +---------------+  +---------------+     +---------------+
        V[0]               V[1]                 V[n-1]
 
-Output ****** A sequence :math:`S` of :math:`n` "pyramids". For
-example, a 2-levels 2D-DWT looks like::
+Output
+******
+
+A sequence :math:`S` of :math:`n` "pyramids". For example, a 2-levels
+2D-DWT looks like::
 
  +---+---+-------+  +---+---+-------+     +---+---+-------+
  |LL2|HL2|       |  |   |   |       |     |   |   |       |
@@ -119,12 +122,15 @@ letters represents the subband level. For the sake of simplicity, we
 will denote the subbands :math:`{LH, HL, HH}` as only :math:`H`, and
 :math:`LL` as only :math:`L`.
 
-### Algorithm
-```pytho
-for image in V:
-  2D_DWT(image) # In place
-S = V # Pointer copy
-```
+Algorithm
+*********
+
+::
+
+   for image in V:
+      2D_DWT(image) # In place
+      S = V # Pointer copy
+
 
 ### Scalability
 The 2D-DWT applied to a video produces a representation scalable in the space (we can extract different videos with different spatial scales or resolutions), in the time (we can extract diferent videos with different number of frames) and in quality (we can get the DWT coefficients with different quantization steps to reconstruct videos of different quality).
