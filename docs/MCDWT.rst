@@ -63,7 +63,7 @@ resolution in the backward transform (as the forward transform did).
 Wavelet and pyramid domains
 ***************************
 
-Indeed, DWT generates a scalable representation of an image and by
+Indeed, 2D-DWT generates a scalable representation of an image and by
 extension, of a video if we apply the DWT on all the images of the
 video.  This can be also done with `Gaussian and Laplacian
 pyramids`_. Image pyramids are interesting because they are shift
@@ -71,17 +71,18 @@ invariant and therefore, one can operate within the scales as they
 were *normal* images. However, as a consecuence of image pyramids
 representations are not critically sampled, they need more memory than
 DWT ones and this is a drawback when compressing. Luckily, its easy to
-convert a Laplacian pyramid representation into a DWT representation,
-and viceversa. For this reason, even if we use the DWT to encode our
-images, we can suppose at any moment that we are working with the
-pyramid of those images.
+convert a Laplacian pyramid representation into a 2D-DWT
+representation, and viceversa. For this reason, even if we use the
+2D-DWT to encode our images, we can suppose at any moment that we are
+working with the pyramid of those images.
 
 .. _Gaussian and Laplacian pyramids: https://en.wikipedia.org/wiki/Pyramid_(image_processing)
 
-DWT is used, for example, in `the JPEG2000 image and video compression
-standard <https://en.wikipedia.org/wiki/JPEG_2000>`_. Notice that only
-the spatial redundancy is exploited. All the temporal redundancy is
-still in the video.
+2D-DWT is used, for example, in `the JPEG2000 image and video
+compression standard
+<https://en.wikipedia.org/wiki/JPEG_2000>`_. Notice that only the
+spatial redundancy is exploited. All the temporal redundancy is still
+in the video.
 				    
 Input
 *****
@@ -132,20 +133,36 @@ Algorithm
       S = V # Pointer copy
 
 
-### Scalability
-The 2D-DWT applied to a video produces a representation scalable in the space (we can extract different videos with different spatial scales or resolutions), in the time (we can extract diferent videos with different number of frames) and in quality (we can get the DWT coefficients with different quantization steps to reconstruct videos of different quality).
+Scalability
+***********
 
-### Inverse 's'-levels inverse 2D-DWT
-In the last example, subbands `V2={S[0].LL2, S[1].LL2, ..., S[n-1].LL2}` represent the scale (number) 2 of the original video (the spatial resolution of this `V2` is the resolution of `V` divided by 4 in each spatial dimension).
+The 2D-DWT applied to a video produces a representation scalable in
+the space (we can extract different videos with different spatial
+scales or resolutions), in the time (we can extract diferent videos
+with different number of frames) and in quality (we can get the DWT
+coefficients with different quantization steps to reconstruct videos
+of different quality).
 
-To reconstruct the scale 1, we apply the 2D_iDWT (1-level 2D inverse DWT) in place (this means that the output of the transform replaces all or a part of the input data):
-```python
-for pyramid in S:
-  2D_iDWT(pyramid) # In place
-V = S # Pointer copy
-```
+Inverse 's'-levels inverse 2D-DWT
+*********************************
 
-And finally, to get the original video, we need to apply again the previous code over `S = V`.
+In the last example, subbands :math:`V2={S[0].LL2, S[1].LL2, ...,
+S[n-1].LL2}` represent the scale (number) 2 of the original video (the
+spatial resolution of this :math:`V2` is the resolution of :math:`V`
+divided by 4 in each spatial dimension).
+
+To reconstruct the scale 1, we apply the 2D-iDWT (1-levels 2D inverse
+DWT):
+
+.. code-block:: python
+
+   for pyramid in S:
+     2D_iDWT(pyramid) # In place
+     V = S # Pointer copy
+
+
+And finally, to get the original video, we need to apply again the
+previous code over :math:`S = V`.
 
 ### Implementation of 2D_DWT and 2D_iDWT
 See for example, [pywt.wavedec2()] __(https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2) at [PyWavelets] __(https://pywavelets.readthedocs.io/en/latest/index.html).
