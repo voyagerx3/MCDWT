@@ -2,10 +2,10 @@
   MCDWT module
   ============
 
-.. automodule:: MCDWT
-    :members:
-    :undoc-members:
-    :show-inheritance:
+..  .. automodule:: MCDWT
+..      :members:
+..      :undoc-members:
+..      :show-inheritance:
 
 Motion Compensated Discrete Wavelet Transform (MCDWT)
 ==========================
