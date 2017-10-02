@@ -144,8 +144,8 @@ with different number of frames) and in quality (we can get the DWT
 coefficients with different quantization steps to reconstruct videos
 of different quality).
 
-Inverse 's'-levels inverse 2D-DWT
-*********************************
+:math:`s`-levels inverse 2D-DWT
+*******************************
 
 In the last example, subbands :math:`V2={S[0].LL2, S[1].LL2, ...,
 S[n-1].LL2}` represent the scale (number) 2 of the original video (the
@@ -291,9 +291,9 @@ Forward MCDWT
 Example (3 temporal scales (:math:`l=2` iterations of the transform) and :math:`n=5` images)::
 
   V[0] V[1] V[2] V[3] V[4]
-   A    B    C              <- First call of MCDWT_step
-             A    B    C    <- Second call of MCDWT_step
-   A         B         C    <- Third call of MCDWT_step
+   A    B    C              <- j=0, i=0
+             A    B    C    <- j=0, i=1
+   A         B         C    <- j=1, i=0
   ---- -------------------
   GOP0        GOP1
 
@@ -341,12 +341,12 @@ Provided by subbands :math:`L` of the pyramids.
 
 Scale 1:
 
-Provided after running iMCDWT one iteration. For 3 pyramids
+Rendered after running iMCDWT one iteration. For 3 pyramids
 :math:`A={A.L,A.H}`, :math:`B={B.L,~B.H}` and :math:`C={C.L,C.H}`
 where the subband :math:`L` is the scale 2, the scale 1 is
 recostructed by (see Algorithm iMCDWT_step)::
 
- [A.L] = iDWT(A.L,0);
+ [A.L] = iDWT(A.L,0);                                 > Interpolate A.L of 
  [A.H] = iDWT(0,A.H);
  V[0] = [A.L] + [A.H];
  [B.L] = 2D_iDWT(V[1].L,0);
