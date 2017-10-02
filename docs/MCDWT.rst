@@ -16,7 +16,7 @@ MCDWT and video scalabilty
 MCDWT inputs a video_ and outputs a video, in a way that when using
 only a portion of the data of the transformed video, a video with a
 lower `temporal resolution`_, lower `spatial resolution`_ or/and lower
-quality can be generated.
+`quality`_ can be generated.
 
 If all the transformed data is used, then the original video is
 obtained (MCDWT is a lossless transform). The video output has exactly
@@ -26,6 +26,7 @@ on spatial scalability.
 
 .. _temporal resolution: https://en.wikipedia.org/wiki/Temporal_resolution
 .. _spatial resolution: https://en.wikipedia.org/wiki/Image_resolution#Spatial_resolution
+.. _quality: https://en.wikipedia.org/wiki/Compression_artifact
 .. _scalability: http://inst.eecs.berkeley.edu/~ee290t/sp04/lectures/videowavelet_UCB1-3.pdf
 .. _video: https://en.wikipedia.org/wiki/Video
 
