@@ -287,76 +287,82 @@ Forward MCDWT
        x *= 2
 
 
-Example (3 temporal scales (`l=2` iterations of the transform) and `n=5` images):
-```
-V[0] V[1] V[2] V[3] V[4]
- A    B    C              <- First call of MCDWT_step
-           A    B    C    <- Second call of MCDWT_step
- A         B         C    <- Third call of MCDWT_step
----- -------------------
-GOP0        GOP1
-```
+Example (3 temporal scales (:math:`l=2` iterations of the transform) and :math:`n=5` images)::
 
-### Backward MCDWT
-```
-n = 5 # Number of images
-l = 2 # Number of temporal scales
+  V[0] V[1] V[2] V[3] V[4]
+   A    B    C              <- First call of MCDWT_step
+             A    B    C    <- Second call of MCDWT_step
+   A         B         C    <- Third call of MCDWT_step
+  ---- -------------------
+  GOP0        GOP1
 
-x = 2**l
-for j in range(l):
-    [A.L] = 2D_iDWT(V[0].L, 0)
-    [A.H] = 2D_iDWT(0, V[0].H)
-    V[0] = [A.L] + [A.H]
-    i = 0 # Image index
-    while i < (n//x):
-        [B.L] = 2D_iDWT(V[x*i+x//2].L, 0)
-        [~B.H] = 2D_iDWT(0, V[x*i+x//2].H)
-        [C.L] = 2D_iDWT(V[x*i+x].L, 0)
-        [C.H] = 2D_iDWT(0, V[x*i+x].H)
-        V[x*i+x] = [C.L] + [C.H]
-        [B.L]->[A.L] = ME([B.L], [A.L])
-        [B.L]->[C.L] = ME([B.L], [C.L])
-        [B.H]_A = MC([A.H], [B.L]->[A.L])
-        [B.H]_C = MC([C.H], [B.L]->[C.L])
-        [B.H] = [~B.H] + int(round(([B.H]_A + [B.H]_C)/2.0))
-        V[x*i+x//2] = [B.L] + [B.H]
-        [A.L] = [C.L]
-        [A.H] = [C.H]
-        i += 1
-    x //= 2
-```
 
-### Data extraction examples
+Backward MCDWT
+**************
 
-#### Spatial scalability
+.. code-block:: python
+   n = 5 # Number of images
+   l = 2 # Number of temporal scales
+
+   x = 2**l
+   for j in range(l):
+       [A.L] = 2D_iDWT(V[0].L, 0)
+       [A.H] = 2D_iDWT(0, V[0].H)
+       V[0] = [A.L] + [A.H]
+       i = 0 # Image index
+       while i < (n//x):
+           [B.L] = 2D_iDWT(V[x*i+x//2].L, 0)
+           [~B.H] = 2D_iDWT(0, V[x*i+x//2].H)
+           [C.L] = 2D_iDWT(V[x*i+x].L, 0)
+           [C.H] = 2D_iDWT(0, V[x*i+x].H)
+           V[x*i+x] = [C.L] + [C.H]
+           [B.L]->[A.L] = ME([B.L], [A.L])
+           [B.L]->[C.L] = ME([B.L], [C.L])
+           [B.H]_A = MC([A.H], [B.L]->[A.L])
+           [B.H]_C = MC([C.H], [B.L]->[C.L])
+           [B.H] = [~B.H] + int(round(([B.H]_A + [B.H]_C)/2.0))
+           V[x*i+x//2] = [B.L] + [B.H]
+           [A.L] = [C.L]
+           [A.H] = [C.H]
+           i += 1
+       x //= 2
+
+
+Data extraction examples
+************************
+
+1. Spatial scalability
+----------------------
 
 Scale 2:
 
-Provided by subbands L of the pyramids.
+Provided by subbands :math:`L` of the pyramids.
 
 Scale 1:
 
-Provided after running iMCDWT one iteration. For 3 pyramids A={A.L,A.H}, B={B.L,~B.H} and C={C.L,C.H} where the subband L is the scale 2, the scale 1 is recostructed by (see Algoithm iMCDWT_step):
+Provided after running iMCDWT one iteration. For 3 pyramids
+:math:`A={A.L,A.H}`, :math:`B={B.L,~B.H}` and :math:`C={C.L,C.H}`
+where the subband :math:`L` is the scale 2, the scale 1 is
+recostructed by (see Algoithm iMCDWT_step)::
 
-[A.L] = iDWT(A.L,0);
-[A.H] = iDWT(0,A.H);
-V[0] = [A.L] + [A.H];
-[B.L] = 2D_iDWT(V[1].L,0);
-[~B.H] = 2D_iDWT(0,V[1].H);
-[C.L] = 2D_iDWT(V[2].L,0);
-[C.H] = 2D_iDWT(0,V[2].H);
-V[2] = [C.L] + [C.H] 
-[B.L]->[A.L] = ME([B.L], [A.L])
-[B.L]->[C.L] = ME([B.L], [C.L])
-[B.H]_A = MC([A.H], [B.L]->[A.L])
-[B.H]_C = MC([C.H], [B.L]->[C.L])
-[B.H] = [~B.H] + int(round(([B.H]_A + [B.H]_C)/2.0))
-V[1] = [B.L] + [B.H]
-[A.L] = [C.L]
-[A.H] = [C.H]
-...
+ [A.L] = iDWT(A.L,0);
+ [A.H] = iDWT(0,A.H);
+ V[0] = [A.L] + [A.H];
+ [B.L] = 2D_iDWT(V[1].L,0);
+ [~B.H] = 2D_iDWT(0,V[1].H);
+ [C.L] = 2D_iDWT(V[2].L,0);
+ [C.H] = 2D_iDWT(0,V[2].H);
+ V[2] = [C.L] + [C.H] 
+ [B.L]->[A.L] = ME([B.L], [A.L])
+ [B.L]->[C.L] = ME([B.L], [C.L])
+ [B.H]_A = MC([A.H], [B.L]->[A.L])
+ [B.H]_C = MC([C.H], [B.L]->[C.L])
+ [B.H] = [~B.H] + int(round(([B.H]_A + [B.H]_C)/2.0))
+ V[1] = [B.L] + [B.H]
+ [A.L] = [C.L]
+ [A.H] = [C.H]
 
-Scale 2:
+Scale 0:
 
 Repeat the previous computations.
 
