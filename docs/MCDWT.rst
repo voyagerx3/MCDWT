@@ -167,60 +167,81 @@ previous code over :math:`S = V`.
 Implementation of 2D_DWT and 2D_iDWT
 ************************************
 
-See for example, `pywt.wavedec2
+See for example, `pywt.wavedec2()
 <https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html#d-multilevel-decomposition-using-wavedec2>`_
 at `PyWavelets
 <https://pywavelets.readthedocs.io/en/latest/index.html>`_.
 
-### Redundancy and compression
-The 2D-DWT provides an interesting feature to `S`: usually, `H` subbands has a lower entropy than `V`. This means that if we apply to `S` an entropy encoder, we can get a shorter representation of the video than if we encode `V` directly. This is a consequence of 2D-DWT exploits the spatial redudancy of the images of the video (neighboring pixels tend to have similar values and when they are substracted, they tend to produce zeros).
+Redundancy and compression
+**************************
 
-## Why MCDWT?
-As we have said, the 2D-DWT does not exploit the temporal redundancy of a video. This means that we can achieve higher compression ratios if (in addition to the 2D-DWT) we apply a 1D-DWT along the temporal domain. This is exactly what MCDWT does. However, due to the temporal redundancy is generated mainly by the presence of objects in the scene of the video which are moving with respect to the camera, some sort of motion estimation and compensation should be used.
+The 2D-DWT provides an interesting feature to :math:`S`: usually,
+:math:`H` subbands has a lower entropy than :math:`V`. This means that
+if we apply to :math:`S` an entropy encoder, we can get a shorter
+representation of the video than if we encode :math:`V` directly. This
+is a consequence of 2D-DWT exploits the spatial redudancy of the
+images of the video (neighboring pixels tend to have similar values
+and when they are substracted, they tend to produce zeros).
 
-### MCDWT input
-A sequence `V` of `n` images.
+Why MCDWT?
+**********
 
-### MCDWT output
-A sequence `T` of `n` pyramids, organized in `l` temporal subbands, where each subband is a sequence of pyramids. The number of input and output pyramids is the same.
+As we have said, the 2D-DWT does not exploit the temporal redundancy
+of a video. This means that we can achieve higher compression ratios
+if (in addition to the 2D-DWT) we apply a 1D-DWT along the temporal
+domain. This is exactly what MCDWT does. However, due to the temporal
+redundancy is generated mainly by the presence of objects in the scene
+of the video which are moving with respect to the camera, some sort of
+motion estimation and compensation should be used.
 
-For example, if `l=2` and `n=5`:
+MCDWT input
+***********
 
-```
-      Spatial
-      scale 0 1 2       t = 1                               t = 3
-            ^ ^ ^ +---+---+-------+                   +---+---+-------+                                ^
-            | | | |   |   |       |                   |   |   |       |                                |
-            | | v +---+---+       |                   +---+---+    O <---- T[3][y][x]                  |
-            | |   |   |   |       |                   |   |   |       |                                |
-            | v   +---+---+-------+                   +---+---+-------+ l = 0                          |
-            |     |       |       |                   |       |       |                                |
-            |     |       |       |                   |       |       |                                |
-            |     |       |       |                   |       |       |                                |
-            v     +-------+-------+       t = 2       +-------+-------+                                |
-                      |       |     +---+---+-------+     |        |                                 ^ |
-                      |       |     |   |   |       |     |        |                                 | |
-                      |       +---->+---+---+       |<----+        |                                 | |
-                      |             |   |   |       |              |                                 | |
-                      |             +---+---+-------+ l = 1        |                                 | |
-                      |             |       |       |              |                                 | |
-                      |             |       |       |              |                                 | |
-                      |             |       |       |              |                                 | |
-      t = 0           |             +-------+-------+              |           t = 4                 | |
-+---+---+-------+     |                 |       |                  |     +---+---+-------+         ^ | |
-|   |   |       |     |                 |       |                  |     |   |   |       |         | | |
-+---+---+       |<----+                 |       |                  +---->+---+---+       |         | | |
-|   |   |       |                       |       |                        |   |   |       |         | | |
-+---+---+-------+                       |       |                        +---+---+-------+  l = 2  | | |
-|       |       |                       |       |                        |       |       |         | | |
-|       |       |<----------------------+       +----------------------->|       |       |         | | |
-|       |       |                                                        |       |       |         | | |
-+-------+-------+                                                        +-------+-------+         v v v
-      GOP 0                                       GOP 1                             Temporal scale 2 1 0
-<---------------><----------------------------------------------------------------------->
+A sequence :math:`V` of :math:`n` images.
 
-(X --> Y) = X depends on Y (X has been encoded using Y)
-```
+MCDWT output
+************
+
+A sequence :math:`T` of :math:`n` pyramids, organized in :math:`l`
+temporal subbands, where each subband is a sequence of pyramids. The
+number of input and output pyramids is the same.
+
+For example, if :math:`l=2` and :math:`n=5`::
+  
+       Spatial
+       scale 0 1 2       t = 1                               t = 3
+             ^ ^ ^ +---+---+-------+                   +---+---+-------+                                ^
+             | | | |   |   |       |                   |   |   |       |                                |
+             | | v +---+---+       |                   +---+---+    O <---- T[3][y][x]                  |
+             | |   |   |   |       |                   |   |   |       |                                |
+             | v   +---+---+-------+                   +---+---+-------+ l = 0                          |
+             |     |       |       |                   |       |       |                                |
+             |     |       |       |                   |       |       |                                |
+             |     |       |       |                   |       |       |                                |
+             v     +-------+-------+       t = 2       +-------+-------+                                |
+                       |       |     +---+---+-------+     |        |                                 ^ |
+                       |       |     |   |   |       |     |        |                                 | |
+                       |       +---->+---+---+       |<----+        |                                 | |
+                       |             |   |   |       |              |                                 | |
+                       |             +---+---+-------+ l = 1        |                                 | |
+                       |             |       |       |              |                                 | |
+                       |             |       |       |              |                                 | |
+                       |             |       |       |              |                                 | |
+       t = 0           |             +-------+-------+              |           t = 4                 | |
+ +---+---+-------+     |                 |       |                  |     +---+---+-------+         ^ | |
+ |   |   |       |     |                 |       |                  |     |   |   |       |         | | |
+ +---+---+       |<----+                 |       |                  +---->+---+---+       |         | | |
+ |   |   |       |                       |       |                        |   |   |       |         | | |
+ +---+---+-------+                       |       |                        +---+---+-------+  l = 2  | | |
+ |       |       |                       |       |                        |       |       |         | | |
+ |       |       |<----------------------+       +----------------------->|       |       |         | | |
+ |       |       |                                                        |       |       |         | | |
+ +-------+-------+                                                        +-------+-------+         v v v
+       GOP 0                                       GOP 1                             Temporal scale 2 1 0
+ <---------------><----------------------------------------------------------------------->
+
+ (X --> Y) = X depends on Y (X has been encoded using Y)
+
 
 ### Forward (direct) MCDWT step
 
