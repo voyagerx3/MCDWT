@@ -125,7 +125,7 @@ will denote the subbands :math:`{LH, HL, HH}` as only :math:`H`, and
 Algorithm
 *********
 
-::
+::python
 
    for image in V:
       2D_DWT(image) # In place
