@@ -7,10 +7,10 @@ MCDWT module
     :show-inheritance:
 
 Motion Compensated Discrete Wavelet Transform (MCDWT)
-*****************************************************
+==========================
 
 MCDWT and video scalabilty
-==========================
+*****************************************************
 
 *MCDWT inputs a video_ and outputs a video*, in a way that when using
 only a portion of the data of the transformed video, a video with a
