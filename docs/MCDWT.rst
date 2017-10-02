@@ -33,29 +33,30 @@ Video transform choices
 ***********************
 
 To obtain a multiresolution version or a video, the `DWT`_ (Discrete
-Wavelet Transform) can be applied along temporal ($t$) and spatial
-domains ($2D$). At this point, two alternatives arise: (1) a $t+2D$
-transform or (2) a $2D+t$ transform. In a $t+2D$ transform, the video
-is first analyzed over the time domain and next, over the space
-domain. A $2D+t$ transform does just the opposite.
+Wavelet Transform) can be applied along temporal (:math:`t`) and
+spatial domains (:math:`2D`). At this point, two alternatives
+arise: (1) a :math:`t+2D` transform or (2) a :math:`2D+t`
+transform. In a :math:`t+2D` transform, the video is first analyzed
+over the time domain and next, over the space domain. A :math:`2D+t`
+transform does just the opposite.
 
 .. _DWT: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
 
 Each choice has a number of *pros* and *cons*. For example, in a
-$t+2D$ transform we can apply directly any image predictor based on
-motion estimation because the input is a normal video. However, if we
-implement a $2D+t$ transform, the input to the motion estimator is a
-sequence of images in the DWT domain. The overwhelming majority of
-DWT's are not `shift invariant`_, which basically means that
-$\text{DWT}(s(t)) \neq \text{DWT}(s(t+x))$, where $x$ is a
-displacement of the signal $s(t)$ along the time domain. Therefore,
-motion estimators which compare pixel values will not work on the DWT
-domain. On the other hand, if we want to provide true spatial
-scalability (processing only those spatial resolutions (scales)
-necessary to get a spatially scaled of our video), a $t+2D$
-transformed video is not suitable because the first step of the
-forward transform ($t$) should be reversed at full resolution in the
-backward transform (as the forward transform did).
+:math:`t+2D` transform we can apply directly any image predictor based
+on motion estimation because the input is a normal video. However, if
+we implement a :math:`2D+t` transform, the input to the motion
+estimator is a sequence of images in the DWT domain. The overwhelming
+majority of DWT's are not `shift invariant`_, which basically means
+that :math:`DWT(s(t)) != DWT(s(t+x))`, where :math:`x` is a
+displacement of the signal :math:`s(t)` along the time
+domain. Therefore, motion estimators which compare pixel values will
+not work on the DWT domain. On the other hand, if we want to provide
+true spatial scalability (processing only those spatial resolutions
+(scales) necessary to get a spatially scaled of our video), a
+:math:`t+2D` transformed video is not suitable because the first step
+of the forward transform (:math:`t`) should be reversed at full
+resolution in the backward transform (as the forward transform did).
 
 .. _shift invariant: http://www.polyvalens.com/blog/wavelets/theory
 
@@ -85,7 +86,7 @@ still in the video.
 Input
 *****
 
-A sequence :math:`V` of $n$ images::
+A sequence :math:`V` of :math:`n` images::
   
                                                           x
  +---------------+  +---------------+     +---------------+
@@ -98,11 +99,8 @@ A sequence :math:`V` of $n$ images::
  +---------------+  +---------------+     +---------------+
        V[0]               V[1]                 V[n-1]
 
-:math:`\alpha > \beta`
-      
-Output
-******
-A sequence $S$ of $n$ "pyramids". For example, a 2-levels 2D-DWT looks like::
+Output ****** A sequence :math:`S` of :math:`n` "pyramids". For
+example, a 2-levels 2D-DWT looks like::
 
  +---+---+-------+  +---+---+-------+     +---+---+-------+
  |LL2|HL2|       |  |   |   |       |     |   |   |       |
@@ -115,7 +113,11 @@ A sequence $S$ of $n$ "pyramids". For example, a 2-levels 2D-DWT looks like::
  +-------+-------+  +-------+-------+     +-------+-------+
         S[0]               S[1]                  S[2]
 
-where `L` and `H` stands for *low-pass filtered* and *high-pass filtered*, respectively. The integer > 1 that follows these letters represents the subband level. For the sake of simplicity, we will denote the subbands `{LH, HL, HH}` as only `H`, and `LL` as only `L`. 
+where :math:`L` and :math:`H` stands for *low-pass filtered* and
+*high-pass filtered*, respectively. The integer > 1 that follows these
+letters represents the subband level. For the sake of simplicity, we
+will denote the subbands :math:`{LH, HL, HH}` as only :math:`H`, and
+:math:`LL` as only :math:`L`.
 
 ### Algorithm
 ```pytho
