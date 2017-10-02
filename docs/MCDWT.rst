@@ -82,6 +82,30 @@ standard <https://en.wikipedia.org/wiki/JPEG_2000>`_. Notice that only
 the spatial redundancy is exploited. All the temporal redundancy is
 still in the video.
 
+
+Also you can use the ``::`` operator to basically render any text exactly using
+fixed width fonts and by passing the restructured text engine.  
+This is useful for ascii art::
+
+			           .,,.
+			         ,;;*;;;;,
+			        .-'``;-');;.
+			       /'  .-.  /*;;
+			     .'    \d    \;;               .;;;,
+			    / o      `    \;    ,__.     ,;*;;;*;,
+			    \__, _.__,'   \_.-') __)--.;;;;;*;;;;,
+			     `""`;;;\       /-')_) __)  `\' ';;;;;;
+			        ;*;;;        -') `)_)  |\ |  ;;;;*;
+			        ;;;;|        `---`    O | | ;;*;;;
+			        *;*;\|                 O  / ;;;;;*
+			       ;;;;;/|    .-------\      / ;*;;;;;
+			      ;;;*;/ \    |        '.   (`. ;;;*;;;
+			      ;;;;;'. ;   |          )   \ | ;;;;;;
+			      ,;*;;;;\/   |.        /   /` | ';;;*;
+			       ;;;;;;/    |/       /   /__/   ';;;
+			       '*jgs/     |       /    |      ;*;
+			            `""""`        `""""`     ;'
+				    
 Input
 *****
 
