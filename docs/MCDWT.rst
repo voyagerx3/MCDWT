@@ -6,7 +6,6 @@ MCDWT module
     :undoc-members:
     :show-inheritance:
 
-=====================================================
 Motion Compensated Discrete Wavelet Transform (MCDWT)
 =====================================================
 
