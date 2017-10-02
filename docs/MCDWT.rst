@@ -98,7 +98,8 @@ A sequence $V$ of $n$ images::
  +---------------+  +---------------+     +---------------+
        V[0]               V[1]                 V[n-1]
 
-
+:math:`\alpha > \beta`
+      
 Output
 ******
 A sequence $S$ of $n$ "pyramids". For example, a 2-levels 2D-DWT looks like::
