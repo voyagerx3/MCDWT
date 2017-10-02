@@ -34,31 +34,59 @@ Video transform choices
 
 To obtain a multiresolution version or a video, the `DWT`_ (Discrete
 Wavelet Transform) can be applied along temporal ($t$) and spatial
-domains (`2D`). At this point, two alternatives arise: (1) a `t+2D`
-transform or (2) a `2D+t` transform. In a `t+2D` transform, the video
-is first analyzed over the time domain and next, over the spatial
-domain. A `2D+t` transform does just the opposite.
+domains ($2D$). At this point, two alternatives arise: (1) a $t+2D$
+transform or (2) a $2D+t$ transform. In a $t+2D$ transform, the video
+is first analyzed over the time domain and next, over the space
+domain. A $2D+t$ transform does just the opposite.
 
 .. _DWT: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
 
-Each choice has a number of pros and cons. For example, in a `t+2D` transform we can apply directly any image predictor based on motion estimation because the input is a normal video. However, if we implement a `2D+t` transform, the input to the motion estimator is a sequence of images in the DWT domain. [The overwhelming majority of DWT's are not shift invariant][Friendly Guide], which basically means that DWT(`s(t)`) `!=` DWT(`s(t+x)`), where `x` is a displacement of the signal `s(t)` along the time domain. Therefore, motion estimators which compare pixel values will not work on the DWT domain. On the other hand, if we want to provide true spatial scalability (processing only those spatial resolutions (scales) necessary to get a spatially scaled of our video), a `t+2D` transformed video is not suitable because the first step of the forward transform (`t`) should be reversed at full resolution in the backward transform (as the forward transform did).
+Each choice has a number of *pros* and *cons*. For example, in a
+$t+2D$ transform we can apply directly any image predictor based on
+motion estimation because the input is a normal video. However, if we
+implement a $2D+t$ transform, the input to the motion estimator is a
+sequence of images in the DWT domain. The overwhelming majority of
+DWT's are not `shift invariant`_, which basically means that
+$\text{DWT}(s(t)) \neq \text{DWT}(s(t+x))$, where $x$ is a
+displacement of the signal $s(t)$ along the time domain. Therefore,
+motion estimators which compare pixel values will not work on the DWT
+domain. On the other hand, if we want to provide true spatial
+scalability (processing only those spatial resolutions (scales)
+necessary to get a spatially scaled of our video), a $t+2D$
+transformed video is not suitable because the first step of the
+forward transform ($t$) should be reversed at full resolution in the
+backward transform (as the forward transform did).
 
-[Friendly Guide]: __ http://www.polyvalens.com/blog/wavelets/theory
+.. _shift invariant: http://www.polyvalens.com/blog/wavelets/theory
 
-## Wavelet and pyramid domains
-Indeed, the DWT allows to get a scalable representation of a image and by extension, of a video if we apply the DWT on all the images of the video. However, this can be also done with [Gaussian and Laplacian pyramids][Pyramids]. Image pyramids are interesting because they are shift invariant and therefore, one can operate within the scales as they are *normal* images. However, as a consecuence of image pyramids representations are not critically sampled, they need more memory than DWT ones and this is a drawback when compressing. Luckily, it is very fast to convert a laplacian pyramid representation into a DWT representation, and viceversa. For this reason, even if we use the DWT to work with our images, we can suppose at any moment that we are working with the pyramid of those images.
+Wavelet and pyramid domains
+***************************
 
-[Pyramids]: __ https://en.wikipedia.org/wiki/Pyramid_(image_processing)
+Indeed, DWT generates a scalable representation of an image and by
+extension, of a video if we apply the DWT on all the images of the
+video.  This can be also done with `Gaussian and Laplacian
+pyramids`_. Image pyramids are interesting because they are shift
+invariant and therefore, one can operate within the scales as they
+were *normal* images. However, as a consecuence of image pyramids
+representations are not critically sampled, they need more memory than
+DWT ones and this is a drawback when compressing. Luckily, its easy to
+convert a Laplacian pyramid representation into a DWT representation,
+and viceversa. For this reason, even if we use the DWT to encode our
+images, we can suppose at any moment that we are working with the
+pyramid of those images.
 
-## The 's'-levels 2D Discrete Wavelet Transform
-A<sup>[1](#myfootnote1)</sup> [2D-DWT][2D-DWT] (2 Dimensions - Discrete Wavelet Transform) generates a scalable representation of an image and by extension, of a video if we apply the DWT on all the images of the video. This is done, for example, in [the JPEG2000 image and video compression standard][J2K]. Notice that only the spatial redundancy is exploited. All the temporal redundancy is still in the video.
+.. _Gaussian and Laplacian pyramids: https://en.wikipedia.org/wiki/Pyramid_(image_processing)
 
-[J2K]: __ https://en.wikipedia.org/wiki/JPEG_2000
-[2D-DWT]: __ https://en.wikipedia.org/wiki/Discrete_wavelet_transform
+DWT is used, for example, in `the JPEG2000 image and video compression
+standard <https://en.wikipedia.org/wiki/JPEG_2000>`_. Notice that only
+the spatial redundancy is exploited. All the temporal redundancy is
+still in the video.
 
-### Input
-A sequence `V` of `n` images:
-```
+Input
+*****
+
+A sequence $V$ of $n$ images:
+::
                                                          x
 +---------------+  +---------------+     +---------------+
 |               |  |               |     |            |  |
@@ -69,11 +97,12 @@ A sequence `V` of `n` images:
 |               |  |               |     |               |
 +---------------+  +---------------+     +---------------+
       V[0]               V[1]                 V[n-1]
-```
 
-### Output
-A sequence `S` of `n` "pyramids". For example, a 2-levels 2D-DWT looks like:
-```
+
+Output
+******
+A sequence $S$ of $n$ "pyramids". For example, a 2-levels 2D-DWT looks like:
+::
 +---+---+-------+  +---+---+-------+     +---+---+-------+
 |LL2|HL2|       |  |   |   |       |     |   |   |       |
 +---+---+  HL1  |  +---+---+       |     +---+---+       |
@@ -84,7 +113,7 @@ A sequence `S` of `n` "pyramids". For example, a 2-levels 2D-DWT looks like:
 |       |       |  |       |       |     |       |       |        
 +-------+-------+  +-------+-------+     +-------+-------+
        S[0]               S[1]                  S[2]
-```
+
 where `L` and `H` stands for *low-pass filtered* and *high-pass filtered*, respectively. The integer > 1 that follows these letters represents the subband level. For the sake of simplicity, we will denote the subbands `{LH, HL, HH}` as only `H`, and `LL` as only `L`. 
 
 ### Algorithm
