@@ -8,12 +8,12 @@
 ..      :show-inheritance:
 
 Motion Compensated Discrete Wavelet Transform (MCDWT)
-==========================
+===
 
 MCDWT and video scalabilty
-*****************************************************
+***
 
-*MCDWT inputs a video_ and outputs a video*, in a way that when using
+MCDWT inputs a video_ and outputs a video, in a way that when using
 only a portion of the data of the transformed video, a video with a
 lower `temporal resolution`_, lower `spatial resolution`_ or/and lower
 quality can be generated.
@@ -29,10 +29,18 @@ on spatial scalability.
 .. _scalability: http://inst.eecs.berkeley.edu/~ee290t/sp04/lectures/videowavelet_UCB1-3.pdf
 .. _video: https://en.wikipedia.org/wiki/Video
 
-## Video transform choices
-To obtain a multiresolution version or a video, the<sup>[1](#myfootnote1)</sup> [DWT (Discrete Wavelet Transform)][DWT] can be applied along temporal (`t`) and spatial domains (`2D`). At this point, two alternatives arise: (1) a `t+2D` transform or (2) a `2D+t` transform. In a `t+2D` transform, the video is first analyzed over the time domain and next, over the spatial domain. A `2D+t` transform does just the opposite.
+Video transform choices
+***
 
-[DWT]: __ https://en.wikipedia.org/wiki/Discrete_wavelet_transform
+To obtain a multiresolution version or a video,
+the<sup> `DWT`_ (Discrete Wavelet
+Transform) can be applied along temporal (`t`) and spatial
+domains (`2D`). At this point, two alternatives arise: (1) a `t+2D`
+transform or (2) a `2D+t` transform. In a `t+2D` transform, the video
+is first analyzed over the time domain and next, over the spatial
+domain. A `2D+t` transform does just the opposite.
+
+.. _DWT: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
 
 Each choice has a number of pros and cons. For example, in a `t+2D` transform we can apply directly any image predictor based on motion estimation because the input is a normal video. However, if we implement a `2D+t` transform, the input to the motion estimator is a sequence of images in the DWT domain. [The overwhelming majority of DWT's are not shift invariant][Friendly Guide], which basically means that DWT(`s(t)`) `!=` DWT(`s(t+x)`), where `x` is a displacement of the signal `s(t)` along the time domain. Therefore, motion estimators which compare pixel values will not work on the DWT domain. On the other hand, if we want to provide true spatial scalability (processing only those spatial resolutions (scales) necessary to get a spatially scaled of our video), a `t+2D` transformed video is not suitable because the first step of the forward transform (`t`) should be reversed at full resolution in the backward transform (as the forward transform did).
 
