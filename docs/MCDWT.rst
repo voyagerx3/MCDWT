@@ -243,13 +243,15 @@ For example, if :math:`l=2` and :math:`n=5`::
  (X --> Y) = X depends on Y (X has been encoded using Y)
 
 
-### Forward (direct) MCDWT step
+Forward (direct) MCDWT step
+***************************
 
-.. image:: ../forward.png
+.. image:: ./forward.png
 
-### Backward (inverse) MCDWT step
+Backward (inverse) MCDWT step
+*****************************
 
-.. image:: ../backward.png 
+.. image:: ./backward.png 
 
 ### Forward MCDWT
 ```
