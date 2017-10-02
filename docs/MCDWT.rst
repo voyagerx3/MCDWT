@@ -81,61 +81,38 @@ DWT is used, for example, in `the JPEG2000 image and video compression
 standard <https://en.wikipedia.org/wiki/JPEG_2000>`_. Notice that only
 the spatial redundancy is exploited. All the temporal redundancy is
 still in the video.
-
-
-Also you can use the ``::`` operator to basically render any text exactly using
-fixed width fonts and by passing the restructured text engine.  
-This is useful for ascii art::
-
-			           .,,.
-			         ,;;*;;;;,
-			        .-'``;-');;.
-			       /'  .-.  /*;;
-			     .'    \d    \;;               .;;;,
-			    / o      `    \;    ,__.     ,;*;;;*;,
-			    \__, _.__,'   \_.-') __)--.;;;;;*;;;;,
-			     `""`;;;\       /-')_) __)  `\' ';;;;;;
-			        ;*;;;        -') `)_)  |\ |  ;;;;*;
-			        ;;;;|        `---`    O | | ;;*;;;
-			        *;*;\|                 O  / ;;;;;*
-			       ;;;;;/|    .-------\      / ;*;;;;;
-			      ;;;*;/ \    |        '.   (`. ;;;*;;;
-			      ;;;;;'. ;   |          )   \ | ;;;;;;
-			      ,;*;;;;\/   |.        /   /` | ';;;*;
-			       ;;;;;;/    |/       /   /__/   ';;;
-			       '*jgs/     |       /    |      ;*;
-			            `""""`        `""""`     ;'
 				    
 Input
 *****
 
 A sequence $V$ of $n$ images::
   
-                                                         x
-+---------------+  +---------------+     +---------------+
-|               |  |               |     |            |  |
-|               |  |               |   y |----------- O <---- V[n-1][y][x]
-|               |  |               | ... |               |
-|               |  |               |     |               |
-|               |  |               |     |               |
-|               |  |               |     |               |
-+---------------+  +---------------+     +---------------+
-      V[0]               V[1]                 V[n-1]
+                                                          x
+ +---------------+  +---------------+     +---------------+
+ |               |  |               |     |            |  |
+ |               |  |               |   y |----------- O <---- V[n-1][y][x]
+ |               |  |               | ... |               |
+ |               |  |               |     |               |
+ |               |  |               |     |               |
+ |               |  |               |     |               |
+ +---------------+  +---------------+     +---------------+
+       V[0]               V[1]                 V[n-1]
 
 
 Output
 ******
 A sequence $S$ of $n$ "pyramids". For example, a 2-levels 2D-DWT looks like::
-+---+---+-------+  +---+---+-------+     +---+---+-------+
-|LL2|HL2|       |  |   |   |       |     |   |   |       |
-+---+---+  HL1  |  +---+---+       |     +---+---+       |
-|LH2|HH2|       |  |   |   |       |     |   |   |       |
-+---+---+-------+  +---+---+-------+ ... +---+---+-------+
-|       |       |  |       |       |     |       |       |
-|  LH1  |  HH1  |  |       |       |     |       |       |
-|       |       |  |       |       |     |       |       |        
-+-------+-------+  +-------+-------+     +-------+-------+
-       S[0]               S[1]                  S[2]
+
+ +---+---+-------+  +---+---+-------+     +---+---+-------+
+ |LL2|HL2|       |  |   |   |       |     |   |   |       |
+ +---+---+  HL1  |  +---+---+       |     +---+---+       |
+ |LH2|HH2|       |  |   |   |       |     |   |   |       |
+ +---+---+-------+  +---+---+-------+ ... +---+---+-------+
+ |       |       |  |       |       |     |       |       |
+ |  LH1  |  HH1  |  |       |       |     |       |       |
+ |       |       |  |       |       |     |       |       |        
+ +-------+-------+  +-------+-------+     +-------+-------+
+        S[0]               S[1]                  S[2]
 
 where `L` and `H` stands for *low-pass filtered* and *high-pass filtered*, respectively. The integer > 1 that follows these letters represents the subband level. For the sake of simplicity, we will denote the subbands `{LH, HL, HH}` as only `H`, and `LL` as only `L`. 
 
