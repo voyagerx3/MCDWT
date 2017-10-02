@@ -344,7 +344,7 @@ Scale 1:
 Provided after running iMCDWT one iteration. For 3 pyramids
 :math:`A={A.L,A.H}`, :math:`B={B.L,~B.H}` and :math:`C={C.L,C.H}`
 where the subband :math:`L` is the scale 2, the scale 1 is
-recostructed by (see Algoithm iMCDWT_step)::
+recostructed by (see Algorithm iMCDWT_step)::
 
  [A.L] = iDWT(A.L,0);
  [A.H] = iDWT(0,A.H);
