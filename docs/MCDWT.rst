@@ -253,8 +253,11 @@ Backward (inverse) MCDWT step
 
 .. image:: ./backward.png 
 
-### Forward MCDWT
-```
+Forward MCDWT
+*************
+
+.. code-block:: python
+
 n = 5 # Number of frames of the video
 l = 2 # Number of temporal scales to generate
 
@@ -282,7 +285,7 @@ for j in range(l):
         [A.H] = [C.H]
         i += 1
     x *= 2
-```
+
 
 Example (3 temporal scales (`l=2` iterations of the transform) and `n=5` images):
 ```
