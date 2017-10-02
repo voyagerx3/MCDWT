@@ -1,5 +1,6 @@
-MCDWT module
-============
+..
+  MCDWT module
+  ============
 
 .. automodule:: MCDWT
     :members:
