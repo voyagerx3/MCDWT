@@ -85,7 +85,7 @@ still in the video.
 Input
 *****
 
-A sequence $V$ of $n$ images::
+A sequence `V` of $n$ images::
   
                                                           x
  +---------------+  +---------------+     +---------------+
