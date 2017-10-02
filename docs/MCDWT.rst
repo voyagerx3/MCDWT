@@ -258,33 +258,33 @@ Forward MCDWT
 
 .. code-block:: python
 
-n = 5 # Number of frames of the video
-l = 2 # Number of temporal scales to generate
+   n = 5 # Number of frames of the video
+   l = 2 # Number of temporal scales to generate
 
-x = 2 # A constant
-for j in range(l):
-    2D_DWT(V[0]) # 1-level 2D-DWT
-    [A.L] = 2D_iDWT(V[0].L, 0)
-    [A.H] = 2D_iDWT(0, V[0].H)
-    i = 0 # Image index
-    while i < (n//x):
-        2D_DWT(V[x*i+x//2])
-        [B.L] = 2D_iDWT(V[x*i+x//2].L, 0)
-        [B.H] = 2D_iDWT(0, V[x*i+x//2].L)
-        2D_DWT(V[x*i+x])
-        [C.L] = 2D_iDWT(V[x*i+x].L, 0)
-        [C.H] = 2D_iDWT(0, V[x*i+x].L)
-        [B.L]->[A.L] = ME([B.L], [A.L])
-        [B.L]->[C.L] = ME([B.L], [C.L])
-        [B.H]_A = MC([A.H], [B.L]->[A.L])
-        [B.H]_C = MC([C.H], [B.L]->[C.L])
-        [~B.H] = [B.H] - int(round(([B.H]_A + [B.H]_C)/2.0))
-        2D_DWT([~B.H])
-        [~B.H].L = B.L
-        [A.L] = [C.L]
-        [A.H] = [C.H]
-        i += 1
-    x *= 2
+   x = 2 # A constant
+   for j in range(l):
+       2D_DWT(V[0]) # 1-level 2D-DWT
+       [A.L] = 2D_iDWT(V[0].L, 0)
+       [A.H] = 2D_iDWT(0, V[0].H)
+       i = 0 # Image index
+       while i < (n//x):
+           2D_DWT(V[x*i+x//2])
+           [B.L] = 2D_iDWT(V[x*i+x//2].L, 0)
+           [B.H] = 2D_iDWT(0, V[x*i+x//2].L)
+           2D_DWT(V[x*i+x])
+           [C.L] = 2D_iDWT(V[x*i+x].L, 0)
+           [C.H] = 2D_iDWT(0, V[x*i+x].L)
+           [B.L]->[A.L] = ME([B.L], [A.L])
+           [B.L]->[C.L] = ME([B.L], [C.L])
+           [B.H]_A = MC([A.H], [B.L]->[A.L])
+           [B.H]_C = MC([C.H], [B.L]->[C.L])
+           [~B.H] = [B.H] - int(round(([B.H]_A + [B.H]_C)/2.0))
+           2D_DWT([~B.H])
+           [~B.H].L = B.L
+           [A.L] = [C.L]
+           [A.H] = [C.H]
+           i += 1
+       x *= 2
 
 
 Example (3 temporal scales (`l=2` iterations of the transform) and `n=5` images):
