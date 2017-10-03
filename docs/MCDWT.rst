@@ -291,12 +291,11 @@ MCDWT code
 Example (3 temporal scales (:math:`l=2` iterations of the transform) and :math:`n=5` images)::
 
   V[0] V[1] V[2] V[3] V[4]
-   A    B    C              <- j=0, i=0
-             A    B    C    <- j=0, i=1
-   A         B         C    <- j=1, i=0
+   A    B    C              <- j=0, i=0 (1st step)
+             A    B    C    <- j=0, i=1 (2nd step)
+   A         B         C    <- j=1, i=0 (3rd step)
   ---- -------------------
   GOP0        GOP1
-
 
 iMCDWT code
 ***********
@@ -336,12 +335,14 @@ Data extraction examples
 Spatial scalability
 -------------------
 
-Scale 2:
+Provided by the execution of iMCDWT.
+
+1. Scale 2:
 
 Provided by subbands :math:`L` of the pyramids. We don't need to carry
 out any computation.
 
-Scale 1:
+2. Scale 1:
 
 Rendered after running iMCDWT one iteration. For 3 pyramids
 :math:`A={A.L,A.H}`, :math:`B={B.L,~B.H}` and :math:`C={C.L,C.H}`
@@ -366,10 +367,23 @@ recostructed by (see Algorithm iMCDWT_step)::
   [A.L] = [C.L]
   [A.H] = [C.H]
 
-Scale 0:
+3. Scale 0:
 
 Repeat the previous computations.
 
-Scale -1:
+4. Scale -1:
 
 Repeat the previous computations, placing 0's in the H subbands.
+
+Temporal scalability
+--------------------
+
+Provided by the pruned execution of iMCDWT. Depending on the index of
+the image to render, a number of images, that ranges between :math:`1`
+(the best case) and :math:`1+l` (the worst case), are decoded.
+
+Quality scalability
+-------------------
+
+Provided by partially reconstructing a set of coefficients selected by
+their contribution to the minimization of the distortion.
