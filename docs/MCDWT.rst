@@ -302,6 +302,7 @@ iMCDWT code
 ***********
 
 .. code-block:: python
+
    n = 5 # Number of images
    l = 2 # Number of temporal scales
 
@@ -332,8 +333,8 @@ iMCDWT code
 Data extraction examples
 ************************
 
-1. Spatial scalability
-----------------------
+Spatial scalability
+-------------------
 
 Scale 2:
 
