@@ -299,7 +299,7 @@ Example (3 temporal scales (:math:`l=2` iterations of the transform) and :math:`
 
 
 iMCDWT code
-***********x
+***********
 
 .. code-block:: python
    n = 5 # Number of images
