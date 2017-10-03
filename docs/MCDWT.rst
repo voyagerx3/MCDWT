@@ -254,8 +254,8 @@ Backward (inverse) MCDWT step
 
 .. image:: ./backward.png 
 
-Forward MCDWT
-*************
+MCDWT code
+**********
 
 .. code-block:: python
 
@@ -298,8 +298,8 @@ Example (3 temporal scales (:math:`l=2` iterations of the transform) and :math:`
   GOP0        GOP1
 
 
-Backward MCDWT
-**************
+iMCDWT code
+***********x
 
 .. code-block:: python
    n = 5 # Number of images
@@ -337,7 +337,8 @@ Data extraction examples
 
 Scale 2:
 
-Provided by subbands :math:`L` of the pyramids.
+Provided by subbands :math:`L` of the pyramids. We don't need to carry
+out any computation.
 
 Scale 1:
 
@@ -346,22 +347,23 @@ Rendered after running iMCDWT one iteration. For 3 pyramids
 where the subband :math:`L` is the scale 2, the scale 1 is
 recostructed by (see Algorithm iMCDWT_step)::
 
- [A.L] = iDWT(A.L,0);                                 > Interpolate A.L of 
- [A.H] = iDWT(0,A.H);
- V[0] = [A.L] + [A.H];
- [B.L] = 2D_iDWT(V[1].L,0);
- [~B.H] = 2D_iDWT(0,V[1].H);
- [C.L] = 2D_iDWT(V[2].L,0);
- [C.H] = 2D_iDWT(0,V[2].H);
- V[2] = [C.L] + [C.H] 
- [B.L]->[A.L] = ME([B.L], [A.L])
- [B.L]->[C.L] = ME([B.L], [C.L])
- [B.H]_A = MC([A.H], [B.L]->[A.L])
- [B.H]_C = MC([C.H], [B.L]->[C.L])
- [B.H] = [~B.H] + int(round(([B.H]_A + [B.H]_C)/2.0))
- V[1] = [B.L] + [B.H]
- [A.L] = [C.L]
- [A.H] = [C.H]
+  x = 2**2 = 4
+  [A.L] = 2D_iDWT(A.L,0);                              > Interpolate low-freqs A.L of V[0]
+  [A.H] = 2D_iDWT(0,A.H);                              > Interpolate high-freqs A.H of V[0]
+  V[0] = [A.L] + [A.H];                                > Reconstruct V[0] at spatial level 1
+  [B.L] = 2D_iDWT(V[1].L,0);                           > 
+  [~B.H] = 2D_iDWT(0,V[1].H);
+  [C.L] = 2D_iDWT(V[2].L,0);
+  [C.H] = 2D_iDWT(0,V[2].H);
+  V[2] = [C.L] + [C.H] 
+  [B.L]->[A.L] = ME([B.L], [A.L])
+  [B.L]->[C.L] = ME([B.L], [C.L])
+  [B.H]_A = MC([A.H], [B.L]->[A.L])
+  [B.H]_C = MC([C.H], [B.L]->[C.L])
+  [B.H] = [~B.H] + int(round(([B.H]_A + [B.H]_C)/2.0))
+  V[1] = [B.L] + [B.H]
+  [A.L] = [C.L]
+  [A.H] = [C.H]
 
 Scale 0:
 
