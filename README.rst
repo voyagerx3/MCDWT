@@ -291,3 +291,5 @@ Repeat the previous computations.
 Scale -1:
 
 Repeat the previous computations, placing 0's in the H subbands.
+
+Delete this line
