@@ -21,7 +21,7 @@ MCDWT coefficients are compressed with EBCOT_.
 
 .. _video: https://en.wikipedia.org/wiki/Video
 .. _visual: https://en.wikipedia.org/wiki/Visual_perception
-.. _pixel: https://en.wikipedia.org/wiki/Pixel
+.. _pixels: https://en.wikipedia.org/wiki/Pixel
 .. _decorrelated: https://en.wikipedia.org/wiki/Decorrelation
 .. _time: https://en.wikipedia.org/wiki/Time_domain
 .. _spatial: https://www.quora.com/What-is-spatial-domain-in-image-processing
