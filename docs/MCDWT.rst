@@ -10,6 +10,39 @@
 Motion Compensated Discrete Wavelet Transform (MCDWT)
 =====================================================
 
+MCDWT is a video_ decorrelator and visual_ information organizer. The
+input sequence of pixels_ are decorrelated_ in the time_ and in the
+spatial_ domains. The output sequence of coefficients_ have a
+smaller entropy_ than the original pixels, and the information is
+represented by `resolution levels`_.
+
+Temporal decorrelation is provided by `Motion Compensation`_, where the
+`prediction images`_ are generated with an algorithm that uses only the
+information available at the decoder_. This means that the motion
+information used in the predictions do not need to be sent to the
+decoder.
+
+Spatial decorrelation is performed by the `analysis filter`_ used in the
+2D-DWT_.
+
+MCDWT coefficients are compressed with EBCOT_.
+
+.. _video: https://en.wikipedia.org/wiki/Video
+.. _visual: https://en.wikipedia.org/wiki/Visual_perception
+.. _pixels: https://en.wikipedia.org/wiki/Pixel
+.. _decorrelated: https://en.wikipedia.org/wiki/Decorrelation
+.. _time: https://en.wikipedia.org/wiki/Time_domain
+.. _spatial: https://www.quora.com/What-is-spatial-domain-in-image-processing
+.. _coefficients: https://www.quora.com/What-is-spatial-domain-in-image-processing
+.. _entropy: https://en.wikipedia.org/wiki/Entropy
+.. _`resolution levels`: https://en.wikipedia.org/wiki/Image_resolution
+.. _`Motion Compensation`: https://en.wikipedia.org/wiki/Motion_compensation
+.. _decoder: https://en.wikipedia.org/wiki/Decoder
+.. _`prediction images`: https://en.wikipedia.org/wiki/Decoder
+.. _analysis filter: https://en.wikipedia.org/wiki/Digital_filter#Analysis_techniques
+.. _2D-DWT: https://en.wikipedia.org/wiki/Discrete_wavelet_transform
+.. _EBCOT: http://nptel.ac.in/courses/117105083/pdf/ssg_m5l15.pdf
+
 MCDWT and video scalabilty
 **************************
 

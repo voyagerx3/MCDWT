@@ -1,6 +1,8 @@
 # Motion Compensated Discrete Wavelet Transform (MCDWT)
 
-Welcome to the 
+Welcome to the MCDWT project!
+
+This an implementation of a novel video transform based on MC and DWT.
 
 -----------------------------------------------------
 Motion Compensated Discrete Wavelet Transform (MCDWT)
