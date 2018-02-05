@@ -6,6 +6,7 @@ import math
 import image_io
 import pyramid_io
 import motion_compensation
+import color_dwt
 
 def forward(input = '../images/', output='/tmp/', n=5, l=2):
     '''A Motion Compensated Discrete Wavelet Transform.
@@ -46,42 +47,42 @@ def forward(input = '../images/', output='/tmp/', n=5, l=2):
 
     '''
     
-    #import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
     ir = image_io.ImageReader()
     iw = image_io.ImageWritter()
     pw = pyramid_io.PyramidWritter()
     x = 2
     for j in range(l): # Number of temporal scales
         A = ir.read(0, input)
-        tmpA = _2D_DWT(A)
+        tmpA = color_dwt._2D_DWT(A)
         L_y = tmpA[0].shape[0]
         L_x = tmpA[0].shape[1]
         pw.write(tmpA, 0, output)        
         zero_L = np.zeros(tmpA[0].shape, np.float64)
         zero_H = (zero_L, zero_L, zero_L)
-        AL = _2D_iDWT(tmpA[0], zero_H)
+        AL = color_dwt._2D_iDWT(tmpA[0], zero_H)
         iw.write(AL, 1)
-        AH = _2D_iDWT(zero_L, tmpA[1])
+        AH = color_dwt._2D_iDWT(zero_L, tmpA[1])
         iw.write(AH, 1)
         i = 0
         while i < (n//x):
             B = ir.read(x*i+x//2, input)
-            tmpB = _2D_DWT(B)
-            BL = _2D_iDWT(tmpB[0], zero_H)
-            BH = _2D_iDWT(zero_L, tmpB[1])
+            tmpB = color_dwt._2D_DWT(B)
+            BL = color_dwt._2D_iDWT(tmpB[0], zero_H)
+            BH = color_dwt._2D_iDWT(zero_L, tmpB[1])
             C = ir.read(x*i+x, input)
-            tmpC = _2D_DWT(C)
+            tmpC = color_dwt._2D_DWT(C)
             pw.write(tmpC, x*i+x, output)
-            CL = _2D_iDWT(tmpC[0], zero_H)
-            CH = _2D_iDWT(zero_L, tmpC[1])
-            BHA = motion.motion_compensation(BL, AL, AH)
-            BHC = motion.motion_compensation(BL, CL, CH)
+            CL = color_dwt._2D_iDWT(tmpC[0], zero_H)
+            CH = color_dwt._2D_iDWT(zero_L, tmpC[1])
+            BHA = motion_compensation.motion_compensation(BL, AL, AH)
+            BHC = motion_compensation.motion_compensation(BL, CL, CH)
             iw.write(BH, x*i+x//2, output+'predicted')
             prediction = (BHA + BHC) / 2
             iw.write(prediction+128, x*i+x//2, output+'prediction')
             rBH = BH - prediction
             iw.write(rBH, x*i+x//2, output+'residue')
-            rBH = _2D_DWT(rBH)
+            rBH = color_dwt._2D_DWT(rBH)
             #import ipdb; ipdb.set_trace()
             pw.write(rBH, x*i+x//2 + 1000)
             rBH[0][0:L_y,0:L_x,:] = tmpB[0]
@@ -138,22 +139,22 @@ def backward(input = '/tmp/', output='/tmp/', n=5, l=2):
         A = pr.read(0, input)
         zero_L = np.zeros(A[0].shape, np.float64)
         zero_H = (zero_L, zero_L, zero_L)
-        AL = _2D_iDWT(A[0], zero_H)
-        AH = _2D_iDWT(zero_L, A[1])
+        AL = color_dwt._2D_iDWT(A[0], zero_H)
+        AH = color_dwt._2D_iDWT(zero_L, A[1])
         A = AL + AH
         iw.write(A, 0)
         i = 0
         while i < (n//x):
             B = pr.read(x*i+x//2, input)
-            BL = _2D_iDWT(B[0], zero_H)
-            rBH = _2D_iDWT(zero_L, B[1])
+            BL = color_dwt._2D_iDWT(B[0], zero_H)
+            rBH = color_dwt._2D_iDWT(zero_L, B[1])
             C = pr.read(x*i+x, input)
-            CL = _2D_iDWT(C[0], zero_H)
-            CH = _2D_iDWT(zero_L, C[1])
+            CL = color_dwt._2D_iDWT(C[0], zero_H)
+            CH = color_dwt._2D_iDWT(zero_L, C[1])
             C = CL + CH
             iw.write(C, x*i+x, output)
-            BHA = motion.motion_compensation(BL, AL, AH)
-            BHC = motion.motion_compensation(BL, CL, CH)
+            BHA = motion_compensation.motion_compensation(BL, AL, AH)
+            BHC = motion_compensation.motion_compensation(BL, CL, CH)
             BH = rBH + (BHA + BHC) / 2
             B = BL + BH
             iw.write(B, x*i+x//2, output)
