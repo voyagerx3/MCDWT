@@ -12,9 +12,22 @@ class ImageReader:
     '''
 
     def __init__(self):
+        '''Default constructor.
+
+        Parameters
+        ----------
+
+            None.
+
+        Returns
+        -------
+
+            None.
+
+        '''
         pass
 
-    def read(self, number, path='./'):
+    def read(self, number, path='../images/'):
         '''Read an image from disk.
 
         Parameters
@@ -53,9 +66,22 @@ class ImageWritter:
     '''
 
     def __init__(self):
+        '''Default constructor.
+
+        Parameters
+        ----------
+
+            None.
+
+        Returns
+        -------
+
+            None.
+
+        '''
         pass
 
-    def write(self, image, number=0, path='./'):
+    def write(self, image, number=0, path='/tmp/'):
         '''Write an image to disk.
 
         Parameters
