@@ -51,11 +51,13 @@ class ImageReader:
         '''
 
         file_name = '{}{:03d}.png'.format(path, number)
-        image = cv2.imread(file_name, -1)
+        image = cv2.imread(file_name, -1).astype(np.float64)
         if image is None:
             raise InputFileException('{} not found'.format(file_name))
         else:
             image -= 32768
+            assert (np.amax(image) < 32767), 'range overflow'
+            assert (np.amin(image) >= -32768), 'range underflow'
             return image
 
 class ImageWritter:
@@ -108,9 +110,11 @@ class ImageWritter:
 
         file_name = '{}{:03d}.png'.format(path, number)
 
-        image += 32768
+        tmp = np.copy(image)
+        tmp += 32768
         
-        assert (np.amax(image) < 65536), '16 bit unsigned int range overflow'
-        assert (np.amin(image) >= 0), '16 bit unsigned int range underflow'
+        assert (np.amax(tmp) < 65536), '16 bit unsigned int range overflow'
+        assert (np.amin(tmp) >= 0), '16 bit unsigned int range underflow'
         
-        cv2.imwrite(file_name, np.rint(image).astype(np.uint16))
+        cv2.imwrite(file_name, np.rint(tmp).astype(np.uint16))
+        #cv2.imwrite(file_name, tmp.astype(np.uint16))

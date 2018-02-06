@@ -30,15 +30,15 @@ def forward(input = '../images/', output='/tmp/', N=5, S=2):
             Path where the (transformed) pyramids will be. Example:
             "../output/pyramid".
 
-         n : int
+         N : int
 
             Number of images to process.
 
-         l : int
+         S : int
 
             Number of leves of the MCDWT (temporal scales). Controls
-            the GOP size. Examples: `leves`=0 -> GOP_size = 1, `leves`=1 ->
-            GOP_size = 2, `levels`=2 -> GOP_size = 4. etc.
+            the GOP size. Examples: S = 0 -> GOP_size = 1, S = 1 ->
+            GOP_size = 2, S = 2 -> GOP_size = 4. etc.
 
     Returns
     -------
@@ -54,27 +54,27 @@ def forward(input = '../images/', output='/tmp/', N=5, S=2):
     x = 2
     for s in range(S): # Number of temporal scales
         i = 0
-        A = ir.read(i, "scale_"+str(s))
+        A = ir.read(i, "/tmp/scale_"+str(s)+"_L")
         dwtA = color_dwt._2D_DWT(A)
         L_y = dwtA[0].shape[0]
         L_x = dwtA[0].shape[1]
-        pw.write(dwtA, i, "/tmp/scale_"+str(s)+"_")
-        zero_L = np.zeros(tmpA[0].shape, np.float64)
+        pw.write(dwtA, i, "/tmp/scale_"+str(s+1)+"_")
+        zero_L = np.zeros(dwtA[0].shape, np.float64)
         zero_H = (zero_L, zero_L, zero_L)
-        AL = color_dwt._2D_iDWT(tmpA[0], zero_H)
+        AL = color_dwt._2D_iDWT(dwtA[0], zero_H)
         if __debug__:
             iw.write(AL, i, "/tmp/scale_"+str(s)+"_AL_")
-        AH = color_dwt._2D_iDWT(zero_L, tmpA[1])
+        AH = color_dwt._2D_iDWT(zero_L, dwtA[1])
         if __debug__:
             iw.write(AH, i, "/tmp/scale_"+str(s)+"_AH_") 
         while i < (N//x):
-            B = ir.read(x*i+x//2, "scale_"+str(s))
+            B = ir.read(x*i+x//2, "/tmp/scale_"+str(s)+"_L")
             dwtB = color_dwt._2D_DWT(B)
             BL = color_dwt._2D_iDWT(dwtB[0], zero_H)
             BH = color_dwt._2D_iDWT(zero_L, dwtB[1])
-            C = ir.read(x*i+x, "scale_"+str(s))
+            C = ir.read(x*i+x, "/tmp/scale_"+str(s)+"_L")
             dwtC = color_dwt._2D_DWT(C)
-            pw.write(dwtC, x*i+x, "/tmp/scale_"+str(s)+"_")
+            pw.write(dwtC, x*i+x, "/tmp/scale_"+str(s+1)+"_")
             CL = color_dwt._2D_iDWT(dwtC[0], zero_H)
             CH = color_dwt._2D_iDWT(zero_L, dwtC[1])
             BHA = motion_compensation.motion_compensation(BL, AL, AH)
@@ -89,11 +89,11 @@ def forward(input = '../images/', output='/tmp/', N=5, S=2):
                 iw.write(rBH, x*i+x//2, "/tmp/scale_"+str(s)+"_residue_")
             rBH = color_dwt._2D_DWT(rBH)
             rBH[0][0:L_y,0:L_x,:] = dwtB[0]
-            pw.write(rBH, x*i+x//2, "/tmp/scale_"+str(s)+"_")
+            pw.write(rBH, x*i+x//2, "/tmp/scale_"+str(s+1)+"_")
             AL = CL
             AH = CH
             i += 1
-            print('i =', i)
+            print('s = ', S, 'i =', i)
         x *= 2
 
 def backward(input = '/tmp/', output='/tmp/', N=5, S=2):

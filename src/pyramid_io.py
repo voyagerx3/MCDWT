@@ -39,12 +39,12 @@ class PyramidReader:
 
         '''
 
-        file_name = '{}{:03d}L.png'.format(path, number)
+        file_name = '{}L{:03d}.png'.format(path, number)
         LL = cv2.imread(file_name, -1).astype('float64')
         LL -= 32768
         if LL is None:
             raise InputFileException('{} not found'.format(file_name))
-        file_name = '{}{:03d}H.png'.format(path, number)
+        file_name = '{}H{:03d}.png'.format(path, number)
         buf = cv2.imread(file_name, -1).astype('float64')
         if buf is None:
             raise InputFileException('{} not found'.format(file_name))
@@ -100,7 +100,7 @@ class PyramidWritter:
 
         '''
 
-        file_name = '{}{:03d}L.png'.format(path, number)
+        file_name = '{}L{:03d}.png'.format(path, number)
         LL = pyramid[0] + 32768
 
         assert (np.amax(LL) < 65536), 'range overflow'
@@ -132,6 +132,6 @@ class PyramidWritter:
         assert (np.amin(HH) >= 0), 'range underflow'
         
         buf[y:y*2,x:x*2,:] = np.rint(HH).astype('uint16')
-        file_name = '{}{:03d}H.png'.format(path, number)
+        file_name = '{}H{:03d}.png'.format(path, number)
         
         cv2.imwrite(file_name, buf)
