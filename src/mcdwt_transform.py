@@ -14,8 +14,7 @@ def forward(input = '../images/', output='/tmp/', N=5, S=2):
     Compute the 1D-DWT along motion trajectories. The input video (as
     a sequence of images) must be stored in disk (<input> directory)
     and the output (as a sequence of DWT coefficients that are called
-    pyramids) will be stored in disk (<output> directory). So, this
-    MCDWT implementation does not transform the video on the fly.
+    pyramids) will be stored in disk (<output> directory).
 
     Arguments
     ---------
