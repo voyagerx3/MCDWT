@@ -5,8 +5,7 @@ import sys
 import cv2
 import numpy as np
 import tempfile as tf
-
-sys.path.insert(0, '../mcdwt')
+#sys.path.insert(0, '../mcdwt')
 import duplicator
 
 n = 5
