@@ -9,7 +9,7 @@ import tempfile as tf
 import duplicator
 
 n = 5
-input_path = '../images'
+input_path = '../../images'
 output_path = tf.gettempdir()
 
 frames = []
