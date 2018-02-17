@@ -4,7 +4,7 @@ import numpy as np
 import itertools
 
 from motion import motion_estimation, estimate_frame
-import image_io
+from .src.io import image_io
 
 def pairwise(iterable):
     a, b = itertools.tee(iterable)
