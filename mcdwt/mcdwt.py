@@ -7,7 +7,7 @@ from io import image, pyramid
 import motion_compensation
 import dwt
 
-def forward(input = '../images/', output='/tmp/', N=5, S=2):
+def forward(prefix = "/tmp/", N = 5, K = 2):
     '''A Motion Compensated Discrete Wavelet Transform.
 
     Compute the 1D-DWT along motion trajectories. The input video (as
@@ -18,15 +18,10 @@ def forward(input = '../images/', output='/tmp/', N=5, S=2):
     Arguments
     ---------
 
-        input : str
+        prefix : str
 
-            Path where the input images are. Example:
-            "../input/image".
-
-        output : str
-
-            Path where the (transformed) pyramids will be. Example:
-            "../output/pyramid".
+            Localization of the input/output images. Example:
+            "/tmp/".
 
          N : int
 
@@ -55,7 +50,6 @@ def forward(input = '../images/', output='/tmp/', N=5, S=2):
     '''
     
     #import ipdb; ipdb.set_trace()
-    prefix = "/tmp/"
     x = 2
     for k in range(K): # scale
         i = 0 # image
