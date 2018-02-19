@@ -11,13 +11,15 @@ class ImageReader:
 
     '''
 
-    def __init__(self):
+    def __init__(self, input_dir = "/tmp/"):
         '''Default constructor.
 
         Parameters
         ----------
 
-            None.
+            input_dir: str.
+
+                Input directory.
 
         Returns
         -------
@@ -25,9 +27,9 @@ class ImageReader:
             None.
 
         '''
-        pass
+        self.input_dir = input_dir
 
-    def read(self, number, path='../images/'):
+    def read(self, number=0, scale=0):
         '''Read an image from disk.
 
         Parameters
@@ -37,9 +39,9 @@ class ImageReader:
 
                 Index of the image in the sequence.
 
-            path : str.
+            scale : int.
 
-                Image path.
+                Image scale (0 == original scale).
 
         Returns
         -------
@@ -50,7 +52,7 @@ class ImageReader:
 
         '''
 
-        file_name = '{}{:03d}.png'.format(path, number)
+        file_name = "{}{:03d}_{}.png".format(input_dir, number, scale)
         image = cv2.imread(file_name, -1).astype(np.float64)
         if image is None:
             raise InputFileException('{} not found'.format(file_name))
@@ -67,13 +69,15 @@ class ImageWritter:
 
     '''
 
-    def __init__(self):
+    def __init__(self, output_dir = "/tmp/"):
         '''Default constructor.
 
         Parameters
         ----------
 
-            None.
+            output_dir: str.
+
+                Output directory.
 
         Returns
         -------
@@ -81,9 +85,9 @@ class ImageWritter:
             None.
 
         '''
-        pass
+        self.output_dir = output_dir
 
-    def write(self, image, number=0, path='/tmp/'):
+    def write(self, image, number=0):
         '''Write an image to disk.
 
         Parameters

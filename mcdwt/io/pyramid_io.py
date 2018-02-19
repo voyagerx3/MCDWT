@@ -8,26 +8,26 @@ class InputFileException(Exception):
 class PyramidReader:
     '''Read PNG pyramids from disk.
 
-    Pyramids should be enumerated (pyramid000.png, pyramid001.png, ...).
+    Pyramids should be enumerated (000.png, 001.png, ...).
 
     '''
 
-    def __init__(self):
-        pass
+    def __init__(self, prefix="/tmp/"):
+        self.prefix = prefix
 
-    def read(self, number=0, path='./'):
+    def read(self, image = 0, scale = 0):
         '''Read a pyramid from disk.
 
         Parameters
         ----------
 
-            number : int.
+            image : int.
 
-                Index of the pyramid in the sequence.
+                Index of the image in the sequence.
 
-            path : str.
+            scale : int.
 
-                Path to the pyramid.
+                Scale of the returned image (0 == original resolution).
 
         Returns
         -------

@@ -33,11 +33,20 @@ def forward(input = '../images/', output='/tmp/', N=5, S=2):
 
             Number of images to process.
 
-         S : int
+         K : int
 
             Number of leves of the MCDWT (temporal scales). Controls
-            the GOP size. Examples: S = 0 -> GOP_size = 1, S = 1 ->
-            GOP_size = 2, S = 2 -> GOP_size = 4. etc.
+            the GOP size. 
+
+              K | GOP_size
+            ----+-----------
+              0 |        1
+              1 |        2
+              2 |        4
+              3 |        8
+              4 |       16
+              5 |       32
+              : |        :
 
     Returns
     -------
@@ -47,48 +56,49 @@ def forward(input = '../images/', output='/tmp/', N=5, S=2):
     '''
     
     #import ipdb; ipdb.set_trace()
-    ir = image_io.ImageReader()
-    iw = image_io.ImageWritter()
+    prefix = "/tmp/"
+    ir = image_io.ImageReader("/tmp/")
+    iw = image_io.ImageWritter("/tmp/")
     pw = pyramid_io.PyramidWritter()
     x = 2
-    for s in range(S): # Number of temporal scales
-        i = 0
-        A = ir.read(i, "/tmp/scale_"+str(s)+"_L")
-        dwtA = color_dwt._2D_DWT(A)
+    for k in range(K): # scale
+        i = 0 # image
+        A = image.read("{}{:03d}_{}".format(prefix, i, k))
+        dwtA = spatial_transform._2D_DWT(A)
         L_y = dwtA[0].shape[0]
         L_x = dwtA[0].shape[1]
-        pw.write(dwtA, i, "/tmp/scale_"+str(s+1)+"_")
+        pyramid.write(dwtA, "{}{:03d}_{}".format(prefix, i, k+1))
         zero_L = np.zeros(dwtA[0].shape, np.float64)
         zero_H = (zero_L, zero_L, zero_L)
-        AL = color_dwt._2D_iDWT(dwtA[0], zero_H)
+        AL = spatial_transform._2D_iDWT(dwtA[0], zero_H)
         if __debug__:
-            iw.write(AL, i, "/tmp/scale_"+str(s)+"_AL_")
-        AH = color_dwt._2D_iDWT(zero_L, dwtA[1])
+            image.write(AL, "{}{:03d}_{}".format(prefix + "_AL_", i, k))
+        AH = spatial_transform._2D_iDWT(zero_L, dwtA[1])
         if __debug__:
-            iw.write(AH, i, "/tmp/scale_"+str(s)+"_AH_") 
+            image.write(AH, "{}{:03d}_{}".format(prefix + "_AH_", i, k))
         while i < (N//x):
-            B = ir.read(x*i+x//2, "/tmp/scale_"+str(s)+"_L")
-            dwtB = color_dwt._2D_DWT(B)
-            BL = color_dwt._2D_iDWT(dwtB[0], zero_H)
-            BH = color_dwt._2D_iDWT(zero_L, dwtB[1])
-            C = ir.read(x*i+x, "/tmp/scale_"+str(s)+"_L")
-            dwtC = color_dwt._2D_DWT(C)
-            pw.write(dwtC, x*i+x, "/tmp/scale_"+str(s+1)+"_")
-            CL = color_dwt._2D_iDWT(dwtC[0], zero_H)
-            CH = color_dwt._2D_iDWT(zero_L, dwtC[1])
+            B = image.read("{}{:03d}_{}".format(prefix, x*i+x//2, k))
+            dwtB = spatial_transform._2D_DWT(B)
+            BL = spatial_transform._2D_iDWT(dwtB[0], zero_H)
+            BH = spatial_transform._2D_iDWT(zero_L, dwtB[1])
+            C = ir.read("{}{:03d}_{}".format(prefix, x*i+x, k))
+            dwtC = spatial_transform._2D_DWT(C)
+            pyramid.write(dwtC, "{}{:03d}_{}".format(prefix, x*i+x, k+1))
+            CL = spatial_transform._2D_iDWT(dwtC[0], zero_H)
+            CH = spatial_transform._2D_iDWT(zero_L, dwtC[1])
             BHA = motion_compensation.motion_compensation(BL, AL, AH)
             BHC = motion_compensation.motion_compensation(BL, CL, CH)
             if __debug__:
-                iw.write(BH, x*i+x//2, "/tmp/scale_"+str(s)+"_BH_")
+                image.write(BH, "{}{:03d}_{}".format(prefix + "_BH_", x*i+x//2, k))
             prediction = (BHA + BHC) / 2
             if __debug__:
-                iw.write(prediction+128, x*i+x//2, "/tmp/scale_"+str(s)+"_prediction_")
+                image.write(prediction+128, "{}{:03d}_{}".format(prefix + "_prediction_", x*i+x//2, k))
             rBH = BH - prediction
             if __debug__:
-                iw.write(rBH, x*i+x//2, "/tmp/scale_"+str(s)+"_residue_")
+                image.write(rBH, "{}{:03d}_{}".format(prefix + "_residue_", x*i+x//2, k))
             rBH = color_dwt._2D_DWT(rBH)
             rBH[0][0:L_y,0:L_x,:] = dwtB[0]
-            pw.write(rBH, x*i+x//2, "/tmp/scale_"+str(s+1)+"_")
+            pyramid.write(rBH, "{}{:03d}_{}".format(prefix, x*i+x//2, k+1))
             AL = CL
             AH = CH
             i += 1
