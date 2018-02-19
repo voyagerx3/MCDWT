@@ -4,7 +4,7 @@ import numpy as np
 class InputFileException(Exception):
     pass
 
-def read(self, file_name):
+def read(file_name):
     '''Read an image from disk.
 
     Parameters
@@ -32,7 +32,7 @@ def read(self, file_name):
         assert (np.amin(image) >= -32768), 'range underflow'
         return image
 
-def write(self, image, file_name):
+def write(image, file_name):
     '''Write an image to disk.
 
     Parameters

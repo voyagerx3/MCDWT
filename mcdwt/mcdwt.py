@@ -2,10 +2,12 @@ import cv2
 import numpy as np
 import pywt
 import math
+import sys
 
-from io import image, pyramid
-import motion_compensation
-import dwt
+sys.path.insert(0, "..")
+from mcdwt.io import image, pyramid
+from mcdwt.mc.optical.motion import motion_compensation
+import mcdwt.dwt as dwt
 
 def forward(prefix = "/tmp/", N = 5, K = 2):
     '''A Motion Compensated Discrete Wavelet Transform.

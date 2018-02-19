@@ -5,7 +5,7 @@ import numpy as np
 class InputFileException(Exception):
     pass
 
-def read(self, file_name):
+def read(file_name):
     '''Read a pyramid from disk.
 
     Parameters
@@ -51,7 +51,7 @@ def read(self, file_name):
         HH -= 32768
         return (LL, (LH, HL, HH))
 
-def write(self, pyramid, file_name):
+def write(pyramid, file_name):
     '''Write a pyramid to disk.
 
     Parameters
