@@ -4,10 +4,14 @@ import pywt
 import math
 import sys
 
+
+#import mcdwt.dwt as dwt
+import dwt
+from mc.optical.motion import motion_compensation
+#from iioo import image
 sys.path.insert(0, "..")
-from mcdwt.io import image, pyramid
-from mcdwt.mc.optical.motion import motion_compensation
-import mcdwt.dwt as dwt
+from transform.io import image, pyramid
+#pyramid
 
 def forward(prefix = "/tmp/", N = 5, K = 2):
     '''A Motion Compensated Discrete Wavelet Transform.
@@ -62,24 +66,24 @@ def forward(prefix = "/tmp/", N = 5, K = 2):
         pyramid.write(dwtA, "{}{:03d}_{}".format(prefix, i, k+1))
         zero_L = np.zeros(dwtA[0].shape, np.float64)
         zero_H = (zero_L, zero_L, zero_L)
-        AL = dwt._2D_iDWT(dwtA[0], zero_H)
+        AL = dwt.backward(dwtA[0], zero_H)
         if __debug__:
             image.write(AL, "{}{:03d}_{}".format(prefix + "_AL_", i, k))
-        AH = dwt._2D_iDWT(zero_L, dwtA[1])
+        AH = dwt.backward(zero_L, dwtA[1])
         if __debug__:
             image.write(AH, "{}{:03d}_{}".format(prefix + "_AH_", i, k))
         while i < (N//x):
             B = image.read("{}{:03d}_{}".format(prefix, x*i+x//2, k))
             dwtB = dwt.forward(B)
-            BL = dwt._2D_iDWT(dwtB[0], zero_H)
-            BH = dwt._2D_iDWT(zero_L, dwtB[1])
-            C = ir.read("{}{:03d}_{}".format(prefix, x*i+x, k))
+            BL = dwt.backward(dwtB[0], zero_H)
+            BH = dwt.backward(zero_L, dwtB[1])
+            C = image.read("{}{:03d}_{}".format(prefix, x*i+x, k))
             dwtC = dwt.forward(C)
             pyramid.write(dwtC, "{}{:03d}_{}".format(prefix, x*i+x, k+1))
-            CL = dwt._2D_iDWT(dwtC[0], zero_H)
-            CH = dwt._2D_iDWT(zero_L, dwtC[1])
-            BHA = motion_compensation.motion_compensation(BL, AL, AH)
-            BHC = motion_compensation.motion_compensation(BL, CL, CH)
+            CL = dwt.backward(dwtC[0], zero_H)
+            CH = dwt.backward(zero_L, dwtC[1])
+            BHA = motion_compensation(BL, AL, AH)
+            BHC = motion_compensation(BL, CL, CH)
             if __debug__:
                 image.write(BH, "{}{:03d}_{}".format(prefix + "_BH_", x*i+x//2, k))
             prediction = (BHA + BHC) / 2
@@ -94,7 +98,7 @@ def forward(prefix = "/tmp/", N = 5, K = 2):
             AL = CL
             AH = CH
             i += 1
-            print('s = ', S, 'i =', i)
+            print('k =', k, 'i =', i)
         x *= 2
 
 def backward(input = '/tmp/', output='/tmp/', N=5, S=2):
