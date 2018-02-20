@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-1;4205;0c
+
 image="/tmp/000_0_LL.png"
 
 usage() {
@@ -36,6 +36,7 @@ done
 
 set -x
 
+rm -f /tmp/ycc2rgb.png
 ./ycc2rgb.py -i $image -o /tmp/ycc2rgb.png
 display -normalize /tmp/ycc2rgb.png
 

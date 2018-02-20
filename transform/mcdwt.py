@@ -72,6 +72,7 @@ def forward(prefix = "/tmp/", N = 5, K = 2):
         if __debug__:
             image.write(AH, "{}{:03d}_{}".format(prefix + "_AH_", i, k))
         while i < (N//x):
+            print("k={} i={} x={} B={} C={}".format(k, i, x, x*i+x//2, x*i+x))
             B = image.read("{}{:03d}_{}".format(prefix, x*i+x//2, k))
             dwtB = dwt.forward(B)
             BL = dwt.backward(dwtB[0], zero_H)
@@ -80,7 +81,11 @@ def forward(prefix = "/tmp/", N = 5, K = 2):
             dwtC = dwt.forward(C)
             pyramid.write(dwtC, "{}{:03d}_{}".format(prefix, x*i+x, k+1))
             CL = dwt.backward(dwtC[0], zero_H)
+            if __debug__:
+                image.write(CL, "{}{:03d}_{}".format(prefix + "_CL_", x*i+x, k))
             CH = dwt.backward(zero_L, dwtC[1])
+            if __debug__:
+                image.write(CH, "{}{:03d}_{}".format(prefix + "_CH_", x*i+x, k))
             BHA = motion_compensation(BL, AL, AH)
             BHC = motion_compensation(BL, CL, CH)
             if __debug__:
@@ -97,7 +102,6 @@ def forward(prefix = "/tmp/", N = 5, K = 2):
             AL = CL
             AH = CH
             i += 1
-            print('k =', k, 'i =', i)
         x *= 2
 
 def backward(input = '/tmp/', output='/tmp/', N=5, S=2):
