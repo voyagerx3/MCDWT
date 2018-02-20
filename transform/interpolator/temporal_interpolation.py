@@ -6,8 +6,25 @@ import cv2
 import numpy as np
 import tempfile as tf
 #sys.path.insert(0, '../mcdwt')
-import duplicator
+import argparse
 
+#Algorithms call functions
+def algorithm_duplicator(frames):
+    duplicator = __import__("duplicator")
+    return duplicator.framerate_duplicator(frames)
+
+#Algorithms dictionary
+options = {
+    0: algorithm_duplicator
+}
+#Resolve arguments
+parser = argparse.ArgumentParser(description='Temporal interpolation.')
+parser.add_argument('-a', type=int, default=0,
+                    help="Algorithm to use (Default: 0)\n\t0: Duplicator\n\tMore in the future")
+
+args = parser.parse_args()
+
+#Main
 n = 5
 input_path = '../../images'
 output_path = tf.gettempdir()
@@ -18,7 +35,7 @@ for i in range(n):
     print('Reading frame:', path)
     frames.append(cv2.imread(path))
 
-output = duplicator.framerate_duplicator(frames)
+output = options[args.a](frames)
 
 for i in range(len(output)):
     path = os.path.join(output_path, 'duplicator_{:02d}.png'.format(i))
