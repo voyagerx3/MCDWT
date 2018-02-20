@@ -4,13 +4,10 @@ import pywt
 import math
 import sys
 
-#import mcdwt.dwt as dwt
 import dwt
 from mc.optical.motion import motion_compensation
-#from iioo import image
 sys.path.insert(0, "..")
 from transform.io import image, pyramid
-#pyramid
 
 def forward(prefix = "/tmp/", N = 5, K = 2):
     '''A Motion Compensated Discrete Wavelet Transform.
@@ -58,9 +55,8 @@ def forward(prefix = "/tmp/", N = 5, K = 2):
     #k = 0
     for k in range(K): # spatial scale
         x = 2
-        #for j in range(N//x):
         while x < N:
-            i = 0 # image
+            i = 0 # first image of the butterfly
             A = image.read("{}{:03d}_{}".format(prefix, i, k))
             dwtA = dwt.forward(A)
             L_y = dwtA[0].shape[0]
@@ -89,13 +85,20 @@ def forward(prefix = "/tmp/", N = 5, K = 2):
                 CH = dwt.backward(zero_L, dwtC[1])
                 if __debug__:
                     image.write(CH, "{}{:03d}_{}".format(prefix + "_CH_", x*i+x, k))
-                BHA = motion_compensation(BL, AL, AH)
-                BHC = motion_compensation(BL, CL, CH)
+
+                if __debug__:
+                    BLA = motion_compensation(AL, BL, AL)
+                    BLC = motion_compensation(CL, BL, CL)
+                    prediction = (BLA+BLC) / 2
+                    image.write(prediction, "{}{:03d}_{}".format(prefix + "_prediction_L_", x*i+x//2, k))
+                    
+                BHA = motion_compensation(AL, BL, AH)
+                BHC = motion_compensation(CL, BL, CH)
                 if __debug__:
                     image.write(BH, "{}{:03d}_{}".format(prefix + "_BH_", x*i+x//2, k))
                 prediction = (BHA + BHC) / 2
                 if __debug__:
-                    image.write(prediction+128, "{}{:03d}_{}".format(prefix + "_prediction_", x*i+x//2, k))
+                    image.write(prediction, "{}{:03d}_{}".format(prefix + "_prediction_", x*i+x//2, k))
                 rBH = BH - prediction
                 if __debug__:
                     image.write(rBH, "{}{:03d}_{}".format(prefix + "_residue_", x*i+x//2, k))
