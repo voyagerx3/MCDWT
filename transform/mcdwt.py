@@ -56,9 +56,10 @@ def forward(prefix = "/tmp/", N = 5, K = 2):
     
     #import ipdb; ipdb.set_trace()
     #k = 0
-    for k in range(K): # scale
+    for k in range(K): # spatial scale
         x = 2
-        for j in range(N//x): 
+        #for j in range(N//x):
+        while x < N:
             i = 0 # image
             A = image.read("{}{:03d}_{}".format(prefix, i, k))
             dwtA = dwt.forward(A)
