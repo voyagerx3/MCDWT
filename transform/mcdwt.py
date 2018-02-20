@@ -55,54 +55,56 @@ def forward(prefix = "/tmp/", N = 5, K = 2):
     '''
     
     #import ipdb; ipdb.set_trace()
-    x = 2
+    #k = 0
     for k in range(K): # scale
-        i = 0 # image
-        A = image.read("{}{:03d}_{}".format(prefix, i, k))
-        dwtA = dwt.forward(A)
-        L_y = dwtA[0].shape[0]
-        L_x = dwtA[0].shape[1]
-        pyramid.write(dwtA, "{}{:03d}_{}".format(prefix, i, k+1))
-        zero_L = np.zeros(dwtA[0].shape, np.float64)
-        zero_H = (zero_L, zero_L, zero_L)
-        AL = dwt.backward(dwtA[0], zero_H)
-        if __debug__:
-            image.write(AL, "{}{:03d}_{}".format(prefix + "_AL_", i, k))
-        AH = dwt.backward(zero_L, dwtA[1])
-        if __debug__:
-            image.write(AH, "{}{:03d}_{}".format(prefix + "_AH_", i, k))
-        while i < (N//x):
-            print("k={} i={} x={} B={} C={}".format(k, i, x, x*i+x//2, x*i+x))
-            B = image.read("{}{:03d}_{}".format(prefix, x*i+x//2, k))
-            dwtB = dwt.forward(B)
-            BL = dwt.backward(dwtB[0], zero_H)
-            BH = dwt.backward(zero_L, dwtB[1])
-            C = image.read("{}{:03d}_{}".format(prefix, x*i+x, k))
-            dwtC = dwt.forward(C)
-            pyramid.write(dwtC, "{}{:03d}_{}".format(prefix, x*i+x, k+1))
-            CL = dwt.backward(dwtC[0], zero_H)
+        x = 2
+        for j in range(N//x): 
+            i = 0 # image
+            A = image.read("{}{:03d}_{}".format(prefix, i, k))
+            dwtA = dwt.forward(A)
+            L_y = dwtA[0].shape[0]
+            L_x = dwtA[0].shape[1]
+            pyramid.write(dwtA, "{}{:03d}_{}".format(prefix, i, k+1))
+            zero_L = np.zeros(dwtA[0].shape, np.float64)
+            zero_H = (zero_L, zero_L, zero_L)
+            AL = dwt.backward(dwtA[0], zero_H)
             if __debug__:
-                image.write(CL, "{}{:03d}_{}".format(prefix + "_CL_", x*i+x, k))
-            CH = dwt.backward(zero_L, dwtC[1])
+                image.write(AL, "{}{:03d}_{}".format(prefix + "_AL_", i, k))
+            AH = dwt.backward(zero_L, dwtA[1])
             if __debug__:
-                image.write(CH, "{}{:03d}_{}".format(prefix + "_CH_", x*i+x, k))
-            BHA = motion_compensation(BL, AL, AH)
-            BHC = motion_compensation(BL, CL, CH)
-            if __debug__:
-                image.write(BH, "{}{:03d}_{}".format(prefix + "_BH_", x*i+x//2, k))
-            prediction = (BHA + BHC) / 2
-            if __debug__:
-                image.write(prediction+128, "{}{:03d}_{}".format(prefix + "_prediction_", x*i+x//2, k))
-            rBH = BH - prediction
-            if __debug__:
-                image.write(rBH, "{}{:03d}_{}".format(prefix + "_residue_", x*i+x//2, k))
-            rBH = dwt.forward(rBH)
-            rBH[0][0:L_y,0:L_x,:] = dwtB[0]
-            pyramid.write(rBH, "{}{:03d}_{}".format(prefix, x*i+x//2, k+1))
-            AL = CL
-            AH = CH
-            i += 1
-        x *= 2
+                image.write(AH, "{}{:03d}_{}".format(prefix + "_AH_", i, k))
+            while i < (N//x):
+                print("k={} i={} x={} B={} C={}".format(k, i, x, x*i+x//2, x*i+x))
+                B = image.read("{}{:03d}_{}".format(prefix, x*i+x//2, k))
+                dwtB = dwt.forward(B)
+                BL = dwt.backward(dwtB[0], zero_H)
+                BH = dwt.backward(zero_L, dwtB[1])
+                C = image.read("{}{:03d}_{}".format(prefix, x*i+x, k))
+                dwtC = dwt.forward(C)
+                pyramid.write(dwtC, "{}{:03d}_{}".format(prefix, x*i+x, k+1))
+                CL = dwt.backward(dwtC[0], zero_H)
+                if __debug__:
+                    image.write(CL, "{}{:03d}_{}".format(prefix + "_CL_", x*i+x, k))
+                CH = dwt.backward(zero_L, dwtC[1])
+                if __debug__:
+                    image.write(CH, "{}{:03d}_{}".format(prefix + "_CH_", x*i+x, k))
+                BHA = motion_compensation(BL, AL, AH)
+                BHC = motion_compensation(BL, CL, CH)
+                if __debug__:
+                    image.write(BH, "{}{:03d}_{}".format(prefix + "_BH_", x*i+x//2, k))
+                prediction = (BHA + BHC) / 2
+                if __debug__:
+                    image.write(prediction+128, "{}{:03d}_{}".format(prefix + "_prediction_", x*i+x//2, k))
+                rBH = BH - prediction
+                if __debug__:
+                    image.write(rBH, "{}{:03d}_{}".format(prefix + "_residue_", x*i+x//2, k))
+                rBH = dwt.forward(rBH)
+                rBH[0][0:L_y,0:L_x,:] = dwtB[0]
+                pyramid.write(rBH, "{}{:03d}_{}".format(prefix, x*i+x//2, k+1))
+                AL = CL
+                AH = CH
+                i += 1
+            x *= 2
 
 def backward(input = '/tmp/', output='/tmp/', N=5, S=2):
     '''A (Inverse) Motion Compensated Discrete Wavelet Transform.
