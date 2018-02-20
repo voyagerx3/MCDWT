@@ -25,11 +25,11 @@ def read(file_name):
 
     '''
 
-    LL = cv2.imread(file_name + "_LL.png", -1).astype('float64')
+    LL = cv2.imread(file_name + "_LL.png", -1).astype(np.float64)
     LL -= 32768
     if LL is None:
         raise InputFileException('{} not found'.format(file_name + "_LL.png"))
-    LH = cv2.imread(file_name + "_LH.png", -1).astype('float64')
+    LH = cv2.imread(file_name + "_LH.png", -1).astype(np.float64)
     if LH is None:
         raise InputFileException('{} not found'.format(file_name + "_LH.png"))
     else:
@@ -37,13 +37,13 @@ def read(file_name):
         #x = math.ceil(buf.shape[1]/2)
         #LH = buf[0:y,x:buf.shape[1],:]
         LH -= 32768
-    HL = cv2.imread(file_name + "_HL.png", -1).astype('float64')
+    HL = cv2.imread(file_name + "_HL.png", -1).astype(np.float64)
     if HL is None:
         raise InputFileException('{} not found'.format(file_name + "_HL.png"))
     else:
         #HL = buf[y:buf.shape[0],0:x,:]
         HL -= 32768
-    HH = cv2.imread(file_name + "_HH.png", -1).astype('float64')
+    HH = cv2.imread(file_name + "_HH.png", -1).astype(np.float64)
     if HH is None:
         raise InputFileException('{} not found'.format(file_name + "_HH.png"))
     else:
@@ -82,7 +82,7 @@ def write(pyramid, file_name):
     assert (np.amax(LL) < 65536), 'range overflow'
     assert (np.amin(LL) >= 0), 'range underflow'
 
-    LL = np.rint(LL).astype("uint16")
+    LL = np.rint(LL).astype(np.uint16)
     cv2.imwrite(file_name + "_LL.png", LL)
     #y = pyramid[0].shape[0]
     #x = pyramid[0].shape[1]
@@ -95,7 +95,7 @@ def write(pyramid, file_name):
     assert (np.amax(LH) < 65536), 'range overflow'
     assert (np.amin(LH) >= 0), 'range underflow'
 
-    LH = np.rint(LH).astype("uint16")
+    LH = np.rint(LH).astype(np.uint16)
     cv2.imwrite(file_name + "_LH.png", LH)
     
     #buf[0:y,x:x*2,:] = np.rint(LH).astype('uint16')
@@ -105,7 +105,7 @@ def write(pyramid, file_name):
     assert (np.amax(HL) < 65536), 'range overflow'
     assert (np.amin(HL) >= 0), 'range underflow'
 
-    HL = np.rint(HL).astype("uint16")
+    HL = np.rint(HL).astype(np.uint16)
     cv2.imwrite(file_name + "_HL.png", HL)
     
     #buf[y:y*2,0:x,:]= np.rint(HL).astype('uint16')
@@ -115,7 +115,7 @@ def write(pyramid, file_name):
     assert (np.amax(HH) < 65536), 'range overflow'
     assert (np.amin(HH) >= 0), 'range underflow'
 
-    HH = np.rint(HH).astype("uint16")
+    HH = np.rint(HH).astype(np.uint16)
     cv2.imwrite(file_name + "_HH.png", HH)
     
     #buf[y:y*2,x:x*2,:] = np.rint(HH).astype('uint16')

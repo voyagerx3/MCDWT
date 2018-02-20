@@ -4,7 +4,6 @@ import pywt
 import math
 import sys
 
-
 #import mcdwt.dwt as dwt
 import dwt
 from mc.optical.motion import motion_compensation

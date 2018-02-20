@@ -23,7 +23,7 @@ def read(file_name):
 
     '''
 
-    file_name += ".png"
+    file_name += "_LL.png"
     image = cv2.imread(file_name, -1)
     if image is None:
         raise InputFileException('{} not found'.format(file_name))
@@ -61,4 +61,4 @@ def write(image, file_name):
     assert (np.amax(tmp) < 65536), '16 bit unsigned int range overflow'
     assert (np.amin(tmp) >= 0), '16 bit unsigned int range underflow'
 
-    cv2.imwrite(file_name + ".png", np.rint(tmp).astype(np.uint16))
+    cv2.imwrite(file_name + "_LL.png", np.rint(tmp).astype(np.uint16))
