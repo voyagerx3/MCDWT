@@ -7,6 +7,7 @@ import numpy as np
 import tempfile as tf
 #sys.path.insert(0, '../mcdwt')
 import argparse
+from argparse import RawTextHelpFormatter
 
 #Algorithms call functions
 def algorithm_duplicator(frames):
@@ -18,7 +19,7 @@ options = {
     0: algorithm_duplicator
 }
 #Resolve arguments
-parser = argparse.ArgumentParser(description='Temporal interpolation.')
+parser = argparse.ArgumentParser(description='Temporal interpolation.', formatter_class=RawTextHelpFormatter)
 parser.add_argument('-a', type=int, default=0,
                     help="Algorithm to use (Default: 0)\n\t0: Duplicator\n\tMore in the future")
 

@@ -5,8 +5,8 @@ import itertools
 import sys
 
 sys.path.insert(0, "../..")
-from mcdwt.mc.optical.motion import motion_estimation, estimate_frame
-from mcdwt.io import image
+from transform.mc.optical.motion import motion_estimation, estimate_frame
+from transform.io import image
 
 def pairwise(iterable):
     a, b = itertools.tee(iterable)
