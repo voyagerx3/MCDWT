@@ -3,6 +3,91 @@
 Linear frame interpolation using Bidirectional Block-Based Motion Compensation
 '''
 import argparse
+#from PIL import Image, ImageChops, ImageEnhance, ImageOps
+import numpy as np
+
+    #Método que implementa la búsqueda en espiral
+def local_me_for_block(mv, ref, pred, luby, lubx, rbby, rbbx, by, bx):
+    min_error=np.array([0, 1])
+    vy=np.array([0, 1])
+    vx=np.array([0, 1])
+    
+    mv_prev_y_by_bx = np.array([mv[PREV], mv[Y_FIELD], mv[by], mv[bx]])
+    mv_prev_x_by_bx = np.array([mv[PREV], mv[X_FIELD], mv[by], mv[bx]])
+    mv_next_y_by_bx = np.array([mv[NEXT], mv[Y_FIELD], mv[by], mv[bx]])
+    mv_next_x_by_bx = np.array([mv[NEXT], mv[X_FIELD], mv[by], mv[bx]])
+    
+def COMPUTE_ERRORS(_y, _x):
+    y=np.array([mv_prev_y_by_bx + _y, mv_next_y_by_bx - _y])
+    x=np.array([mv_prev_x_by_bx + _x, mv_next_x_by_bx - _x])
+    error=np.array([0, 0])
+    
+    for num in range(luby, rbby):
+        pred_py=np.array([pred[num]])
+        for num2 in range(lubx, rbbx):
+            error[PREV] += abs(pred_py[num2] - np.array([ref[PREV], ref[py + y[PREV]], [px + x[PREV]]]))
+            error[NEXT] += abs(pred_py[num2] - np.array([ref[NEXT], ref[py + y[NEXT]], [px + x[NEXT]]]))
+
+def UPDATE_VECTORS():
+    if(error[PREV] <= min_error[PREV]):
+        vy[PREV]=y[PREV]
+        vx[PREV]=x[PREV]
+        min_error[PREV]=error[PREV]
+
+    if(error[NEXT] <= min_error[NEXT]):
+        vy[NEXT]=y[NEXT]
+        vx[NEXT]=x[NEXT]
+        min_error[NEXT]=error[NEXT]
+        
+    #1. Position (-1,-1). Up - Left.
+    COMPUTE_ERRORS(-1,-1)
+    
+    min_error[PREV]=error[PREV]
+    vy[PREV]=y[PREV]
+    vx[PREV]=x[PREV]
+    
+    min_error[NEXT]=error[NEXT]
+    vy[NEXT]=y[NEXT]
+    vx[NEXT]=x[NEXT]
+    
+    #2. Position (-1,1). Up - Right.
+    COMPUTE_ERRORS(-1,1)
+    UPDATE_VECTORS()
+    
+    #3. Position (1,-1). Down - left.
+    COMPUTE_ERRORS(1,-1)
+    UPDATE_VECTORS()
+    
+    #4. Position (1,1). Down - Right.
+    COMPUTE_ERRORS(1,1)
+    UPDATE_VECTORS()
+
+    #5. Position (-1,0). Up.
+    COMPUTE_ERRORS(-1,0)
+    UPDATE_VECTORS
+
+    #6. Position (1,0). Down.
+    COMPUTE_ERRORS(1,0)
+    UPDATE_VECTORS()
+
+    #7. Position (0,1). Right.
+    COMPUTE_ERRORS(0,1)
+    UPDATE_VECTORS()
+
+    #8. Position (0,-1). Left.
+    COMPUTE_ERRORS(0,-1)
+    UPDATE_VECTORS()
+
+    #9. Position (0,0). */ {
+    COMPUTE_ERRORS(0,0)
+    UPDATE_VECTORS()
+
+    mv_prev_y_by_bx=vy[PREV]
+    mv_prev_x_by_bx=vx[PREV]
+    mv_next_y_by_bx=vy[NEXT]
+    mv_next_x_by_bx=vx[NEXT]
+
+
 
 if __name__ == "__main__":
 
@@ -47,3 +132,4 @@ if __name__ == "__main__":
     subpixel_accuracy = args.a
 
     #DO STUFF
+	
