@@ -51,7 +51,7 @@ def forward(prefix = "/tmp/", N = 5, K = 2):
 
     '''
     
-    #import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
     #k = 0
     for k in range(K): # spatial scale
         x = 2
