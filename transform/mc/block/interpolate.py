@@ -87,8 +87,126 @@ def UPDATE_VECTORS():
     mv_next_y_by_bx=vy[NEXT]
     mv_next_x_by_bx=vx[NEXT]
 
+	
+#local_me_for_image()
+def local_me_for_image(mv,ref,pred,block_size,border_size,blocks_in_y,blocks_in_x):
+
+    for by in range(blocks_in_y):
+        for bx in range(blocks_in_x):
+		
+            luby = (by ) * block_size - border_size
+            lubx = (bx ) * block_size - border_size
+            rbby = (by+1) * block_size - border_size
+            rbbx = (bx+1) * block_size - border_size
+            
+            local_me_for_block(mv, ref, pred, luby, lubx, rbby, rbbx, by, bx)
 
 
+#me_for_image()-Fastsearch
+def me_for_image(mv,ref,pred,pixels_in_y,pixels_in_x,block_size,border_size,subpixel_accuracy,search_range,blocks_in_y,blocks_in_x):
+
+	#5.3
+    TEXTURE_INTERPOLATION_FILTER = 'bior2.2'
+    MOTION_INTERPOLATION_FILTER = 'haar'
+    
+    dwt_levels = round(log(search_range)/log(2.0))-1
+
+    pic_dwt_refPrev = pywt.wavedec2(dwtrefprev,TEXTURE_INTERPOLATION_FILTER,dwt_levels)
+    pic_dwt_refNext = pywt.wavedec2(dwtrefnext,TEXTURE_INTERPOLATION_FILTER,dwt_levels)
+    pic_dwt_pred = pywt.wavedec2(dwtpred,TEXTURE_INTERPOLATION_FILTER,dwt_levels)		
+
+    local_me_for_image(mv,ref,pred,block_size,border_size, desp(blocks_in_y, dwt_levels),desp(blocks_in_x, dwt_levels))
+
+    for l in range(dwt_levels,-1,-1):
+	
+        Y_l = pixels_in_y/2
+        X_l = pixels_in_x/2
+        blocks_in_y_l = blocks_in_y/2
+        blocks_in_x_l = blocks_in_x/2
+        
+        pic_dwt_refPrev = pywt.waverec2(pic_dwt_refPrev,TEXTURE_INTERPOLATION_FILTER,1)
+        pic_dwt_refNext = pywt.waverec2(pic_dwt_refNext,TEXTURE_INTERPOLATION_FILTER,1)
+        pic_dwt_pred = pywt.waverec2(pic_dwt_pred,TEXTURE_INTERPOLATION_FILTER,1)
+        
+        mv_idwt_refPrevY = pywt.waverec2(dwtmvrefprevy,MOTION_INTERPOLATION_FILTER,1)
+        mv_idwt_refNextY = pywt.waverec2(dwtmvrefnexty,MOTION_INTERPOLATION_FILTER,1)
+        mv_idwt_refPrevX = pywt.waverec2(dwtmvrefprevx,MOTION_INTERPOLATION_FILTER,1)
+        mv_idwt_refNextX = pywt.waverec2(dwtmvrefnextx,MOTION_INTERPOLATION_FILTER,1)
+        
+        mv_prev_y_by_bx = np.array([mv[PREV], mv[Y_FIELD], mv[by], mv[bx]])
+        mv_prev_x_by_bx = np.array([mv[PREV], mv[X_FIELD], mv[by], mv[bx]])
+        mv_next_y_by_bx = np.array([mv[NEXT], mv[Y_FIELD], mv[by], mv[bx]])
+        mv_next_x_by_bx = np.array([mv[NEXT], mv[X_FIELD], mv[by], mv[bx]])
+        
+        for by in range(blocks_in_y_l):
+            for bx in range(blocks_in_x_l):
+                
+                mv_prev_y_by_bx *= 2;
+                if mv_prev_y_by_bx > search_range:
+                    mv_prev_y_by_bx = search_range
+                if mv_prev_y_by_bx < -search_range:
+                    mv_prev_y_by_bx = -search_range
+                    
+                mv_next_y_by_bx  *= 2;
+                if mv_next_y_by_bx  > search_range:
+                    mv_next_y_by_bx  =  search_range
+                if mv_next_y_by_bx  < -search_range:
+                    mv_next_y_by_bx  = -search_range
+
+                mv_prev_x_by_bx *= 2;
+                if mv_prev_x_by_bx > search_range:
+                    mv_prev_x_by_bx =  search_range
+                if mv_prev_x_by_bx < -search_range:
+                    mv_prev_x_by_bx = -search_range
+                    
+                mv_next_x_by_bx *= 2;
+                if mv_next_x_by_bx > search_range:
+                    mv_next_x_by_bx =  search_range
+                if mv_next_x_by_bx < -search_range:
+                    mv_next_x_by_bx = -search_range
+                    
+        local_me_for_image(mv,ref,pred,block_size,border_size,blocks_in_y_l, blocks_in_x_l)
+        
+    for l in range(1,subpixel_accuracy+1):
+
+        pic_dwt_refPrev = pywt.waverec2(pic_dwt_refPrev,TEXTURE_INTERPOLATION_FILTER,1)
+        pic_dwt_refNext = pywt.waverec2(pic_dwt_refNext,TEXTURE_INTERPOLATION_FILTER,1)
+        pic_dwt_pred= pywt.waverec2(pic_dwt_pred,TEXTURE_INTERPOLATION_FILTER,1)
+
+        for by in range(blocks_in_y_l):
+            for bx in range(blocks_in_y_l):
+                
+                mv_prev_y_by_bx *= 2
+                if mv_prev_y_by_bx > (search_range<<subpixel_accuracy):
+                    mv_prev_y_by_bx = search_range<<subpixel_accuracy
+                if mv_prev_y_by_bx < -(search_range<<subpixel_accuracy):
+                    mv_prev_y_by_bx = -(search_range<<subpixel_accuracy)
+
+                mv_next_y_by_bx *= 2
+                if mv_next_y_by_bx > (search_range<<subpixel_accuracy):
+                    mv_next_y_by_bx = search_range<<subpixel_accuracy
+                if mv_next_y_by_bx < -(search_range<<subpixel_accuracy):
+                    mv_next_y_by_bx = -(search_range<<subpixel_accuracy)
+
+                mv_prev_x_by_bx *= 2
+                if mv_prev_x_by_bx > (search_range<<subpixel_accuracy):
+                    mv_prev_x_by_bx = (search_range<<subpixel_accuracy)
+                if mv_prev_x_by_bx < -(search_range<<subpixel_accuracy):
+                    mv_prev_x_by_bx = -(search_range<<subpixel_accuracy)
+
+                mv_next_x_by_bx *= 2
+                if mv_next_x_by_bx > (search_range<<subpixel_accuracy):
+                    mv_next_x_by_bx = (search_range<<subpixel_accuracy)
+                if mv_next_x_by_bx < -(search_range<<subpixel_accuracy):
+                    mv_next_x_by_bx = -(search_range<<subpixel_accuracy)
+
+        local_me_for_image(mv,ref,pred,block_size<<l,border_size>>l,blocks_in_y, blocks_in_x)
+        
+    pic_dwt_refPrev = pywt.wavedec2(pic_dwt_refPrev,TEXTURE_INTERPOLATION_FILTER,dwt_levels)
+    pic_dwt_refNext = pywt.wavedec2(pic_dwt_refNext,TEXTURE_INTERPOLATION_FILTER,dwt_levels)
+    pic_dwt_pred = pywt.wavedec2(pic_dwt_pred,TEXTURE_INTERPOLATION_FILTER,dwt_levels)
+
+	
 if __name__ == "__main__":
 
     #Define args parser and args
