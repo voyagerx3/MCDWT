@@ -36,9 +36,12 @@ done
 
 set -x
 
-for i in (
-rm -f /tmp/ycc2rgb.png
-./ycc2rgb.py -i $image -o /tmp/ycc2rgb.png
-display -normalize /tmp/ycc2rgb.png
+echo $sequence
+
+for image in $sequence;
+do
+    ./ycc2rgb.py -i $image -o /tmp/view_sequence.png
+    convert -normalize /tmp/view_sequence.png ${image}.png
+done
 
 set +x
