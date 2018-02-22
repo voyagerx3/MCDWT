@@ -5,6 +5,7 @@ Linear frame interpolation using Bidirectional Block-Based Motion Compensation
 import argparse
 #from PIL import Image, ImageChops, ImageEnhance, ImageOps
 import numpy as np
+import pywt
 
     #Método que implementa la búsqueda en espiral
 def local_me_for_block(mv, ref, pred, luby, lubx, rbby, rbbx, by, bx):
