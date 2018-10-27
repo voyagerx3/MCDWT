@@ -10,9 +10,9 @@ while(True):
 
     LL, H = forward(frame)
     cv2.imshow('LL', LL.astype(np.uint8))
-    cv2.imshow('LH', H[0].astype(np.uint8)+128)
-    cv2.imshow('HL', H[1].astype(np.uint8)+128)
-    cv2.imshow('HH', H[2].astype(np.uint8)+128)
+    cv2.imshow('LH', H[0].astype(np.uint8)*16+128)
+    cv2.imshow('HL', H[1].astype(np.uint8)*16+128)
+    cv2.imshow('HH', H[2].astype(np.uint8)*16+128)
     recons = backward(LL, H)
 
     # Display the resulting frame
