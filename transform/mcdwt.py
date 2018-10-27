@@ -4,7 +4,7 @@ import pywt
 import math
 import sys
 
-import dwt
+import transform import dwt
 from mc.optical.motion import motion_compensation
 sys.path.insert(0, "..")
 from transform.io import image, pyramid

@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 import pywt
 import argparse
-from mcdwt import MCDWTLibrary
+from transform import mcdwt
 
 parser = argparse.ArgumentParser(description='video cam recorder')
 parser.add_argument('--width', dest='width', help='width', required=True)
@@ -31,7 +31,7 @@ while(cap.isOpened()):
   
     if ret==True:
         if len(cache) == 2*l:
-            A, B, C = MCDWTLibrary.forward_MCDWT(cache[0], cache[1], frame)
+            A, B, C = mcdwt.forward(cache[0], cache[1], frame)
             out.write(np.uint8(B))
             out.write(np.uint8(C))
             cache = []
