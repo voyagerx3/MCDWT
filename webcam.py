@@ -6,22 +6,24 @@ import sys
 
 class WebCam():
 
-    def process(self, frame):        
+    def __init__(self):
+        self.cap = cv2.VideoCapture(0)
+        self.width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        self.height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        self.fps = cap.get(cv2.CAP_PROP_FPS)
+        
+    def process(self, frame):
         return frame
 
     def run(self):
-        cap = cv2.VideoCapture(0)
-        width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-        height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         n_labels = width * height * 3
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        sys.stdout.write("Capturing from webcam at " + str(width) + 'x' + str(height) + " pixels, " + str(fps) + " Hz\n")
+        sys.stdout.write("Capturing from webcam at " + str(self.width) + 'x' + str(self.height) + " pixels, " + str(self.fps) + " Hz\n")
 
         counter = 0
         start = time()
         while(True):
             # Capture frame-by-frame
-            ret, frame = cap.read()
+            ret, frame = self.cap.read()
 
             # Process the frame
             frame = self.process(frame)

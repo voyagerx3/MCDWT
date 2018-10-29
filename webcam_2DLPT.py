@@ -5,16 +5,21 @@ from transform.dwt_color import forward as dwt
 from transform.dwt_color import backward as idwt
 from webcam import WebCam
 
-class WebCam_2DDWT(WebCam):
+class WebCam_2DLPT(WebCam):
+    def init_structures(self, y, x):
+        self.zero_L = np.zeros((y, x), np.float64)
+        
     def process(self, frame):
-        LL, H = dwt(frame)
+        LL, LH, HL, HH = dwt(frame)
+        H = idwt(self.zero_L, LH, HL, HH)
         cv2.imshow('LL', LL.astype(np.uint8))
-        cv2.imshow('LH', H[0].astype(np.uint8)*16+128)
-        cv2.imshow('HL', H[1].astype(np.uint8)*16+128)
-        cv2.imshow('HH', H[2].astype(np.uint8)*16+128)
+        cv2.imshow('H', H.astype(np.uint8)*16+128)
+        _, LH, HL, HH = dwt(H)
+        H = LH, HL, HH
         recons = idwt(LL, H)
         return recons.astype(np.uint8)
 
 if __name__ == "__main__":
-    driver = WebCam_2DDWT()
+    driver = WebCam_2DLPT()
+    
     driver.run()
