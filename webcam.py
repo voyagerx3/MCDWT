@@ -46,6 +46,7 @@ class WebCam():
                 break
 
         # When everything done, release the capture
+        sys.stdout.write('\n')
         cap.release()
         cv2.destroyAllWindows()
 
