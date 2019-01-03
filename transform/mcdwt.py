@@ -4,10 +4,35 @@ import pywt
 import math
 import sys
 
-import transform import dwt
+import transform import dwt_color as dwt
 from mc.optical.motion import motion_compensation
 sys.path.insert(0, "..")
 from transform.io import image, pyramid
+
+def forward_W():
+    pass
+
+def create_zero_subbands(self, dwtA):
+    self.zero_L = np.zeros(dwtA[0].shape, np.float64)
+    self.zero_H = (zero_L, zero_L, zero_L)
+ 
+def forward_butterfly(self, AL, AH, BL, BH, CL, CH):
+    dwtB = dwt.forward(A)
+    BL = dwt.backward(dwtB[0], zero_H)
+    BH = dwt.backward(zero_L, dwtB[1])
+    dwtC = dwt.forward(C)
+    CL = dwt.backward(dwtC[0], zero_H)
+    CH = dwt.backward(zero_L, dwtC[1])
+    BAH = motion_compensation(AL, BL, AH)
+    BCH = motion_compensation(CL, BL, CL)
+    prediction = (BAH + BCH) / 2
+    rBH = BH - prediction
+    #rBH = dwt.forward(rBH)
+    return BL, rBH, CL, CH
+
+def backward_butterfly(self, AL, AH, BL, BH C):
+    A = AL + AH
+    
 
 def forward(prefix = "/tmp/", N = 5, K = 2):
     '''A Motion Compensated Discrete Wavelet Transform.
