@@ -1,0 +1,117 @@
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "<none>"
+%%% End:
+
+\title{LZW}
+
+\author{Vicente González Ruiz}
+
+\maketitle
+
+\section{Basics}
+
+\begin{itemize}
+\item
+  In 1984, Terry A. Welch proposed the
+  \href{https://en.wikipedia.org/wiki/Lempel\%E2\%80\%93Ziv\%E2\%80\%93Welch}{LZW
+    algorithm}~\cite{welch1984technique}, an improved version of the
+  LZ78 algorithm that does not writes raw symbols (\(k\) fields) to
+  the code-stream.
+\item
+  LZW was selected as the encoding engine for the
+  \href{https://en.wikipedia.org/wiki/GIF}{GIF (Graphics Interchange
+  Format)}, and for the compressor
+  \href{https://en.wikipedia.org/wiki/Compress}{\texttt{compress}}.
+\item
+  Initially, the dictionary is filled with the \(2^k\) possible symbols
+  (\emph{roots}), that are stored in the first entries (for 1-byte
+  symbols: \(0\cdots255\)).
+\end{itemize}
+
+\section{Encoder}
+
+\begin{enumerate}
+\tightlist
+\item
+  \(w\leftarrow\) first input symbol.
+\item
+  While the input is not exhausted:
+  \begin{enumerate}
+  \tightlist
+  \item
+    \(k\leftarrow\) next input symbol.
+  \item
+    If \(wk\) is found in the dictionary, then:
+    \begin{enumerate}
+    \tightlist
+    \item
+      \(w\leftarrow\) address of \(wk\) in the dictionary.
+    \end{enumerate}
+  \item
+    Else:
+    \begin{enumerate}
+    \tightlist
+    \item
+      Output \(\leftarrow w\).
+    \item
+      Insert \(wk\) in the dictionary.
+    \item
+      \(w\leftarrow k\).
+    \end{enumerate}
+  \end{enumerate}
+\end{enumerate}
+
+\section{Example}
+\img{400}{graphics/LZW_encoding_example.png}
+
+\section{Decoder}
+
+\begin{enumerate}
+\tightlist
+\item
+  \(c\leftarrow\) first input code-word.
+\item
+  Output \(c\).
+\item
+  \(c'\leftarrow c\).
+\item
+  While the input is not exhausted:
+  \begin{enumerate}
+  \tightlist
+  \item
+    \(c\leftarrow\) next input code-word.
+  \item
+    \(w\leftarrow c'\).
+  \item
+    If \(c\) is found in the dictionary, then:
+    \begin{enumerate}
+    \tightlist
+    \item
+      Output string\((c)\).
+    \end{enumerate}
+  \item
+    Else:
+    \begin{enumerate}
+    \tightlist
+    \item
+      Output string\((w)\).
+    \item
+      Output \(k\).
+    \end{enumerate}
+  \item
+    \(k\leftarrow\) first symbol of the last output.
+  \item
+    Insert \(wk\) in the dictionary.
+  \item
+    \(c'\leftarrow c\).
+  \end{enumerate}
+\end{enumerate}
+
+\section{Example}
+\img{600}{graphics/LZW_decoding_example.png}
+
+\section{Lab: LZW}
+\href{https://nbviewer.jupyter.org/github/vicente-gonzalez-ruiz/LZW/blob/master/LZW.ipynb}{IPython notebook}
+
+\bibliography{text-compression}
