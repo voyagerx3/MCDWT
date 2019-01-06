@@ -9,14 +9,14 @@ def forward(image):
     Arguments
     ---------
 
-        image : [:,:,:].
+        image: [:,:,:].
 
             A color frame.
 
     Returns
     -------
 
-        (L,H) where L=[:,:,:] and H=(LH,HL,HH), where LH,HL,HH=[:,:,:].
+        (L, H) where L = [:,:,:] and H = (LH,HL,HH), where LH, HL, HH: [:,:,:].
 
             A color pyramid.
 
