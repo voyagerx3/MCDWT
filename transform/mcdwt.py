@@ -56,7 +56,7 @@ def forward(prefix = "/tmp/", N = 5, K = 2):
 
          K : int
 
-            Number of leves of the MCDWT (temporal scales). Controls
+            Number of levels of the MCDWT (temporal scales). Controls
             the GOP size. 
 
               K | GOP_size
