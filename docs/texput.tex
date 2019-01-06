@@ -9,21 +9,21 @@
 \author{Vicente González Ruiz}
 
 \maketitle
-\section{}\label{motion-compensated-discrete-wavelet-transform-mcdwt}}
+\section{Intro}
 
 MCDWT is a multiresolution
 \href{https://en.wikipedia.org/wiki/Video}{video} transform. The input
 sequence of \href{https://en.wikipedia.org/wiki/Pixel}{pixels} are
-\href{https://en.wikipedia.org/wiki/Decorrelation}{decorrelated} in the
-\href{https://en.wikipedia.org/wiki/Time_domain}{time} and in the
+\href{https://en.wikipedia.org/wiki/Decorrelation}{decorrelated} in
+the \href{https://en.wikipedia.org/wiki/Time_domain}{time} and in the
 \href{https://www.quora.com/What-is-spatial-domain-in-image-processing}{spatial}
 domains. The output sequence of
 \href{https://www.quora.com/What-is-spatial-domain-in-image-processing}{coefficients}
 have a smaller \href{https://en.wikipedia.org/wiki/Entropy}{entropy}
-than the original pixels, and the information is represented by temporal
-and spatial
+than the original pixels, and the information is represented by
+temporal and spatial
 \href{https://en.wikipedia.org/wiki/Image_resolution}{resolution
-levels}.
+  levels}.
 
 \begin{itemize}
 \item
@@ -41,10 +41,7 @@ levels}.
   \href{https://en.wikipedia.org/wiki/Discrete_wavelet_transform}{2D-DWT}.
 \end{itemize}
 
-    \hypertarget{video-scalability}{%
-\subsection{\texorpdfstring{1. Video
-\href{http://inst.eecs.berkeley.edu/~ee290t/sp04/lectures/videowavelet_UCB1-3.pdf}{scalability}}{1. Video scalability}}\label{video-scalability}}
-
+\section{Video \href{http://inst.eecs.berkeley.edu/~ee290t/sp04/lectures/videowavelet_UCB1-3.pdf}{scalability}}
 MCDWT inputs a \href{https://en.wikipedia.org/wiki/Video}{video} and
 outputs a video, in a way that when only a portion of the data of the
 transformed video is used, a video with a lower
@@ -63,10 +60,7 @@ on spatial
 \href{http://inst.eecs.berkeley.edu/~ee290t/sp04/lectures/videowavelet_UCB1-3.pdf}{scalability}.
 Other types of scabilities will be addressed later.
 
-    \hypertarget{video-transformation-alternatives}{%
-\subsection{2. Video transformation
-alternatives}\label{video-transformation-alternatives}}
-
+\section{Video transform alternatives}
 To obtain a multiresolution version or a video, the
 \href{https://en.wikipedia.org/wiki/Discrete_wavelet_transform}{DWT}
 (Discrete Wavelet Transform) can be applied along temporal (t) and
@@ -93,10 +87,7 @@ video is not suitable because the first step of the forward transform
 (t) should be reversed at full resolution in the backward transform (as
 the forward transform did).
 
-    \hypertarget{wavelet-and-pyramid-domains}{%
-\subsection{3. Wavelet and pyramid
-domains}\label{wavelet-and-pyramid-domains}}
-
+\section{Wavelet and pyramid domains}
 Indeed, the DWT allows to get a scalable representation of a image, and
 by extension of a video, when we apply the DWT on all the images of the
 video. However, this can be also done with
@@ -113,11 +104,8 @@ equivalent representation, and viceversa. For this reason, even if we
 use wavelet pyramids in our images, we can suppose at any moment that we
 are working with the Laplacian pyramid of those images.
 
-    \hypertarget{the--levels-2d-discrete-wavelet-transform-2d-dwt-of-a-video}{%
-\subsection{\texorpdfstring{4. The \texttt{K}-levels 2D Discrete Wavelet
-Transform (2D-DWT) of a
-video}{4. The -levels 2D Discrete Wavelet Transform (2D-DWT) of a video}}\label{the--levels-2d-discrete-wavelet-transform-2d-dwt-of-a-video}}
-
+\section{The $K$-levels 2D Discrete Wavelet Transform (2D-DWT) of a
+video}
 As said before, a
 \href{https://en.wikipedia.org/wiki/Discrete_wavelet_transform}{2D-DWT}
 (2 Dimensions - Discrete Wavelet Transform) generates a scalable
@@ -127,9 +115,7 @@ DWT to all the images of the video. This is done, for example, in the
 compression standard}. Notice that only the spatial redundancy is
 exploited. All the temporal redundancy is still in the video.
 
-    \hypertarget{input}{%
-\subsubsection{Input}\label{input}}
-
+\subsection{Input}
 A sequence \(s\) of \(N\) images:
 
 \begin{verbatim}
@@ -145,9 +131,7 @@ A sequence \(s\) of \(N\) images:
       s[0]               s[1]                 s[N-1]
 \end{verbatim}
 
-\hypertarget{output}{%
-\subsubsection{Output}\label{output}}
-
+\subsection{Output}
 A sequence \(S\) of \(N\) pyramids. For example, a (\(K=2\))-levels, the
 2D-DWT looks like:
 
@@ -170,41 +154,13 @@ that follows these letters represents the subband level. For the sake of
 simplicity, we will denote the subbands \(\{LH^k, HL^k, HH^k\}\) as only
 \(H^k\), and \(LL^k\) as only \(L^k\).
 
-    \hypertarget{algorithm}{%
-\subsubsection{Algorithm}\label{algorithm}}
-
+\subsection{Algorithm}\label{algorithm}}
 \lstinputlisting[language=python]{src/sequence/2D_DWT.py}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{def}\NormalTok{ sequence_2D_DWT(s, K):}
-    \ControlFlowTok{for}\NormalTok{ image }\KeywordTok{in}\NormalTok{ s:}
-\NormalTok{        _2D_DWT(image, K) }\CommentTok{# In-place computation}
-    \ControlFlowTok{return}\NormalTok{ s}
-    
-\NormalTok{S }\OperatorTok{=}\NormalTok{ sequence_2D_DWT(s, K)}
-\end{Highlighting}
-\end{Shaded}
-
-    \hypertarget{inverse-algorithm}{%
-\subsubsection{Inverse algorithm}\label{inverse-algorithm}}
-
+\subsection{Inverse algorithm}
 \lstinputlisting[language=python]{src/sequence/2D_iDWT.py}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{def}\NormalTok{ sequence_2D_iDWT(S, K):}
-    \ControlFlowTok{for}\NormalTok{ pyramid }\KeywordTok{in}\NormalTok{ S:}
-\NormalTok{        _2D_iDWT(pyramid, K) }\CommentTok{# In-place computation}
-    \ControlFlowTok{return}\NormalTok{ S}
-    
-\NormalTok{s }\OperatorTok{=}\NormalTok{ sequence_2D_iDWT(S, K)}
-\end{Highlighting}
-\end{Shaded}
-
-    \hypertarget{scalability}{%
-\subsubsection{Scalability}\label{scalability}}
-
+\subsection{Scalability}
 The 2D-DWT applied to a video produces a scalable representation in the
 space (we can extract different videos with different spatial scales or
 resolutions), in the time (we can extract diferent videos with different
@@ -219,31 +175,22 @@ For example, to reconstruct the scale 1 (which is provided by the
 subbands \(\{LL^2, LH^2, HL^2, HH^2\}\)), we must apply the 2D-iDWT
 (1-levels 2D inverse DWT).
 
-    \hypertarget{implementation-of-2d-dwt-and-2d-idwt}{%
-\subsubsection{Implementation of 2D-DWT and
-2D-iDWT}\label{implementation-of-2d-dwt-and-2d-idwt}}
-
+\subsection{Implementation of 2D-DWT and 2D-iDWT}
 See for example,
 \href{https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html\#d-multilevel-decomposition-using-wavedec2}{pywt.wavedec2()}
 at
 \href{https://pywavelets.readthedocs.io/en/latest/index.html}{PyWavelets}.
 
-    \hypertarget{redundancy-and-compression}{%
-\subsection{5. Redundancy and
-compression}\label{redundancy-and-compression}}
-
-The 2D-DWT incorporates to \texttt{S} an interesting feature: usually,
-\texttt{H} subbands has a lower entropy than \texttt{s}. This means that
-if we apply to \texttt{S} an entropy encoder, we can get a shorter
-representation of the video than if we encode \texttt{s} directly. This
+\subsection{5. Redundancy and compression}
+The 2D-DWT incorporates to $S$ an interesting feature: usually,
+$H$ subbands has a lower entropy than $s. This means that
+if we apply to $S$ an entropy encoder, we can get a shorter
+representation of the video than if we encode $s$ directly. This
 is a consequence of that 2D-DWT removes (most of) the spatial redudancy
 of the images of the video (neighboring pixels tend to have similar
 values and their substraction tends to produce zeros).
 
-    \hypertarget{why-motion-compensated-dwt-mcdwt}{%
-\subsection{6. Why Motion Compensated DWT
-(MCDWT)?}\label{why-motion-compensated-dwt-mcdwt}}
-
+\section{Why MCDWT?}
 As we have said, the 2D-DWT does not exploit the temporal redundancy of
 a video. Consequently, we can achieve higher compression ratios (in
 addition to the 2D-DWT) if we apply a 1D-DWT along the temporal domain.
@@ -253,58 +200,27 @@ which are moving with respect to the camera, some sort of motion
 compensation should be used before substacting the prediction images to
 the original ones.
 
-    \hypertarget{forward-direct-mcdwt-1-levels-butterfly}{%
-\subsection{7. Forward (direct) MCDWT (1-levels)
-butterfly}\label{forward-direct-mcdwt-1-levels-butterfly}}
-
+\section{Forward (direct) MCDWT (1-levels) butterfly}
 MCDWT is based on the idea that, to provide MC without transmitting the
 motio information from the encoder to the decoder, the motion
 information is computed at both ends, using the information that is
 available at the decoder.
 
-\hypertarget{input}{%
-\subsubsection{Input}\label{input}}
-
+\subsection{Input}
 Three frames of \(s\): \(a\), \(b\) and \(c\).
 
-\hypertarget{output}{%
-\subsubsection{Output}\label{output}}
-
+\subsubsection{Output}
 Three frames \(A=\{A.L, A.H\}\) (intra-coded),
 \(B=\{B.L, \tilde{B}.H\}\) (bidirectionally predicted) and
 \(C=\{C.L, C.H\}\) (intra-coded).
 
-\hypertarget{algorithm}{%
-\subsubsection{Algorithm}\label{algorithm}}
-
+\subsubsection{Algorithm}
 \begin{figure}
 \centering
 \includegraphics{forward.png}
 \caption{MCDWT}
 \end{figure}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{A.L, A.H }\OperatorTok{=}\NormalTok{ 2D_DWT(a)}
-\NormalTok{B.L, B.H }\OperatorTok{=}\NormalTok{ 2D_DWT(b)}
-\NormalTok{C.L, C.H }\OperatorTok{=}\NormalTok{ 2D_DWT(c)}
-\NormalTok{[A.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(A.L,}\DecValTok{0}\NormalTok{) }\CommentTok{# Interpolate low-freqs}
-\NormalTok{[A.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{,A.H) }\CommentTok{# Interpolate high-freqs}
-\NormalTok{[B.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(B.L,}\DecValTok{0}\NormalTok{)}
-\NormalTok{[B.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{,B.H)}
-\NormalTok{[C.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(C.L,}\DecValTok{0}\NormalTok{)}
-\NormalTok{[C.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{,C.H)}
-\NormalTok{[B.L]}\OperatorTok{->}\NormalTok{[A.L] }\OperatorTok{=}\NormalTok{ ME([B.L], [A.L]) }\CommentTok{# Motion estimation}
-\NormalTok{[B_A.H] }\OperatorTok{=}\NormalTok{ MC([A.H], [B.L]}\OperatorTok{->}\NormalTok{[A.L]) }\CommentTok{# Project [A.H] using [B.L]->[A.L]}
-\NormalTok{[B.L]}\OperatorTok{->}\NormalTok{[C.L] }\OperatorTok{=}\NormalTok{ ME([B.L], [C.L])}
-\NormalTok{[B_C.H] }\OperatorTok{=}\NormalTok{ MC([C.H], [B.L]}\OperatorTok{->}\NormalTok{[C.L])}
-\NormalTok{[}\OperatorTok{~}\NormalTok{B.H] }\OperatorTok{=}\NormalTok{ [B.H] }\OperatorTok{-}\NormalTok{ [B_A.H]}\OperatorTok{/}\DecValTok{2} \OperatorTok{+}\NormalTok{ [B_C.H]}\OperatorTok{/}\DecValTok{2}
-\OperatorTok{~}\NormalTok{B.H }\OperatorTok{=}\NormalTok{ 2D_DWT([}\OperatorTok{~}\NormalTok{B.H])}
-\NormalTok{A }\OperatorTok{=}\NormalTok{ A.L, A.H}
-\NormalTok{B }\OperatorTok{=}\NormalTok{ B.L, }\OperatorTok{~}\NormalTok{B.H}
-\NormalTok{C }\OperatorTok{=}\NormalTok{ C.L, C.H}
-\end{Highlighting}
-\end{Shaded}
+\lstinputlisting[language=python]{src/sequence/2D_iDWT.py}
 
 Notice that, even if \(a\) and \(c\) (at full resolution) are available
 at the decoder, only \(B.L\) is. So, does not make sense to search the
@@ -313,46 +229,33 @@ and \(c\), because even if a perfect match is achieved, the prediction
 error would be different than \(0\) as a consequence of the high
 resolution information is missing in \(B.L\).
 
-    \#\# Another example (only butterfly)
-
+\subsection{Another example (only butterfly)}
 Lets suppose that we have procesed the sequence of images one step and a
 second one is performed on the output of this first step. At this
 moment, the structure of the images would be:
 
-\hypertarget{analyze-the-input-images}{%
-\subsubsection{Analyze the input
-images}\label{analyze-the-input-images}}
-
+\subsubsection{Analyze the input images}
 \begin{equation}
   \{A.L^2, A.H^2\} = \text{DWT}(A.L)\\
   \{B.L^2, B.H^2\} = \text{DWT}(B.L)\\
   \{C.L^2, C.H^2\} = \text{DWT}(C.L)
 \end{equation}
 
-\hypertarget{zoom-in-l-subbands}{%
-\subsubsection{\texorpdfstring{Zoom-in \(L\)
-subbands}{Zoom-in L subbands}}\label{zoom-in-l-subbands}}
-
+\subsubsection{Zoom-in \(L\) subbands}{Zoom-in L subbands}
 \begin{equation}
   [A.L^2] = \text{iDWT}(A.L^2, 0)\\
   [B.L^2] = \text{iDWT}(B.L^2, 0)\\
   [C.L^2] = \text{iDWT}(C.L^2, 0)
 \end{equation}
 
-\hypertarget{merge-and-zoom-in-h-subbands}{%
-\subsubsection{\texorpdfstring{Merge and zoom-in \(H\)
-subbands}{Merge and zoom-in H subbands}}\label{merge-and-zoom-in-h-subbands}}
-
+\subsubsection{Merge and zoom-in \(H\) subbands
 \begin{equation}
   [A.H^2] = \text{iDWT}(0, A.H^2)\\
   [B.H^2] = \text{iDWT}(0, B.H^2)\\
   [C.H^2] = \text{iDWT}(0, C.H^2)
 \end{equation}
 
-\hypertarget{generate-a-prediction-hatb.h2}{%
-\subsubsection{\texorpdfstring{Generate a prediction
-\([\hat{B}.H^2]\)¡}{Generate a prediction {[}\textbackslash{}hat\{B\}.H\^{}2{]}¡}}\label{generate-a-prediction-hatb.h2}}
-
+\subsubsection{Generate a prediction \([\hat{B}.H^2]\)¡}
 \begin{equation}
   [B_A.H^2] = [A.H^2]\overset{[A.L^2]\rightarrow[B.L^2]}{\longrightarrow}[B.H^2]\\
   [B_C.H^2] = [C.H^2]\overset{[C.L^2]\rightarrow[B.L^2]}{\longrightarrow}[B.H^2]\\  
@@ -382,18 +285,12 @@ cosideration how to minimize the energy of the residue
   [\tilde{B}.L^2] = [B.L^2] - [\hat{B}.L^2].
 \end{equation}
 
-\hypertarget{compute-the-residue-tildeb.h2}{%
-\subsubsection{\texorpdfstring{Compute the residue
-\([\tilde{B}.H^2]\)}{Compute the residue {[}\textbackslash{}tilde\{B\}.H\^{}2{]}}}\label{compute-the-residue-tildeb.h2}}
-
+\subsubsection{Compute the residue \([\tilde{B}.H^2]\)}
 \begin{equation}
   [\tilde{B}.H^2] = [B.H^2] - [\hat{B}.H^2]
 \end{equation}
 
-\hypertarget{unmerge-tildeb.h2-subbands}{%
-\subsubsection{\texorpdfstring{Unmerge \(\tilde{B}.H^2\)
-subbands}{Unmerge \textbackslash{}tilde\{B\}.H\^{}2 subbands}}\label{unmerge-tildeb.h2-subbands}}
-
+\subsubsection{Unmerge \(\tilde{B}.H^2\) subbands}
 \begin{equation}
   \tilde{B}.H^2 = \text{DWT}(0, [\tilde{B}.H^2])
 \end{equation}
@@ -406,13 +303,8 @@ domain}\label{compose-the-residue-in-the-wavelet-domain}}
    \{B.L^2, \tilde{B}.H^2\}
 \end{equation}
 
-    \hypertarget{backward-inverse-mcdwt-butterfly}{%
-\subsection{8. Backward (inverse) MCDWT
-butterfly}\label{backward-inverse-mcdwt-butterfly}}
-
-\hypertarget{input}{%
-\paragraph{Input}\label{input}}
-
+\section{8. Backward (inverse) MCDWT butterfly}
+\subsection{Input}
 \begin{itemize}
 \tightlist
 \item
@@ -420,91 +312,62 @@ butterfly}\label{backward-inverse-mcdwt-butterfly}}
   \(C=\{C.L, C.H\}\).
 \end{itemize}
 
-\hypertarget{output}{%
-\paragraph{Output}\label{output}}
-
+\subsection{Output}
 \begin{itemize}
 \tightlist
 \item
   Three frames \(a\), \(b\) and \(c\).
 \end{itemize}
 
-\hypertarget{algorithm}{%
-\paragraph{Algorithm}\label{algorithm}}
-
+\subsection{Algorithm}
 \begin{figure}
 \centering
 \includegraphics{backward.png}
 \caption{MCDWT}
 \end{figure}
 
-    \hypertarget{example-continuation-only-one-butterfly}{%
-\subsection{Example continuation (only one
-butterfly)}\label{example-continuation-only-one-butterfly}}
-
+\subsection{Example continuation (only one butterfly)}
 Lets restore the structure for the three transformed images of
 Section \ref{another_example}.
 
-\hypertarget{zoom-in-l-subbands}{%
-\subsubsection{\texorpdfstring{Zoom-in \(L\)
-subbands}{Zoom-in L subbands}}\label{zoom-in-l-subbands}}
-
+\subsubsection{Zoom-in \(L\) subbands}
 \begin{equation}
   [A.L^2] = \text{iDWT}(A.L^2, 0)\\
   [B.L^2] = \text{iDWT}(B.L^2, 0)\\
   [C.L^2] = \text{iDWT}(C.L^2, 0)
 \end{equation}
 
-\hypertarget{merge-and-zoom-in-h-subbands}{%
-\subsubsection{\texorpdfstring{Merge (and zoom-in) \(H\)
-subbands}{Merge (and zoom-in) H subbands}}\label{merge-and-zoom-in-h-subbands}}
-
+\subsubsection{Merge (and zoom-in) \(H\) subbands}
 \begin{equation}
   [A.H^2] = \text{iDWT}(0, A.H^2)\\
   [\tilde{B}.H^2] = \text{iDWT}(0, \tilde{B}.H^2)\\
   [C.H^2] = \text{iDWT}(0, C.H^2)
 \end{equation}
 
-\hypertarget{generate-a-prediction-hatb.h2}{%
-\subsubsection{\texorpdfstring{Generate a prediction
-\([\hat{B}.H^2]\)}{Generate a prediction {[}\textbackslash{}hat\{B\}.H\^{}2{]}}}\label{generate-a-prediction-hatb.h2}}
-
+\subsubsection{Generate a prediction \([\hat{B}.H^2]\)}
 Identical to the prediction step performed at the forward transform.
 
-\hypertarget{restore-the-original-subband-b.h2}{%
-\subsubsection{\texorpdfstring{Restore the original subband
-\([B.H^2]\)}{Restore the original subband {[}B.H\^{}2{]}}}\label{restore-the-original-subband-b.h2}}
-
+\subsubsection{Restore the original subband \([B.H^2]\)}
 \begin{equation}
   [B.H^2] = [\hat{B}.H^2] + [\tilde{B}.H^2]
 \end{equation}
 
-\hypertarget{compute-l-subbands}{%
-\subsubsection{\texorpdfstring{Compute \(L\)
-subbands}{Compute L subbands}}\label{compute-l-subbands}}
-
+\subsubsection{Compute \(L\) subbands}
 \begin{equation}
   A.L = [A.L^2] + [A.H^2]\\
   B.L = [B.L^2] + [B.H^2]\\
   C.L = [C.L^2] + [C.H^2]
 \end{equation}
 
-    \hypertarget{k-levels-forward-mcdwt}{%
-\subsection{\texorpdfstring{\(K\)-levels (forward)
-MCDWT}{K-levels (forward) MCDWT}}\label{k-levels-forward-mcdwt}}
-
-    \hypertarget{mcdwt-input}{%
-\paragraph{MCDWT input}\label{mcdwt-input}}
-
+\subsection{\(K\)-levels (forward) MCDWT}
+\subsubsection{Input}
 \begin{itemize}
 \tightlist
 \item
   A sequence \(s\) of \(N\) images.
 \end{itemize}
 
-\hypertarget{mcdwt-output}{%
-\paragraph{MCDWT output}\label{mcdwt-output}}
-
+\subsubsection{Output}
 \begin{itemize}
 \tightlist
 \item
@@ -512,16 +375,10 @@ MCDWT}{K-levels (forward) MCDWT}}\label{k-levels-forward-mcdwt}}
   sequence of \(N/2^K\) (wavelet) pyramids.
 \end{itemize}
 
-\hypertarget{algorithm}{%
-\paragraph{Algorithm}\label{algorithm}}
+\subsubsection{Algorithm}
 
-    \hypertarget{data-extraction-examples}{%
-\subsubsection{Data extraction
-examples}\label{data-extraction-examples}}
-
-    \hypertarget{temporal-scalability}{%
-\paragraph{Temporal scalability}\label{temporal-scalability}}
-
+\subsubsection{Data extraction examples}
+\paragraph{Temporal scalability}
 \begin{itemize}
 \item
   Scale 2:
@@ -536,9 +393,7 @@ examples}\label{data-extraction-examples}}
   \$
 \end{itemize}
 
-    \hypertarget{spatial-scalability}{%
-\paragraph{Spatial scalability}\label{spatial-scalability}}
-
+\paragraph{Spatial scalability}
 \begin{itemize}
 \item
   Scale 2:
@@ -634,17 +489,13 @@ Repeat the previous computations.
 
 Repeat the previous computations, placing 0's in the H subbands.
 
-\hypertarget{temporal-scalability}{%
-\subsection{Temporal scalability}\label{temporal-scalability}}
-
+\section{Temporal scalability}
 Provided by the pruned execution of iMCDWT. Depending on the index of
 the image to render, a number of images, that ranges between
 :math:\texttt{1} (the best case) and :math:\texttt{1+l} (the worst
 case), are decoded.
 
-\hypertarget{quality-scalability}{%
-\subsection{Quality scalability}\label{quality-scalability}}
-
+\section{Quality scalability}
 Provided by partially reconstructing a set of coefficients selected by
 their contribution to the minimization of the distortion.
 
@@ -691,12 +542,8 @@ For example, if \texttt{l=2} and \texttt{n=5}:
 (X --> Y) = X depends on Y (X has been encoded using Y)
 \end{verbatim}
 
-    \hypertarget{a-implementation}{%
-\subsection{A implementation}\label{a-implementation}}
-
-\hypertarget{forward-mcdwt}{%
-\subsubsection{Forward MCDWT}\label{forward-mcdwt}}
-
+\subsection{A implementation}
+\subsubsection{Forward MCDWT}
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{n }\OperatorTok{=} \DecValTok{5} \CommentTok{# Number of frames of the video}
