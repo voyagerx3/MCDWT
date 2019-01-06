@@ -3,115 +3,1186 @@
 %%% TeX-master: "<none>"
 %%% End:
 
-\title{LZW}
+\title{Motion Compensated Discrete Wavelet Transform
+(MCDWT)}
 
 \author{Vicente González Ruiz}
 
 \maketitle
+\section{}\label{motion-compensated-discrete-wavelet-transform-mcdwt}}
 
-\section{Basics}
+MCDWT is a multiresolution
+\href{https://en.wikipedia.org/wiki/Video}{video} transform. The input
+sequence of \href{https://en.wikipedia.org/wiki/Pixel}{pixels} are
+\href{https://en.wikipedia.org/wiki/Decorrelation}{decorrelated} in the
+\href{https://en.wikipedia.org/wiki/Time_domain}{time} and in the
+\href{https://www.quora.com/What-is-spatial-domain-in-image-processing}{spatial}
+domains. The output sequence of
+\href{https://www.quora.com/What-is-spatial-domain-in-image-processing}{coefficients}
+have a smaller \href{https://en.wikipedia.org/wiki/Entropy}{entropy}
+than the original pixels, and the information is represented by temporal
+and spatial
+\href{https://en.wikipedia.org/wiki/Image_resolution}{resolution
+levels}.
 
 \begin{itemize}
 \item
-  In 1984, Terry A. Welch proposed the
-  \href{https://en.wikipedia.org/wiki/Lempel\%E2\%80\%93Ziv\%E2\%80\%93Welch}{LZW
-    algorithm}~\cite{welch1984technique}, an improved version of the
-  LZ78 algorithm that does not writes raw symbols (\(k\) fields) to
-  the code-stream.
+  In MCDWT (and in general, in video coding) temporal decorrelation is
+  provided by
+  \href{https://en.wikipedia.org/wiki/Motion_compensation}{MC (Motion
+  Compensation)}, where the
+  \href{https://en.wikipedia.org/wiki/Decoder}{prediction images} are
+  generated with an algorithm that uses only the information available
+  at the \href{https://en.wikipedia.org/wiki/Decoder}{decoder}.
 \item
-  LZW was selected as the encoding engine for the
-  \href{https://en.wikipedia.org/wiki/GIF}{GIF (Graphics Interchange
-  Format)}, and for the compressor
-  \href{https://en.wikipedia.org/wiki/Compress}{\texttt{compress}}.
-\item
-  Initially, the dictionary is filled with the \(2^k\) possible symbols
-  (\emph{roots}), that are stored in the first entries (for 1-byte
-  symbols: \(0\cdots255\)).
+  Spatial decorrelation is performed by the
+  \href{https://en.wikipedia.org/wiki/Digital_filter\#Analysis_techniques}{analysis
+  filtering} used in the
+  \href{https://en.wikipedia.org/wiki/Discrete_wavelet_transform}{2D-DWT}.
 \end{itemize}
 
-\section{Encoder}
+    \hypertarget{video-scalability}{%
+\subsection{\texorpdfstring{1. Video
+\href{http://inst.eecs.berkeley.edu/~ee290t/sp04/lectures/videowavelet_UCB1-3.pdf}{scalability}}{1. Video scalability}}\label{video-scalability}}
 
-\begin{enumerate}
+MCDWT inputs a \href{https://en.wikipedia.org/wiki/Video}{video} and
+outputs a video, in a way that when only a portion of the data of the
+transformed video is used, a video with a lower
+\href{https://en.wikipedia.org/wiki/Temporal_resolution}{temporal
+resolution}, lower
+\href{https://en.wikipedia.org/wiki/Image_resolution\#Spatial_resolution}{spatial
+resolution} or/and lower
+\href{https://en.wikipedia.org/wiki/Compression_artifact}{quality} can
+be generated.
+
+If all the transformed data is used, then the original video is restored
+(MCDWT is a lossless transform). The forward transform's output has
+exactly the same number of elements than the input video (for example,
+no extra motion fields are produced). At this time, we will focuse only
+on spatial
+\href{http://inst.eecs.berkeley.edu/~ee290t/sp04/lectures/videowavelet_UCB1-3.pdf}{scalability}.
+Other types of scabilities will be addressed later.
+
+    \hypertarget{video-transformation-alternatives}{%
+\subsection{2. Video transformation
+alternatives}\label{video-transformation-alternatives}}
+
+To obtain a multiresolution version or a video, the
+\href{https://en.wikipedia.org/wiki/Discrete_wavelet_transform}{DWT}
+(Discrete Wavelet Transform) can be applied along temporal (t) and
+spatial domains (2D). At this point, two different alternatives are
+available: (1) a t+2D transform or (2) a 2D+t transform. In a t+2D
+transform, the video is first analyzed over the time domain and next,
+over the space domain. A 2D+t transform does just the opposite.
+
+Each choice has a number of \emph{pros} and \emph{cons}. For example, in
+a t+2D transform we can apply directly any image predictor based on
+motion estimation because the input is a normal video. However, if we
+implement a 2D+t transform, the input to the motion estimator is a
+sequence of images in the DWT domain.
+\href{http://www.polyvalens.com/blog/wavelets/theory}{The overwhelming
+majority of DWT's} are not
+\href{http://www.polyvalens.com/blog/wavelets/theory}{shift invariant},
+which basically means \(\text{DWT}(s[t]) \neq \text{DWT}(s[t+x])\),
+where \(x\) is a displacement of \(s[t]\) along the time domain.
+Therefore, motion estimators which compare pixel values will not work on
+the DWT domain. On the other hand, if we want to provide true spatial
+scalability (processing only those spatial resolutions (scales)
+necessary to get a spatially scaled of our video), a t+2D transformed
+video is not suitable because the first step of the forward transform
+(t) should be reversed at full resolution in the backward transform (as
+the forward transform did).
+
+    \hypertarget{wavelet-and-pyramid-domains}{%
+\subsection{3. Wavelet and pyramid
+domains}\label{wavelet-and-pyramid-domains}}
+
+Indeed, the DWT allows to get a scalable representation of a image, and
+by extension of a video, when we apply the DWT on all the images of the
+video. However, this can be also done with
+\href{https://en.wikipedia.org/wiki/Pyramid_(image_processing)}{Gaussian
+and Laplacian pyramids}. Image pyramids are interesting because they are
+shift invariant and therefore, one can operate within the scales as they
+are \emph{normal} images. Unfortunately, as a consecuence of pyramids
+representations are not critically sampled, they need more picture
+elements than in
+\href{http://www.vtvt.ece.vt.edu/research/references/video/DCT_Video_Compression/Zhang92a.pdf}{wavelet
+pyramids}, and this is a serious drawback when compressing. Luckily, it
+is very fast to convert a Laplacian pyramid representation into it DWT
+equivalent representation, and viceversa. For this reason, even if we
+use wavelet pyramids in our images, we can suppose at any moment that we
+are working with the Laplacian pyramid of those images.
+
+    \hypertarget{the--levels-2d-discrete-wavelet-transform-2d-dwt-of-a-video}{%
+\subsection{\texorpdfstring{4. The \texttt{K}-levels 2D Discrete Wavelet
+Transform (2D-DWT) of a
+video}{4. The -levels 2D Discrete Wavelet Transform (2D-DWT) of a video}}\label{the--levels-2d-discrete-wavelet-transform-2d-dwt-of-a-video}}
+
+As said before, a
+\href{https://en.wikipedia.org/wiki/Discrete_wavelet_transform}{2D-DWT}
+(2 Dimensions - Discrete Wavelet Transform) generates a scalable
+representation of an image and by extension, of a video if we apply the
+DWT to all the images of the video. This is done, for example, in the
+\href{https://en.wikipedia.org/wiki/JPEG_2000}{motion JPEG2000 video
+compression standard}. Notice that only the spatial redundancy is
+exploited. All the temporal redundancy is still in the video.
+
+    \hypertarget{input}{%
+\subsubsection{Input}\label{input}}
+
+A sequence \(s\) of \(N\) images:
+
+\begin{verbatim}
+                                                      x 
++---------------+  +---------------+     +---------------+
+|               |  |               |     |            |  |
+|               |  |               |   y |----------- o <---- s[N-1][y][x]
+|               |  |               | ... |               |
+|               |  |               |     |               |
+|               |  |               |     |               |
+|               |  |               |     |               |
++---------------+  +---------------+     +---------------+
+      s[0]               s[1]                 s[N-1]
+\end{verbatim}
+
+\hypertarget{output}{%
+\subsubsection{Output}\label{output}}
+
+A sequence \(S\) of \(N\) pyramids. For example, a (\(K=2\))-levels, the
+2D-DWT looks like:
+
+\begin{verbatim}
++---+---+-------+  +---+---+-------+     +---+---+-------+
+|LL2|HL2|       |  |   |   |       |     |   |   |       |
++---+---+  HL1  |  +---+---+       |     +---+---+       |
+|LH2|HH2|       |  |   |   |       |     |   |   |       |
++---+---+-------+  +---+---+-------+ ... +---+---+-------+
+|       |       |  |       |       |     |       |       |
+|  LH1  |  HH1  |  |       |       |     |       |       |
+|       |       |  |       |       |     |       |       |        
++-------+-------+  +-------+-------+     +-------+-------+
+      S[0]               S[1]                  S[N-1]
+\end{verbatim}
+
+where \(L\) and \(H\) stands for \emph{low-pass filtered} and
+\emph{high-pass filtered}, respectively. The integer \textgreater{} 1
+that follows these letters represents the subband level. For the sake of
+simplicity, we will denote the subbands \(\{LH^k, HL^k, HH^k\}\) as only
+\(H^k\), and \(LL^k\) as only \(L^k\).
+
+    \hypertarget{algorithm}{%
+\subsubsection{Algorithm}\label{algorithm}}
+
+\lstinputlisting[language=python]{src/sequence/2D_DWT.py}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ sequence_2D_DWT(s, K):}
+    \ControlFlowTok{for}\NormalTok{ image }\KeywordTok{in}\NormalTok{ s:}
+\NormalTok{        _2D_DWT(image, K) }\CommentTok{# In-place computation}
+    \ControlFlowTok{return}\NormalTok{ s}
+    
+\NormalTok{S }\OperatorTok{=}\NormalTok{ sequence_2D_DWT(s, K)}
+\end{Highlighting}
+\end{Shaded}
+
+    \hypertarget{inverse-algorithm}{%
+\subsubsection{Inverse algorithm}\label{inverse-algorithm}}
+
+\lstinputlisting[language=python]{src/sequence/2D_iDWT.py}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ sequence_2D_iDWT(S, K):}
+    \ControlFlowTok{for}\NormalTok{ pyramid }\KeywordTok{in}\NormalTok{ S:}
+\NormalTok{        _2D_iDWT(pyramid, K) }\CommentTok{# In-place computation}
+    \ControlFlowTok{return}\NormalTok{ S}
+    
+\NormalTok{s }\OperatorTok{=}\NormalTok{ sequence_2D_iDWT(S, K)}
+\end{Highlighting}
+\end{Shaded}
+
+    \hypertarget{scalability}{%
+\subsubsection{Scalability}\label{scalability}}
+
+The 2D-DWT applied to a video produces a scalable representation in the
+space (we can extract different videos with different spatial scales or
+resolutions), in the time (we can extract diferent videos with different
+number of frames), and in quality (we can get the DWT coefficients with
+different quantization steps to reconstruct videos of different
+quality). In the last example, subbands
+\(\{S_0.LL^2, S_1.LL^2, ..., S_{N-1}.LL^2\}\) represent the scale
+(number) 2 of the original video (the spatial resolution of this is the
+resolution of \(s\) divided by 4 in each spatial dimension).
+
+For example, to reconstruct the scale 1 (which is provided by the
+subbands \(\{LL^2, LH^2, HL^2, HH^2\}\)), we must apply the 2D-iDWT
+(1-levels 2D inverse DWT).
+
+    \hypertarget{implementation-of-2d-dwt-and-2d-idwt}{%
+\subsubsection{Implementation of 2D-DWT and
+2D-iDWT}\label{implementation-of-2d-dwt-and-2d-idwt}}
+
+See for example,
+\href{https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html\#d-multilevel-decomposition-using-wavedec2}{pywt.wavedec2()}
+at
+\href{https://pywavelets.readthedocs.io/en/latest/index.html}{PyWavelets}.
+
+    \hypertarget{redundancy-and-compression}{%
+\subsection{5. Redundancy and
+compression}\label{redundancy-and-compression}}
+
+The 2D-DWT incorporates to \texttt{S} an interesting feature: usually,
+\texttt{H} subbands has a lower entropy than \texttt{s}. This means that
+if we apply to \texttt{S} an entropy encoder, we can get a shorter
+representation of the video than if we encode \texttt{s} directly. This
+is a consequence of that 2D-DWT removes (most of) the spatial redudancy
+of the images of the video (neighboring pixels tend to have similar
+values and their substraction tends to produce zeros).
+
+    \hypertarget{why-motion-compensated-dwt-mcdwt}{%
+\subsection{6. Why Motion Compensated DWT
+(MCDWT)?}\label{why-motion-compensated-dwt-mcdwt}}
+
+As we have said, the 2D-DWT does not exploit the temporal redundancy of
+a video. Consequently, we can achieve higher compression ratios (in
+addition to the 2D-DWT) if we apply a 1D-DWT along the temporal domain.
+This is exactly what MCDWT does. However, due to the temporal redundancy
+is generated mainly by the presence of objects in the scene of the video
+which are moving with respect to the camera, some sort of motion
+compensation should be used before substacting the prediction images to
+the original ones.
+
+    \hypertarget{forward-direct-mcdwt-1-levels-butterfly}{%
+\subsection{7. Forward (direct) MCDWT (1-levels)
+butterfly}\label{forward-direct-mcdwt-1-levels-butterfly}}
+
+MCDWT is based on the idea that, to provide MC without transmitting the
+motio information from the encoder to the decoder, the motion
+information is computed at both ends, using the information that is
+available at the decoder.
+
+\hypertarget{input}{%
+\subsubsection{Input}\label{input}}
+
+Three frames of \(s\): \(a\), \(b\) and \(c\).
+
+\hypertarget{output}{%
+\subsubsection{Output}\label{output}}
+
+Three frames \(A=\{A.L, A.H\}\) (intra-coded),
+\(B=\{B.L, \tilde{B}.H\}\) (bidirectionally predicted) and
+\(C=\{C.L, C.H\}\) (intra-coded).
+
+\hypertarget{algorithm}{%
+\subsubsection{Algorithm}\label{algorithm}}
+
+\begin{figure}
+\centering
+\includegraphics{forward.png}
+\caption{MCDWT}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{A.L, A.H }\OperatorTok{=}\NormalTok{ 2D_DWT(a)}
+\NormalTok{B.L, B.H }\OperatorTok{=}\NormalTok{ 2D_DWT(b)}
+\NormalTok{C.L, C.H }\OperatorTok{=}\NormalTok{ 2D_DWT(c)}
+\NormalTok{[A.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(A.L,}\DecValTok{0}\NormalTok{) }\CommentTok{# Interpolate low-freqs}
+\NormalTok{[A.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{,A.H) }\CommentTok{# Interpolate high-freqs}
+\NormalTok{[B.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(B.L,}\DecValTok{0}\NormalTok{)}
+\NormalTok{[B.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{,B.H)}
+\NormalTok{[C.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(C.L,}\DecValTok{0}\NormalTok{)}
+\NormalTok{[C.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{,C.H)}
+\NormalTok{[B.L]}\OperatorTok{->}\NormalTok{[A.L] }\OperatorTok{=}\NormalTok{ ME([B.L], [A.L]) }\CommentTok{# Motion estimation}
+\NormalTok{[B_A.H] }\OperatorTok{=}\NormalTok{ MC([A.H], [B.L]}\OperatorTok{->}\NormalTok{[A.L]) }\CommentTok{# Project [A.H] using [B.L]->[A.L]}
+\NormalTok{[B.L]}\OperatorTok{->}\NormalTok{[C.L] }\OperatorTok{=}\NormalTok{ ME([B.L], [C.L])}
+\NormalTok{[B_C.H] }\OperatorTok{=}\NormalTok{ MC([C.H], [B.L]}\OperatorTok{->}\NormalTok{[C.L])}
+\NormalTok{[}\OperatorTok{~}\NormalTok{B.H] }\OperatorTok{=}\NormalTok{ [B.H] }\OperatorTok{-}\NormalTok{ [B_A.H]}\OperatorTok{/}\DecValTok{2} \OperatorTok{+}\NormalTok{ [B_C.H]}\OperatorTok{/}\DecValTok{2}
+\OperatorTok{~}\NormalTok{B.H }\OperatorTok{=}\NormalTok{ 2D_DWT([}\OperatorTok{~}\NormalTok{B.H])}
+\NormalTok{A }\OperatorTok{=}\NormalTok{ A.L, A.H}
+\NormalTok{B }\OperatorTok{=}\NormalTok{ B.L, }\OperatorTok{~}\NormalTok{B.H}
+\NormalTok{C }\OperatorTok{=}\NormalTok{ C.L, C.H}
+\end{Highlighting}
+\end{Shaded}
+
+Notice that, even if \(a\) and \(c\) (at full resolution) are available
+at the decoder, only \(B.L\) is. So, does not make sense to search the
+low resolution structures of \(B.L\) in the high resolution images \(a\)
+and \(c\), because even if a perfect match is achieved, the prediction
+error would be different than \(0\) as a consequence of the high
+resolution information is missing in \(B.L\).
+
+    \#\# Another example (only butterfly)
+
+Lets suppose that we have procesed the sequence of images one step and a
+second one is performed on the output of this first step. At this
+moment, the structure of the images would be:
+
+\hypertarget{analyze-the-input-images}{%
+\subsubsection{Analyze the input
+images}\label{analyze-the-input-images}}
+
+\begin{equation}
+  \{A.L^2, A.H^2\} = \text{DWT}(A.L)\\
+  \{B.L^2, B.H^2\} = \text{DWT}(B.L)\\
+  \{C.L^2, C.H^2\} = \text{DWT}(C.L)
+\end{equation}
+
+\hypertarget{zoom-in-l-subbands}{%
+\subsubsection{\texorpdfstring{Zoom-in \(L\)
+subbands}{Zoom-in L subbands}}\label{zoom-in-l-subbands}}
+
+\begin{equation}
+  [A.L^2] = \text{iDWT}(A.L^2, 0)\\
+  [B.L^2] = \text{iDWT}(B.L^2, 0)\\
+  [C.L^2] = \text{iDWT}(C.L^2, 0)
+\end{equation}
+
+\hypertarget{merge-and-zoom-in-h-subbands}{%
+\subsubsection{\texorpdfstring{Merge and zoom-in \(H\)
+subbands}{Merge and zoom-in H subbands}}\label{merge-and-zoom-in-h-subbands}}
+
+\begin{equation}
+  [A.H^2] = \text{iDWT}(0, A.H^2)\\
+  [B.H^2] = \text{iDWT}(0, B.H^2)\\
+  [C.H^2] = \text{iDWT}(0, C.H^2)
+\end{equation}
+
+\hypertarget{generate-a-prediction-hatb.h2}{%
+\subsubsection{\texorpdfstring{Generate a prediction
+\([\hat{B}.H^2]\)¡}{Generate a prediction {[}\textbackslash{}hat\{B\}.H\^{}2{]}¡}}\label{generate-a-prediction-hatb.h2}}
+
+\begin{equation}
+  [B_A.H^2] = [A.H^2]\overset{[A.L^2]\rightarrow[B.L^2]}{\longrightarrow}[B.H^2]\\
+  [B_C.H^2] = [C.H^2]\overset{[C.L^2]\rightarrow[B.L^2]}{\longrightarrow}[B.H^2]\\  
+\end{equation}
+
+Note: predictions do not need to be exhaustive. Depending on the quality
+of the predictions for \([B.L^2]\):
+
+\begin{equation}
+  [B_A.L^2] = [A.L^2]\overset{[A.L^2]\rightarrow[B.L^2]}{\longrightarrow}[B.L^2]\\
+  [B_C.L^2] = [C.L^2]\overset{[C.L^2]\rightarrow[B.L^2]}{\longrightarrow}[B.L^2],\\  
+\end{equation}
+
+comparing \([B_A.L^2]\) and \([B_C.L^2]\) with \([B.L^2]\). In fact,
+\([B_A.H^2]\) and \([B_C.H^2]\) could have ``holes'' (regions to 0,
+supposing that the pixels are positive), producing a parcial prediction
+\([\hat{B}.H^2]\) for \([B.H^2]\). In the simplest case
+
+\begin{equation}
+  [\hat{B}.H^2] = \frac{[B_A.H^2] + [B_C.H^2]}{2}.
+\end{equation}
+
+Finally, (as in the forward transform) the prediction should take into
+cosideration how to minimize the energy of the residue
+
+\begin{equation}
+  [\tilde{B}.L^2] = [B.L^2] - [\hat{B}.L^2].
+\end{equation}
+
+\hypertarget{compute-the-residue-tildeb.h2}{%
+\subsubsection{\texorpdfstring{Compute the residue
+\([\tilde{B}.H^2]\)}{Compute the residue {[}\textbackslash{}tilde\{B\}.H\^{}2{]}}}\label{compute-the-residue-tildeb.h2}}
+
+\begin{equation}
+  [\tilde{B}.H^2] = [B.H^2] - [\hat{B}.H^2]
+\end{equation}
+
+\hypertarget{unmerge-tildeb.h2-subbands}{%
+\subsubsection{\texorpdfstring{Unmerge \(\tilde{B}.H^2\)
+subbands}{Unmerge \textbackslash{}tilde\{B\}.H\^{}2 subbands}}\label{unmerge-tildeb.h2-subbands}}
+
+\begin{equation}
+  \tilde{B}.H^2 = \text{DWT}(0, [\tilde{B}.H^2])
+\end{equation}
+
+\hypertarget{compose-the-residue-in-the-wavelet-domain}{%
+\subsubsection{Compose the residue in the wavelet
+domain}\label{compose-the-residue-in-the-wavelet-domain}}
+
+\begin{equation}
+   \{B.L^2, \tilde{B}.H^2\}
+\end{equation}
+
+    \hypertarget{backward-inverse-mcdwt-butterfly}{%
+\subsection{8. Backward (inverse) MCDWT
+butterfly}\label{backward-inverse-mcdwt-butterfly}}
+
+\hypertarget{input}{%
+\paragraph{Input}\label{input}}
+
+\begin{itemize}
 \tightlist
 \item
-  \(w\leftarrow\) first input symbol.
-\item
-  While the input is not exhausted:
-  \begin{enumerate}
-  \tightlist
-  \item
-    \(k\leftarrow\) next input symbol.
-  \item
-    If \(wk\) is found in the dictionary, then:
-    \begin{enumerate}
-    \tightlist
-    \item
-      \(w\leftarrow\) address of \(wk\) in the dictionary.
-    \end{enumerate}
-  \item
-    Else:
-    \begin{enumerate}
-    \tightlist
-    \item
-      Output \(\leftarrow w\).
-    \item
-      Insert \(wk\) in the dictionary.
-    \item
-      \(w\leftarrow k\).
-    \end{enumerate}
-  \end{enumerate}
-\end{enumerate}
+  Three frames \(A=\{A.L, A.H\}\), \(B=\{B.L, \tilde{B}.H\}\), and
+  \(C=\{C.L, C.H\}\).
+\end{itemize}
 
-\section{Example}
-\img{400}{graphics/LZW_encoding_example.png}
+\hypertarget{output}{%
+\paragraph{Output}\label{output}}
 
-\section{Decoder}
-
-\begin{enumerate}
+\begin{itemize}
 \tightlist
 \item
-  \(c\leftarrow\) first input code-word.
+  Three frames \(a\), \(b\) and \(c\).
+\end{itemize}
+
+\hypertarget{algorithm}{%
+\paragraph{Algorithm}\label{algorithm}}
+
+\begin{figure}
+\centering
+\includegraphics{backward.png}
+\caption{MCDWT}
+\end{figure}
+
+    \hypertarget{example-continuation-only-one-butterfly}{%
+\subsection{Example continuation (only one
+butterfly)}\label{example-continuation-only-one-butterfly}}
+
+Lets restore the structure for the three transformed images of
+Section \ref{another_example}.
+
+\hypertarget{zoom-in-l-subbands}{%
+\subsubsection{\texorpdfstring{Zoom-in \(L\)
+subbands}{Zoom-in L subbands}}\label{zoom-in-l-subbands}}
+
+\begin{equation}
+  [A.L^2] = \text{iDWT}(A.L^2, 0)\\
+  [B.L^2] = \text{iDWT}(B.L^2, 0)\\
+  [C.L^2] = \text{iDWT}(C.L^2, 0)
+\end{equation}
+
+\hypertarget{merge-and-zoom-in-h-subbands}{%
+\subsubsection{\texorpdfstring{Merge (and zoom-in) \(H\)
+subbands}{Merge (and zoom-in) H subbands}}\label{merge-and-zoom-in-h-subbands}}
+
+\begin{equation}
+  [A.H^2] = \text{iDWT}(0, A.H^2)\\
+  [\tilde{B}.H^2] = \text{iDWT}(0, \tilde{B}.H^2)\\
+  [C.H^2] = \text{iDWT}(0, C.H^2)
+\end{equation}
+
+\hypertarget{generate-a-prediction-hatb.h2}{%
+\subsubsection{\texorpdfstring{Generate a prediction
+\([\hat{B}.H^2]\)}{Generate a prediction {[}\textbackslash{}hat\{B\}.H\^{}2{]}}}\label{generate-a-prediction-hatb.h2}}
+
+Identical to the prediction step performed at the forward transform.
+
+\hypertarget{restore-the-original-subband-b.h2}{%
+\subsubsection{\texorpdfstring{Restore the original subband
+\([B.H^2]\)}{Restore the original subband {[}B.H\^{}2{]}}}\label{restore-the-original-subband-b.h2}}
+
+\begin{equation}
+  [B.H^2] = [\hat{B}.H^2] + [\tilde{B}.H^2]
+\end{equation}
+
+\hypertarget{compute-l-subbands}{%
+\subsubsection{\texorpdfstring{Compute \(L\)
+subbands}{Compute L subbands}}\label{compute-l-subbands}}
+
+\begin{equation}
+  A.L = [A.L^2] + [A.H^2]\\
+  B.L = [B.L^2] + [B.H^2]\\
+  C.L = [C.L^2] + [C.H^2]
+\end{equation}
+
+    \hypertarget{k-levels-forward-mcdwt}{%
+\subsection{\texorpdfstring{\(K\)-levels (forward)
+MCDWT}{K-levels (forward) MCDWT}}\label{k-levels-forward-mcdwt}}
+
+    \hypertarget{mcdwt-input}{%
+\paragraph{MCDWT input}\label{mcdwt-input}}
+
+\begin{itemize}
+\tightlist
 \item
-  Output \(c\).
+  A sequence \(s\) of \(N\) images.
+\end{itemize}
+
+\hypertarget{mcdwt-output}{%
+\paragraph{MCDWT output}\label{mcdwt-output}}
+
+\begin{itemize}
+\tightlist
 \item
-  \(c'\leftarrow c\).
+  A sequence of \(K+1\) temporal subbands, where each subband is a
+  sequence of \(N/2^K\) (wavelet) pyramids.
+\end{itemize}
+
+\hypertarget{algorithm}{%
+\paragraph{Algorithm}\label{algorithm}}
+
+    \hypertarget{data-extraction-examples}{%
+\subsubsection{Data extraction
+examples}\label{data-extraction-examples}}
+
+    \hypertarget{temporal-scalability}{%
+\paragraph{Temporal scalability}\label{temporal-scalability}}
+
+\begin{itemize}
 \item
-  While the input is not exhausted:
-  \begin{enumerate}
-  \tightlist
-  \item
-    \(c\leftarrow\) next input code-word.
-  \item
-    \(w\leftarrow c'\).
-  \item
-    If \(c\) is found in the dictionary, then:
-    \begin{enumerate}
-    \tightlist
-    \item
-      Output string\((c)\).
-    \end{enumerate}
-  \item
-    Else:
-    \begin{enumerate}
-    \tightlist
-    \item
-      Output string\((w)\).
-    \item
-      Output \(k\).
-    \end{enumerate}
-  \item
-    \(k\leftarrow\) first symbol of the last output.
-  \item
-    Insert \(wk\) in the dictionary.
-  \item
-    \(c'\leftarrow c\).
-  \end{enumerate}
+  Scale 2:
+
+  \$ s\_0.L\^{}0 = \text{DWT}\^{}\{-2\}(S\_0) =
+  \text{DWT}\textsuperscript{\{-1\}(\text{DWT}}\{-1\}(s\_0.L\^{}2,
+  s\_0.H\^{}2), s\_0.H\textsuperscript{1),\textbackslash{} s\_4.L}0 =
+  \text{DWT}\textsuperscript{\{-2\}(S\_4),\textbackslash{} s\_2.L}0 =
+  \text{MCDWT}\^{}\{-2\}(S\_0, S\_2, S\_4) = (s\_2.L\^{}1 =
+  \text{MCDWT}\textsuperscript{\{-1\}(\{s\_0.L}2,s\_0.H\^{}2\},
+  \{s\_4.L\^{}2, s\_4.H\^{}2\}, \{s\_2.L\^{}2, \tilde{s}\_2.H\^{}2\}))
+  \$
+\end{itemize}
+
+    \hypertarget{spatial-scalability}{%
+\paragraph{Spatial scalability}\label{spatial-scalability}}
+
+\begin{itemize}
+\item
+  Scale 2:
+
+  \$ s\_0.L\^{}2, s\_1.L\^{}2, s\_2.L\^{}2, s\_3.L\^{}2, s\_3.L\^{}2. \$
+\item
+  Scale 1:
+
+  \$ s\_0.L\^{}1 = DWT\textsuperscript{\{-1\}(s\_0.L}2, s\_0,H\^{}2),
+  \textbackslash{} s\_4.L\^{}1 = DWT\textsuperscript{\{-1\}(s\_4.L}2,
+  s\_4.H\^{}2), \textbackslash{} s\_2.L\^{}1 =
+  MCDWT\textsuperscript{\{-1\}(s\_0.L}1, s\_2.L\^{}2, s\_4.L\^{}1),
+  \textbackslash{} s\_1.L\^{}1 = MCDWT\textsuperscript{\{-1\}(s\_0.L}1,
+  s\_1.L\^{}2, s\_2.L\^{}1), \textbackslash{} s\_3.L\^{}1 =
+  MCDWT\textsuperscript{\{-1\}(s\_2.L}1, s\_3.L\^{}2, s\_4.L\^{}1). \$
+\item
+  Scale 0:
+
+  \$ s\_0.L\^{}0 = DWT\textsuperscript{\{-1\}(s\_0.L}1,
+  s\_0.H\textsuperscript{1),\textbackslash{} s\_4.L}0 =
+  DWT\textsuperscript{\{-1\}(s\_4.L}1, s\_4.H`1),\textbackslash{}
+  s\_2.L\^{}0 = MCDWT\textsuperscript{\{-1\}(s\_0.L}0, s\_2.L\^{}1,
+  s\_4.L\textsuperscript{0),\textbackslash{} s\_1.L}0 =
+  MCDWT\textsuperscript{\{-1\}(s\_0.L}0, s\_1.L\^{}1,
+  s\_2.L\textsuperscript{0),\textbackslash{} s\_3.L}0 =
+  MCDWT\textsuperscript{\{-1\}(s\_2.L}0, s\_3.L\^{}2, s\_4.L\^{}0). \$
+\end{itemize}
+
+    Provided by the execution of iMCDWT.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Scale 2:
 \end{enumerate}
 
-\section{Example}
-\img{600}{graphics/LZW_decoding_example.png}
+Provided by subbands \texttt{L} of the pyramids. We don't need to carry
+out any computation.
 
-\section{Lab: LZW}
-\href{https://nbviewer.jupyter.org/github/vicente-gonzalez-ruiz/LZW/blob/master/LZW.ipynb}{IPython notebook}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Scale 1:
+\end{enumerate}
 
-\bibliography{text-compression}
+Rendered after running iMCDWT one iteration. For 3 pyramids
+\texttt{A=\{A.L,A.H\}}, \texttt{B=\{B.L,\textasciitilde{}B.H\}} and
+\texttt{C=\{C.L,C.H\}} where the subband \texttt{L} is the scale 2, the
+scale 1 is recostructed by (see Algorithm iMCDWT\_step):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{  x }\OperatorTok{=} \DecValTok{2}\OperatorTok{**}\DecValTok{2} \OperatorTok{=} \DecValTok{4}
+\NormalTok{  [A.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(A.L,}\DecValTok{0}\NormalTok{)}\OperatorTok{;}                              \OperatorTok{>}\NormalTok{ Interpolate low}\OperatorTok{-}\NormalTok{freqs A.L of V[}\DecValTok{0}\NormalTok{]}
+\NormalTok{  [A.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{,A.H)}\OperatorTok{;}                              \OperatorTok{>}\NormalTok{ Interpolate high}\OperatorTok{-}\NormalTok{freqs A.H of V[}\DecValTok{0}\NormalTok{]}
+\NormalTok{  V[}\DecValTok{0}\NormalTok{] }\OperatorTok{=}\NormalTok{ [A.L] }\OperatorTok{+}\NormalTok{ [A.H]}\OperatorTok{;}                                \OperatorTok{>}\NormalTok{ Reconstruct V[}\DecValTok{0}\NormalTok{] at spatial level }\DecValTok{1}
+\NormalTok{  [B.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(V[}\DecValTok{1}\NormalTok{].L,}\DecValTok{0}\NormalTok{)}\OperatorTok{;}                           \OperatorTok{>} 
+\NormalTok{  [}\OperatorTok{~}\NormalTok{B.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{,V[}\DecValTok{1}\NormalTok{].H)}\OperatorTok{;}
+\NormalTok{  [C.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(V[}\DecValTok{2}\NormalTok{].L,}\DecValTok{0}\NormalTok{)}\OperatorTok{;}
+\NormalTok{  [C.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{,V[}\DecValTok{2}\NormalTok{].H)}\OperatorTok{;}
+\NormalTok{  V[}\DecValTok{2}\NormalTok{] }\OperatorTok{=}\NormalTok{ [C.L] }\OperatorTok{+}\NormalTok{ [C.H] }
+\NormalTok{  [B.L]}\OperatorTok{->}\NormalTok{[A.L] }\OperatorTok{=}\NormalTok{ ME([B.L], [A.L])}
+\NormalTok{  [B.L]}\OperatorTok{->}\NormalTok{[C.L] }\OperatorTok{=}\NormalTok{ ME([B.L], [C.L])}
+\NormalTok{  [B.H]_A }\OperatorTok{=}\NormalTok{ MC([A.H], [B.L]}\OperatorTok{->}\NormalTok{[A.L])}
+\NormalTok{  [B.H]_C }\OperatorTok{=}\NormalTok{ MC([C.H], [B.L]}\OperatorTok{->}\NormalTok{[C.L])}
+\NormalTok{  [B.H] }\OperatorTok{=}\NormalTok{ [}\OperatorTok{~}\NormalTok{B.H] }\OperatorTok{+} \BuiltInTok{int}\NormalTok{(}\BuiltInTok{round}\NormalTok{(([B.H]_A }\OperatorTok{+}\NormalTok{ [B.H]_C)}\OperatorTok{/}\FloatTok{2.0}\NormalTok{))}
+\NormalTok{  V[}\DecValTok{1}\NormalTok{] }\OperatorTok{=}\NormalTok{ [B.L] }\OperatorTok{+}\NormalTok{ [B.H]}
+\NormalTok{  [A.L] }\OperatorTok{=}\NormalTok{ [C.L]}
+\NormalTok{  [A.H] }\OperatorTok{=}\NormalTok{ [C.H]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Scale 0:
+\end{enumerate}
+
+Repeat the previous computations.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Scale -1:
+\end{enumerate}
+
+Repeat the previous computations, placing 0's in the H subbands.
+
+\hypertarget{temporal-scalability}{%
+\subsection{Temporal scalability}\label{temporal-scalability}}
+
+Provided by the pruned execution of iMCDWT. Depending on the index of
+the image to render, a number of images, that ranges between
+:math:\texttt{1} (the best case) and :math:\texttt{1+l} (the worst
+case), are decoded.
+
+\hypertarget{quality-scalability}{%
+\subsection{Quality scalability}\label{quality-scalability}}
+
+Provided by partially reconstructing a set of coefficients selected by
+their contribution to the minimization of the distortion.
+
+    A sequence \texttt{S} of \texttt{N} (wavelet) pyramids, organized in
+\texttt{T} temporal subbands, where each temporal subband is a sequence
+of spatial pyramids. The number of input and output pyramids is the
+same.
+
+For example, if \texttt{l=2} and \texttt{n=5}:
+
+\begin{verbatim}
+      Spatial
+      scale 0 1 2       t = 1                               t = 3
+            ^ ^ ^ +---+---+-------+                   +---+---+-------+                                ^
+            | | | |   |   |       |                   |   |   |       |                                |
+            | | v +---+---+       |                   +---+---+    O <---- T[3][y][x]                  |
+            | |   |   |   |       |                   |   |   |       |                                |
+            | v   +---+---+-------+                   +---+---+-------+ l = 0                          |
+            |     |       |       |                   |       |       |                                |
+            |     |       |       |                   |       |       |                                |
+            |     |       |       |                   |       |       |                                |
+            v     +-------+-------+       t = 2       +-------+-------+                                |
+                      |       |     +---+---+-------+     |        |                                 ^ |
+                      |       |     |   |   |       |     |        |                                 | |
+                      |       +---->+---+---+       |<----+        |                                 | |
+                      |             |   |   |       |              |                                 | |
+                      |             +---+---+-------+ l = 1        |                                 | |
+                      |             |       |       |              |                                 | |
+                      |             |       |       |              |                                 | |
+                      |             |       |       |              |                                 | |
+      t = 0           |             +-------+-------+              |           t = 4                 | |
++---+---+-------+     |                 |       |                  |     +---+---+-------+         ^ | |
+|   |   |       |     |                 |       |                  |     |   |   |       |         | | |
++---+---+       |<----+                 |       |                  +---->+---+---+       |         | | |
+|   |   |       |                       |       |                        |   |   |       |         | | |
++---+---+-------+                       |       |                        +---+---+-------+  l = 2  | | |
+|       |       |                       |       |                        |       |       |         | | |
+|       |       |<----------------------+       +----------------------->|       |       |         | | |
+|       |       |                                                        |       |       |         | | |
++-------+-------+                                                        +-------+-------+         v v v
+      GOP 0                                       GOP 1                             Temporal scale 2 1 0
+<---------------><----------------------------------------------------------------------->
+
+(X --> Y) = X depends on Y (X has been encoded using Y)
+\end{verbatim}
+
+    \hypertarget{a-implementation}{%
+\subsection{A implementation}\label{a-implementation}}
+
+\hypertarget{forward-mcdwt}{%
+\subsubsection{Forward MCDWT}\label{forward-mcdwt}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{n }\OperatorTok{=} \DecValTok{5} \CommentTok{# Number of frames of the video}
+\NormalTok{l }\OperatorTok{=} \DecValTok{2} \CommentTok{# Number of temporal scales to generate}
+
+\NormalTok{x }\OperatorTok{=} \DecValTok{2} \CommentTok{# A constant}
+\ControlFlowTok{for}\NormalTok{ j }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(l):}
+\NormalTok{    2D_DWT(V[}\DecValTok{0}\NormalTok{]) }\CommentTok{# 1-level 2D-DWT}
+\NormalTok{    [A.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(V[}\DecValTok{0}\NormalTok{].L, }\DecValTok{0}\NormalTok{)}
+\NormalTok{    [A.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{, V[}\DecValTok{0}\NormalTok{].H)}
+\NormalTok{    i }\OperatorTok{=} \DecValTok{0} \CommentTok{# Image index}
+    \ControlFlowTok{while}\NormalTok{ i }\OperatorTok{<}\NormalTok{ (n}\OperatorTok{//}\NormalTok{x):}
+\NormalTok{        2D_DWT(V[x}\OperatorTok{*}\NormalTok{i}\OperatorTok{+}\NormalTok{x}\OperatorTok{//}\DecValTok{2}\NormalTok{])}
+\NormalTok{        [B.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(V[x}\OperatorTok{*}\NormalTok{i}\OperatorTok{+}\NormalTok{x}\OperatorTok{//}\DecValTok{2}\NormalTok{].L, }\DecValTok{0}\NormalTok{)}
+\NormalTok{        [B.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{, V[x}\OperatorTok{*}\NormalTok{i}\OperatorTok{+}\NormalTok{x}\OperatorTok{//}\DecValTok{2}\NormalTok{].H)}
+\NormalTok{        2D_DWT(V[x}\OperatorTok{*}\NormalTok{i}\OperatorTok{+}\NormalTok{x])}
+\NormalTok{        [C.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(V[x}\OperatorTok{*}\NormalTok{i}\OperatorTok{+}\NormalTok{x].L, }\DecValTok{0}\NormalTok{)}
+\NormalTok{        [C.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{, V[x}\OperatorTok{*}\NormalTok{i}\OperatorTok{+}\NormalTok{x].H)}
+\NormalTok{        [B.L]}\OperatorTok{->}\NormalTok{[A.L] }\OperatorTok{=}\NormalTok{ ME([B.L], [A.L])}
+\NormalTok{        [B.L]}\OperatorTok{->}\NormalTok{[C.L] }\OperatorTok{=}\NormalTok{ ME([B.L], [C.L])}
+\NormalTok{        [B.H]_A }\OperatorTok{=}\NormalTok{ MC([A.H], [B.L]}\OperatorTok{->}\NormalTok{[A.L])}
+\NormalTok{        [B.H]_C }\OperatorTok{=}\NormalTok{ MC([C.H], [B.L]}\OperatorTok{->}\NormalTok{[C.L])}
+\NormalTok{        [}\OperatorTok{~}\NormalTok{B.H] }\OperatorTok{=}\NormalTok{ [B.H] }\OperatorTok{-} \BuiltInTok{int}\NormalTok{(}\BuiltInTok{round}\NormalTok{(([B.H]_A }\OperatorTok{+}\NormalTok{ [B.H]_C)}\OperatorTok{/}\FloatTok{2.0}\NormalTok{))}
+\NormalTok{        2D_DWT([}\OperatorTok{~}\NormalTok{B.H])}
+\NormalTok{        [}\OperatorTok{~}\NormalTok{B.H].L }\OperatorTok{=}\NormalTok{ B.L}
+\NormalTok{        [A.L] }\OperatorTok{=}\NormalTok{ [C.L]}
+\NormalTok{        [A.H] }\OperatorTok{=}\NormalTok{ [C.H]}
+\NormalTok{        i }\OperatorTok{+=} \DecValTok{1}
+\NormalTok{    x }\OperatorTok{*=} \DecValTok{2}
+\end{Highlighting}
+\end{Shaded}
+
+Example (3 temporal scales (\texttt{l=2} iterations of the transform)
+and \texttt{n=5} images):
+
+\begin{verbatim}
+V[0] V[1] V[2] V[3] V[4]
+ A    B    C              <- First call of MCDWT_step
+           A    B    C    <- Second call of MCDWT_step
+ A         B         C    <- Third call of MCDWT_step
+---- -------------------
+GOP0        GOP1
+\end{verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}16}]:} \PY{c+c1}{\PYZsh{} \PYZpc{}load ../src/color\PYZus{}dwt.py}
+         \PY{k+kn}{import} \PY{n+nn}{cv2}
+         \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
+         \PY{k+kn}{import} \PY{n+nn}{pywt}
+         \PY{k+kn}{import} \PY{n+nn}{math}
+         
+         \PY{k}{def} \PY{n+nf}{\PYZus{}2D\PYZus{}DWT}\PY{p}{(}\PY{n}{image}\PY{p}{)}\PY{p}{:}
+             \PY{l+s+sd}{\PYZsq{}\PYZsq{}\PYZsq{}2D DWT of a color image.}
+         
+         \PY{l+s+sd}{    Arguments}
+         \PY{l+s+sd}{    \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+         
+         \PY{l+s+sd}{        image : [:,:,:].}
+         
+         \PY{l+s+sd}{            A color frame.}
+         
+         \PY{l+s+sd}{    Returns}
+         \PY{l+s+sd}{    \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+         
+         \PY{l+s+sd}{        (L, H) where L = [:,:,:] and}
+         \PY{l+s+sd}{        H = (LH, HL, HH), where LH, HL, HH = [:,:,:].}
+         
+         \PY{l+s+sd}{            A color pyramid.}
+         
+         \PY{l+s+sd}{    \PYZsq{}\PYZsq{}\PYZsq{}}
+         
+             \PY{n}{y} \PY{o}{=} \PY{n}{math}\PY{o}{.}\PY{n}{ceil}\PY{p}{(}\PY{n}{image}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{)}
+             \PY{n}{x} \PY{o}{=} \PY{n}{math}\PY{o}{.}\PY{n}{ceil}\PY{p}{(}\PY{n}{image}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{)}
+             \PY{n}{LL} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{ndarray}\PY{p}{(}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{x}\PY{p}{,} \PY{l+m+mi}{3}\PY{p}{)}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{float64}\PY{p}{)}
+             \PY{n}{LH} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{ndarray}\PY{p}{(}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{x}\PY{p}{,} \PY{l+m+mi}{3}\PY{p}{)}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{float64}\PY{p}{)}
+             \PY{n}{HL} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{ndarray}\PY{p}{(}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{x}\PY{p}{,} \PY{l+m+mi}{3}\PY{p}{)}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{float64}\PY{p}{)}
+             \PY{n}{HH} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{ndarray}\PY{p}{(}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{x}\PY{p}{,} \PY{l+m+mi}{3}\PY{p}{)}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{float64}\PY{p}{)}
+             \PY{k}{for} \PY{n}{c} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{l+m+mi}{3}\PY{p}{)}\PY{p}{:}
+                 \PY{p}{(}\PY{n}{LL}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{p}{:}\PY{p}{,}\PY{n}{c}\PY{p}{]}\PY{p}{,} \PY{p}{(}\PY{n}{LH}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{p}{:}\PY{p}{,}\PY{n}{c}\PY{p}{]}\PY{p}{,} \PY{n}{HL}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{p}{:}\PY{p}{,}\PY{n}{c}\PY{p}{]}\PY{p}{,} \PY{n}{HH}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{p}{:}\PY{p}{,}\PY{n}{c}\PY{p}{]}\PY{p}{)}\PY{p}{)} \PY{o}{=} \PY{n}{pywt}\PY{o}{.}\PY{n}{dwt2}\PY{p}{(}\PY{n}{image}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{p}{:}\PY{p}{,}\PY{n}{c}\PY{p}{]}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{db5}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{mode}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{per}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+         
+             \PY{k}{return} \PY{p}{(}\PY{n}{LL}\PY{p}{,} \PY{p}{(}\PY{n}{LH}\PY{p}{,} \PY{n}{HL}\PY{p}{,} \PY{n}{HH}\PY{p}{)}\PY{p}{)}
+         
+         \PY{k}{def} \PY{n+nf}{\PYZus{}2D\PYZus{}iDWT}\PY{p}{(}\PY{n}{L}\PY{p}{,} \PY{n}{H}\PY{p}{)}\PY{p}{:}
+             \PY{l+s+sd}{\PYZsq{}\PYZsq{}\PYZsq{}2D 1\PYZhy{}iteration inverse DWT of a color pyramid.}
+         
+         \PY{l+s+sd}{    Arguments}
+         \PY{l+s+sd}{    \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+         
+         \PY{l+s+sd}{        L : [:,:,:].}
+         
+         \PY{l+s+sd}{            Low\PYZhy{}frequency color subband.}
+         
+         \PY{l+s+sd}{        H : (LH, HL, HH), where LH ,HL, HH = [:,:,:].}
+         
+         \PY{l+s+sd}{            High\PYZhy{}frequency color subbands.}
+         
+         \PY{l+s+sd}{    Returns}
+         \PY{l+s+sd}{    \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+         
+         \PY{l+s+sd}{        [:,:,:].}
+         
+         \PY{l+s+sd}{            A color frame.}
+         
+         \PY{l+s+sd}{    \PYZsq{}\PYZsq{}\PYZsq{}}
+         
+             \PY{n}{LH} \PY{o}{=} \PY{n}{H}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
+             \PY{n}{HL} \PY{o}{=} \PY{n}{H}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}
+             \PY{n}{HH} \PY{o}{=} \PY{n}{H}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]}
+             \PY{n}{frame} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{ndarray}\PY{p}{(}\PY{p}{(}\PY{n}{L}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{*}\PY{l+m+mi}{2}\PY{p}{,} \PY{n}{L}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{o}{*}\PY{l+m+mi}{2}\PY{p}{,} \PY{l+m+mi}{3}\PY{p}{)}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{float64}\PY{p}{)}
+             \PY{k}{for} \PY{n}{c} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{l+m+mi}{3}\PY{p}{)}\PY{p}{:}
+                 \PY{n}{frame}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{p}{:}\PY{p}{,}\PY{n}{c}\PY{p}{]} \PY{o}{=} \PY{n}{pywt}\PY{o}{.}\PY{n}{idwt2}\PY{p}{(}\PY{p}{(}\PY{n}{L}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{p}{:}\PY{p}{,}\PY{n}{c}\PY{p}{]}\PY{p}{,} \PY{p}{(}\PY{n}{LH}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{p}{:}\PY{p}{,}\PY{n}{c}\PY{p}{]}\PY{p}{,} \PY{n}{HL}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{p}{:}\PY{p}{,}\PY{n}{c}\PY{p}{]}\PY{p}{,} \PY{n}{HH}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{p}{:}\PY{p}{,}\PY{n}{c}\PY{p}{]}\PY{p}{)}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{db5}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{mode}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{per}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+             \PY{k}{return} \PY{n}{frame}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}27}]:} \PY{c+c1}{\PYZsh{} \PYZpc{}load ../src/image\PYZus{}io.py}
+         \PY{k+kn}{import} \PY{n+nn}{cv2}
+         \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
+         
+         \PY{k}{class} \PY{n+nc}{InputFileException}\PY{p}{(}\PY{n+ne}{Exception}\PY{p}{)}\PY{p}{:}
+             \PY{k}{pass}
+         
+         \PY{k}{class} \PY{n+nc}{ImageReader}\PY{p}{:}
+             \PY{l+s+sd}{\PYZsq{}\PYZsq{}\PYZsq{}Read 16\PYZhy{}bit PNG images from disk.}
+         \PY{l+s+sd}{    }
+         \PY{l+s+sd}{    Images must be enumerated (image000.png, image001.png, ...).}
+         
+         \PY{l+s+sd}{    \PYZsq{}\PYZsq{}\PYZsq{}}
+         
+             \PY{k}{def} \PY{n+nf}{\PYZus{}\PYZus{}init\PYZus{}\PYZus{}}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{)}\PY{p}{:}
+                 \PY{k}{pass}
+         
+             \PY{k}{def} \PY{n+nf}{read}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{,} \PY{n}{number}\PY{p}{,} \PY{n}{path}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{:}
+                 \PY{l+s+sd}{\PYZsq{}\PYZsq{}\PYZsq{}Read an image from disk.}
+         
+         \PY{l+s+sd}{        Parameters}
+         \PY{l+s+sd}{        \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+         
+         \PY{l+s+sd}{            number : int.}
+         
+         \PY{l+s+sd}{                Index of the image in the sequence.}
+         
+         \PY{l+s+sd}{            path : str.}
+         
+         \PY{l+s+sd}{                Image path.}
+         
+         \PY{l+s+sd}{        Returns}
+         \PY{l+s+sd}{        \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+         
+         \PY{l+s+sd}{            [:,:,:].}
+         
+         \PY{l+s+sd}{                A color image.}
+         
+         \PY{l+s+sd}{        \PYZsq{}\PYZsq{}\PYZsq{}}
+         
+                 \PY{n}{file\PYZus{}name} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+si}{\PYZob{}:03d\PYZcb{}}\PY{l+s+s1}{.png}\PY{l+s+s1}{\PYZsq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{path}\PY{p}{,} \PY{n}{number}\PY{p}{)}
+                 \PY{n}{image} \PY{o}{=} \PY{n}{cv2}\PY{o}{.}\PY{n}{imread}\PY{p}{(}\PY{n}{file\PYZus{}name}\PY{p}{,} \PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{)}
+                 \PY{k}{if} \PY{n}{image} \PY{o+ow}{is} \PY{k+kc}{None}\PY{p}{:}
+                     \PY{k}{raise} \PY{n}{InputFileException}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s1}{ not found}\PY{l+s+s1}{\PYZsq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{file\PYZus{}name}\PY{p}{)}\PY{p}{)}
+                 \PY{k}{else}\PY{p}{:}
+                     \PY{n}{image} \PY{o}{\PYZhy{}}\PY{o}{=} \PY{l+m+mi}{32768}
+                     \PY{k}{return} \PY{n}{image}
+         
+         \PY{k}{class} \PY{n+nc}{ImageWritter}\PY{p}{:}
+             \PY{l+s+sd}{\PYZsq{}\PYZsq{}\PYZsq{}Write 16\PYZhy{}bit PNG images to disk.}
+         
+         \PY{l+s+sd}{    Images should be enumerated (image000.png, image001.png, ...).}
+         
+         \PY{l+s+sd}{    \PYZsq{}\PYZsq{}\PYZsq{}}
+         
+             \PY{k}{def} \PY{n+nf}{\PYZus{}\PYZus{}init\PYZus{}\PYZus{}}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{)}\PY{p}{:}
+                 \PY{k}{pass}
+         
+             \PY{k}{def} \PY{n+nf}{write}\PY{p}{(}\PY{n+nb+bp}{self}\PY{p}{,} \PY{n}{image}\PY{p}{,} \PY{n}{number}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{,} \PY{n}{path}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{:}
+                 \PY{l+s+sd}{\PYZsq{}\PYZsq{}\PYZsq{}Write an image to disk.}
+         
+         \PY{l+s+sd}{        Parameters}
+         \PY{l+s+sd}{        \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+         
+         \PY{l+s+sd}{            image : [:,:,:].}
+         
+         \PY{l+s+sd}{                The color image to write.}
+         
+         \PY{l+s+sd}{            number : int.}
+         
+         \PY{l+s+sd}{                Index of the image in the sequence.}
+         
+         \PY{l+s+sd}{            path : str.}
+         
+         \PY{l+s+sd}{                Path to the image.}
+         
+         \PY{l+s+sd}{        Returns}
+         \PY{l+s+sd}{        \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+         
+         \PY{l+s+sd}{            None.}
+         
+         \PY{l+s+sd}{        \PYZsq{}\PYZsq{}\PYZsq{}}
+         
+                 \PY{n}{file\PYZus{}name} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+si}{\PYZob{}:03d\PYZcb{}}\PY{l+s+s1}{.png}\PY{l+s+s1}{\PYZsq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{path}\PY{p}{,} \PY{n}{number}\PY{p}{)}
+         
+                 \PY{n}{image} \PY{o}{+}\PY{o}{=} \PY{l+m+mi}{32768}
+                 
+                 \PY{k}{assert} \PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{amax}\PY{p}{(}\PY{n}{image}\PY{p}{)} \PY{o}{\PYZlt{}} \PY{l+m+mi}{65536}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{16 bit unsigned int range overflow}\PY{l+s+s1}{\PYZsq{}}
+                 \PY{k}{assert} \PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{amin}\PY{p}{(}\PY{n}{image}\PY{p}{)} \PY{o}{\PYZgt{}}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{16 bit unsigned int range underflow}\PY{l+s+s1}{\PYZsq{}}
+                 
+                 \PY{n}{cv2}\PY{o}{.}\PY{n}{imwrite}\PY{p}{(}\PY{n}{file\PYZus{}name}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{rint}\PY{p}{(}\PY{n}{image}\PY{p}{)}\PY{o}{.}\PY{n}{astype}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{uint16}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}28}]:} \PY{c+c1}{\PYZsh{} \PYZpc{}load ../src/motion\PYZus{}compensation.py}
+         \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
+         \PY{k+kn}{import} \PY{n+nn}{cv2}
+         
+         \PY{k}{def} \PY{n+nf}{motion\PYZus{}compensation}\PY{p}{(}\PY{n}{curr}\PY{p}{,} \PY{n+nb}{next}\PY{p}{,} \PY{n}{base}\PY{p}{)}\PY{p}{:}
+             \PY{n}{flow} \PY{o}{=} \PY{n}{motion\PYZus{}estimation}\PY{p}{(}\PY{n}{curr}\PY{p}{,} \PY{n+nb}{next}\PY{p}{)}
+             \PY{k}{return} \PY{n}{estimate\PYZus{}frame}\PY{p}{(}\PY{n}{base}\PY{p}{,} \PY{n}{flow}\PY{p}{)}
+         
+         \PY{k}{def} \PY{n+nf}{motion\PYZus{}estimation}\PY{p}{(}\PY{n}{curr}\PY{p}{,} \PY{n+nb}{next}\PY{p}{)}\PY{p}{:}
+             \PY{n}{curr\PYZus{}y}\PY{p}{,} \PY{n}{\PYZus{}}\PY{p}{,} \PY{n}{\PYZus{}} \PY{o}{=} \PY{n}{cv2}\PY{o}{.}\PY{n}{split}\PY{p}{(}\PY{n}{curr}\PY{p}{)}
+             \PY{n}{next\PYZus{}y}\PY{p}{,} \PY{n}{\PYZus{}}\PY{p}{,} \PY{n}{\PYZus{}} \PY{o}{=} \PY{n}{cv2}\PY{o}{.}\PY{n}{split}\PY{p}{(}\PY{n+nb}{next}\PY{p}{)}
+         
+             \PY{k}{return} \PY{n}{cv2}\PY{o}{.}\PY{n}{calcOpticalFlowFarneback}\PY{p}{(}\PY{n}{next\PYZus{}y}\PY{p}{,} \PY{n}{curr\PYZus{}y}\PY{p}{,} 
+                     \PY{k+kc}{None}\PY{p}{,} \PY{l+m+mf}{0.5}\PY{p}{,} \PY{l+m+mi}{3}\PY{p}{,} \PY{l+m+mi}{15}\PY{p}{,} \PY{l+m+mi}{3}\PY{p}{,} \PY{l+m+mi}{5}\PY{p}{,} \PY{l+m+mf}{1.2}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{)}
+         
+         \PY{k}{def} \PY{n+nf}{estimate\PYZus{}frame}\PY{p}{(}\PY{n}{base}\PY{p}{,} \PY{n}{flow}\PY{p}{)}\PY{p}{:}
+             \PY{n}{height}\PY{p}{,} \PY{n}{width} \PY{o}{=} \PY{n}{flow}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{p}{:}\PY{l+m+mi}{2}\PY{p}{]}
+             \PY{n}{map\PYZus{}x} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{tile}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{arange}\PY{p}{(}\PY{n}{width}\PY{p}{)}\PY{p}{,} \PY{p}{(}\PY{n}{height}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}\PY{p}{)}
+             \PY{n}{map\PYZus{}y} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{swapaxes}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{tile}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{arange}\PY{p}{(}\PY{n}{height}\PY{p}{)}\PY{p}{,} \PY{p}{(}\PY{n}{width}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}\PY{p}{)}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}
+             \PY{n}{map\PYZus{}xy} \PY{o}{=} \PY{p}{(}\PY{n}{flow} \PY{o}{+} \PY{n}{np}\PY{o}{.}\PY{n}{dstack}\PY{p}{(}\PY{p}{(}\PY{n}{map\PYZus{}x}\PY{p}{,} \PY{n}{map\PYZus{}y}\PY{p}{)}\PY{p}{)}\PY{p}{)}\PY{o}{.}\PY{n}{astype}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{float32}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+         
+             \PY{k}{return} \PY{n}{cv2}\PY{o}{.}\PY{n}{remap}\PY{p}{(}\PY{n}{base}\PY{p}{,} \PY{n}{map\PYZus{}xy}\PY{p}{,} \PY{k+kc}{None}\PY{p}{,} 
+                     \PY{n}{interpolation}\PY{o}{=}\PY{n}{cv2}\PY{o}{.}\PY{n}{INTER\PYZus{}LINEAR}\PY{p}{,}
+                     \PY{n}{borderMode}\PY{o}{=}\PY{n}{cv2}\PY{o}{.}\PY{n}{BORDER\PYZus{}REPLICATE}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}29}]:} \PY{k+kn}{import} \PY{n+nn}{sys}
+         \PY{n}{sys}\PY{o}{.}\PY{n}{path}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{../src}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}30}]:} \PY{c+c1}{\PYZsh{} \PYZpc{}load ../src/mcdwt\PYZus{}transform.py}
+         \PY{k+kn}{import} \PY{n+nn}{cv2}
+         \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
+         \PY{k+kn}{import} \PY{n+nn}{pywt}
+         \PY{k+kn}{import} \PY{n+nn}{math}
+         
+         \PY{k+kn}{import} \PY{n+nn}{image\PYZus{}io}
+         \PY{k+kn}{import} \PY{n+nn}{pyramid\PYZus{}io}
+         \PY{k+kn}{import} \PY{n+nn}{motion\PYZus{}compensation}
+         
+         \PY{k}{def} \PY{n+nf}{forward}\PY{p}{(}\PY{n+nb}{input} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../images/}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{output}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/tmp/}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{n}\PY{o}{=}\PY{l+m+mi}{5}\PY{p}{,} \PY{n}{l}\PY{o}{=}\PY{l+m+mi}{2}\PY{p}{)}\PY{p}{:}
+             \PY{l+s+sd}{\PYZsq{}\PYZsq{}\PYZsq{}A Motion Compensated Discrete Wavelet Transform.}
+         
+         \PY{l+s+sd}{    Compute the 1D\PYZhy{}DWT along motion trajectories. The input video (as}
+         \PY{l+s+sd}{    a sequence of images) must be stored in disk (\PYZlt{}input\PYZgt{} directory)}
+         \PY{l+s+sd}{    and the output (as a sequence of DWT coefficients that are called}
+         \PY{l+s+sd}{    pyramids) will be stored in disk (\PYZlt{}output\PYZgt{} directory). So, this}
+         \PY{l+s+sd}{    MCDWT implementation does not transform the video on the fly.}
+         
+         \PY{l+s+sd}{    Arguments}
+         \PY{l+s+sd}{    \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+         
+         \PY{l+s+sd}{        input : str}
+         
+         \PY{l+s+sd}{            Path where the input images are. Example:}
+         \PY{l+s+sd}{            \PYZdq{}../input/image\PYZdq{}.}
+         
+         \PY{l+s+sd}{        output : str}
+         
+         \PY{l+s+sd}{            Path where the (transformed) pyramids will be. Example:}
+         \PY{l+s+sd}{            \PYZdq{}../output/pyramid\PYZdq{}.}
+         
+         \PY{l+s+sd}{         n : int}
+         
+         \PY{l+s+sd}{            Number of images to process.}
+         
+         \PY{l+s+sd}{         l : int}
+         
+         \PY{l+s+sd}{            Number of leves of the MCDWT (temporal scales). Controls}
+         \PY{l+s+sd}{            the GOP size. Examples: `leves`=0 \PYZhy{}\PYZgt{} GOP\PYZus{}size = 1, `leves`=1 \PYZhy{}\PYZgt{}}
+         \PY{l+s+sd}{            GOP\PYZus{}size = 2, `levels`=2 \PYZhy{}\PYZgt{} GOP\PYZus{}size = 4. etc.}
+         
+         \PY{l+s+sd}{    Returns}
+         \PY{l+s+sd}{    \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+         
+         \PY{l+s+sd}{        None.}
+         
+         \PY{l+s+sd}{    \PYZsq{}\PYZsq{}\PYZsq{}}
+             
+             \PY{c+c1}{\PYZsh{}import ipdb; ipdb.set\PYZus{}trace()}
+             \PY{n}{ir} \PY{o}{=} \PY{n}{image\PYZus{}io}\PY{o}{.}\PY{n}{ImageReader}\PY{p}{(}\PY{p}{)}
+             \PY{n}{iw} \PY{o}{=} \PY{n}{image\PYZus{}io}\PY{o}{.}\PY{n}{ImageWritter}\PY{p}{(}\PY{p}{)}
+             \PY{n}{pw} \PY{o}{=} \PY{n}{pyramid\PYZus{}io}\PY{o}{.}\PY{n}{PyramidWritter}\PY{p}{(}\PY{p}{)}
+             \PY{n}{x} \PY{o}{=} \PY{l+m+mi}{2}
+             \PY{k}{for} \PY{n}{j} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{l}\PY{p}{)}\PY{p}{:} \PY{c+c1}{\PYZsh{} Number of temporal scales}
+                 \PY{n}{A} \PY{o}{=} \PY{n}{ir}\PY{o}{.}\PY{n}{read}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{n+nb}{input}\PY{p}{)}
+                 \PY{n}{tmpA} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}DWT}\PY{p}{(}\PY{n}{A}\PY{p}{)}
+                 \PY{n}{L\PYZus{}y} \PY{o}{=} \PY{n}{tmpA}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
+                 \PY{n}{L\PYZus{}x} \PY{o}{=} \PY{n}{tmpA}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}
+                 \PY{n}{pw}\PY{o}{.}\PY{n}{write}\PY{p}{(}\PY{n}{tmpA}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{,} \PY{n}{output}\PY{p}{)}        
+                 \PY{n}{zero\PYZus{}L} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{zeros}\PY{p}{(}\PY{n}{tmpA}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{.}\PY{n}{shape}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{float64}\PY{p}{)}
+                 \PY{n}{zero\PYZus{}H} \PY{o}{=} \PY{p}{(}\PY{n}{zero\PYZus{}L}\PY{p}{,} \PY{n}{zero\PYZus{}L}\PY{p}{,} \PY{n}{zero\PYZus{}L}\PY{p}{)}
+                 \PY{n}{AL} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}iDWT}\PY{p}{(}\PY{n}{tmpA}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,} \PY{n}{zero\PYZus{}H}\PY{p}{)}
+                 \PY{n}{iw}\PY{o}{.}\PY{n}{write}\PY{p}{(}\PY{n}{AL}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}
+                 \PY{n}{AH} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}iDWT}\PY{p}{(}\PY{n}{zero\PYZus{}L}\PY{p}{,} \PY{n}{tmpA}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                 \PY{n}{iw}\PY{o}{.}\PY{n}{write}\PY{p}{(}\PY{n}{AH}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}
+                 \PY{n}{i} \PY{o}{=} \PY{l+m+mi}{0}
+                 \PY{k}{while} \PY{n}{i} \PY{o}{\PYZlt{}} \PY{p}{(}\PY{n}{n}\PY{o}{/}\PY{o}{/}\PY{n}{x}\PY{p}{)}\PY{p}{:}
+                     \PY{n}{B} \PY{o}{=} \PY{n}{ir}\PY{o}{.}\PY{n}{read}\PY{p}{(}\PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{o}{+}\PY{n}{x}\PY{o}{/}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{,} \PY{n+nb}{input}\PY{p}{)}
+                     \PY{n}{tmpB} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}DWT}\PY{p}{(}\PY{n}{B}\PY{p}{)}
+                     \PY{n}{BL} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}iDWT}\PY{p}{(}\PY{n}{tmpB}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,} \PY{n}{zero\PYZus{}H}\PY{p}{)}
+                     \PY{n}{BH} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}iDWT}\PY{p}{(}\PY{n}{zero\PYZus{}L}\PY{p}{,} \PY{n}{tmpB}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                     \PY{n}{C} \PY{o}{=} \PY{n}{ir}\PY{o}{.}\PY{n}{read}\PY{p}{(}\PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{o}{+}\PY{n}{x}\PY{p}{,} \PY{n+nb}{input}\PY{p}{)}
+                     \PY{n}{tmpC} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}DWT}\PY{p}{(}\PY{n}{C}\PY{p}{)}
+                     \PY{n}{pw}\PY{o}{.}\PY{n}{write}\PY{p}{(}\PY{n}{tmpC}\PY{p}{,} \PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{o}{+}\PY{n}{x}\PY{p}{,} \PY{n}{output}\PY{p}{)}
+                     \PY{n}{CL} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}iDWT}\PY{p}{(}\PY{n}{tmpC}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,} \PY{n}{zero\PYZus{}H}\PY{p}{)}
+                     \PY{n}{CH} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}iDWT}\PY{p}{(}\PY{n}{zero\PYZus{}L}\PY{p}{,} \PY{n}{tmpC}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                     \PY{n}{BHA} \PY{o}{=} \PY{n}{motion}\PY{o}{.}\PY{n}{motion\PYZus{}compensation}\PY{p}{(}\PY{n}{BL}\PY{p}{,} \PY{n}{AL}\PY{p}{,} \PY{n}{AH}\PY{p}{)}
+                     \PY{n}{BHC} \PY{o}{=} \PY{n}{motion}\PY{o}{.}\PY{n}{motion\PYZus{}compensation}\PY{p}{(}\PY{n}{BL}\PY{p}{,} \PY{n}{CL}\PY{p}{,} \PY{n}{CH}\PY{p}{)}
+                     \PY{n}{iw}\PY{o}{.}\PY{n}{write}\PY{p}{(}\PY{n}{BH}\PY{p}{,} \PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{o}{+}\PY{n}{x}\PY{o}{/}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{,} \PY{n}{output}\PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{predicted}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+                     \PY{n}{prediction} \PY{o}{=} \PY{p}{(}\PY{n}{BHA} \PY{o}{+} \PY{n}{BHC}\PY{p}{)} \PY{o}{/} \PY{l+m+mi}{2}
+                     \PY{n}{iw}\PY{o}{.}\PY{n}{write}\PY{p}{(}\PY{n}{prediction}\PY{o}{+}\PY{l+m+mi}{128}\PY{p}{,} \PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{o}{+}\PY{n}{x}\PY{o}{/}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{,} \PY{n}{output}\PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{prediction}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+                     \PY{n}{rBH} \PY{o}{=} \PY{n}{BH} \PY{o}{\PYZhy{}} \PY{n}{prediction}
+                     \PY{n}{iw}\PY{o}{.}\PY{n}{write}\PY{p}{(}\PY{n}{rBH}\PY{p}{,} \PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{o}{+}\PY{n}{x}\PY{o}{/}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{,} \PY{n}{output}\PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{residue}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+                     \PY{n}{rBH} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}DWT}\PY{p}{(}\PY{n}{rBH}\PY{p}{)}
+                     \PY{c+c1}{\PYZsh{}import ipdb; ipdb.set\PYZus{}trace()}
+                     \PY{n}{pw}\PY{o}{.}\PY{n}{write}\PY{p}{(}\PY{n}{rBH}\PY{p}{,} \PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{o}{+}\PY{n}{x}\PY{o}{/}\PY{o}{/}\PY{l+m+mi}{2} \PY{o}{+} \PY{l+m+mi}{1000}\PY{p}{)}
+                     \PY{n}{rBH}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{:}\PY{n}{L\PYZus{}y}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{:}\PY{n}{L\PYZus{}x}\PY{p}{,}\PY{p}{:}\PY{p}{]} \PY{o}{=} \PY{n}{tmpB}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
+                     \PY{n}{pw}\PY{o}{.}\PY{n}{write}\PY{p}{(}\PY{n}{rBH}\PY{p}{,} \PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{o}{+}\PY{n}{x}\PY{o}{/}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{,} \PY{n}{output}\PY{p}{)}
+                     \PY{n}{AL} \PY{o}{=} \PY{n}{CL}
+                     \PY{n}{AH} \PY{o}{=} \PY{n}{CH}
+                     \PY{n}{i} \PY{o}{+}\PY{o}{=} \PY{l+m+mi}{1}
+                     \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{i =}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{i}\PY{p}{)}
+                 \PY{n}{x} \PY{o}{*}\PY{o}{=} \PY{l+m+mi}{2}
+         
+         \PY{k}{def} \PY{n+nf}{backward}\PY{p}{(}\PY{n+nb}{input} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/tmp/}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{output}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/tmp/}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{n}\PY{o}{=}\PY{l+m+mi}{5}\PY{p}{,} \PY{n}{l}\PY{o}{=}\PY{l+m+mi}{2}\PY{p}{)}\PY{p}{:}
+             \PY{l+s+sd}{\PYZsq{}\PYZsq{}\PYZsq{}A (Inverse) Motion Compensated Discrete Wavelet Transform.}
+         
+         \PY{l+s+sd}{    iMCDWT is the inverse transform of MCDWT. Inputs a sequence of}
+         \PY{l+s+sd}{    pyramids and outputs a sequence of images.}
+         
+         \PY{l+s+sd}{    Arguments}
+         \PY{l+s+sd}{    \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+         
+         \PY{l+s+sd}{        input : str}
+         
+         \PY{l+s+sd}{            Path where the input pyramids are. Example:}
+         \PY{l+s+sd}{            \PYZdq{}../input/image\PYZdq{}.}
+         
+         \PY{l+s+sd}{        output : str}
+         
+         \PY{l+s+sd}{            Path where the (inversely transformed) images will}
+         \PY{l+s+sd}{            be. Example: \PYZdq{}../output/pyramid\PYZdq{}.}
+         
+         \PY{l+s+sd}{         n : int}
+         
+         \PY{l+s+sd}{            Number of pyramids to process.}
+         
+         \PY{l+s+sd}{         l : int}
+         
+         \PY{l+s+sd}{            Number of leves of the MCDWT (temporal scales). Controls}
+         \PY{l+s+sd}{            the GOP size. Examples: `l`=0 \PYZhy{}\PYZgt{} GOP\PYZus{}size = 1, `l`=1 \PYZhy{}\PYZgt{}}
+         \PY{l+s+sd}{            GOP\PYZus{}size = 2, `l`=2 \PYZhy{}\PYZgt{} GOP\PYZus{}size = 4. etc.}
+         
+         \PY{l+s+sd}{    Returns}
+         \PY{l+s+sd}{    \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+         
+         \PY{l+s+sd}{        None.}
+         
+         \PY{l+s+sd}{    \PYZsq{}\PYZsq{}\PYZsq{}}
+             
+             \PY{c+c1}{\PYZsh{}import ipdb; ipdb.set\PYZus{}trace()}
+             \PY{n}{ir} \PY{o}{=} \PY{n}{image\PYZus{}io}\PY{o}{.}\PY{n}{ImageReader}\PY{p}{(}\PY{p}{)}
+             \PY{n}{iw} \PY{o}{=} \PY{n}{image\PYZus{}io}\PY{o}{.}\PY{n}{ImageWritter}\PY{p}{(}\PY{p}{)}
+             \PY{n}{pr} \PY{o}{=} \PY{n}{pyramid\PYZus{}io}\PY{o}{.}\PY{n}{PyramidReader}\PY{p}{(}\PY{p}{)}
+             \PY{n}{x} \PY{o}{=} \PY{l+m+mi}{2}\PY{o}{*}\PY{o}{*}\PY{n}{l}
+             \PY{k}{for} \PY{n}{j} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{l}\PY{p}{)}\PY{p}{:} \PY{c+c1}{\PYZsh{} Number of temporal scales}
+                 \PY{c+c1}{\PYZsh{}import ipdb; ipdb.set\PYZus{}trace()}
+                 \PY{n}{A} \PY{o}{=} \PY{n}{pr}\PY{o}{.}\PY{n}{read}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{n+nb}{input}\PY{p}{)}
+                 \PY{n}{zero\PYZus{}L} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{zeros}\PY{p}{(}\PY{n}{A}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{.}\PY{n}{shape}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{float64}\PY{p}{)}
+                 \PY{n}{zero\PYZus{}H} \PY{o}{=} \PY{p}{(}\PY{n}{zero\PYZus{}L}\PY{p}{,} \PY{n}{zero\PYZus{}L}\PY{p}{,} \PY{n}{zero\PYZus{}L}\PY{p}{)}
+                 \PY{n}{AL} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}iDWT}\PY{p}{(}\PY{n}{A}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,} \PY{n}{zero\PYZus{}H}\PY{p}{)}
+                 \PY{n}{AH} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}iDWT}\PY{p}{(}\PY{n}{zero\PYZus{}L}\PY{p}{,} \PY{n}{A}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                 \PY{n}{A} \PY{o}{=} \PY{n}{AL} \PY{o}{+} \PY{n}{AH}
+                 \PY{n}{iw}\PY{o}{.}\PY{n}{write}\PY{p}{(}\PY{n}{A}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{)}
+                 \PY{n}{i} \PY{o}{=} \PY{l+m+mi}{0}
+                 \PY{k}{while} \PY{n}{i} \PY{o}{\PYZlt{}} \PY{p}{(}\PY{n}{n}\PY{o}{/}\PY{o}{/}\PY{n}{x}\PY{p}{)}\PY{p}{:}
+                     \PY{n}{B} \PY{o}{=} \PY{n}{pr}\PY{o}{.}\PY{n}{read}\PY{p}{(}\PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{o}{+}\PY{n}{x}\PY{o}{/}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{,} \PY{n+nb}{input}\PY{p}{)}
+                     \PY{n}{BL} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}iDWT}\PY{p}{(}\PY{n}{B}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,} \PY{n}{zero\PYZus{}H}\PY{p}{)}
+                     \PY{n}{rBH} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}iDWT}\PY{p}{(}\PY{n}{zero\PYZus{}L}\PY{p}{,} \PY{n}{B}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                     \PY{n}{C} \PY{o}{=} \PY{n}{pr}\PY{o}{.}\PY{n}{read}\PY{p}{(}\PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{o}{+}\PY{n}{x}\PY{p}{,} \PY{n+nb}{input}\PY{p}{)}
+                     \PY{n}{CL} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}iDWT}\PY{p}{(}\PY{n}{C}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,} \PY{n}{zero\PYZus{}H}\PY{p}{)}
+                     \PY{n}{CH} \PY{o}{=} \PY{n}{\PYZus{}2D\PYZus{}iDWT}\PY{p}{(}\PY{n}{zero\PYZus{}L}\PY{p}{,} \PY{n}{C}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+                     \PY{n}{C} \PY{o}{=} \PY{n}{CL} \PY{o}{+} \PY{n}{CH}
+                     \PY{n}{iw}\PY{o}{.}\PY{n}{write}\PY{p}{(}\PY{n}{C}\PY{p}{,} \PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{o}{+}\PY{n}{x}\PY{p}{,} \PY{n}{output}\PY{p}{)}
+                     \PY{n}{BHA} \PY{o}{=} \PY{n}{motion}\PY{o}{.}\PY{n}{motion\PYZus{}compensation}\PY{p}{(}\PY{n}{BL}\PY{p}{,} \PY{n}{AL}\PY{p}{,} \PY{n}{AH}\PY{p}{)}
+                     \PY{n}{BHC} \PY{o}{=} \PY{n}{motion}\PY{o}{.}\PY{n}{motion\PYZus{}compensation}\PY{p}{(}\PY{n}{BL}\PY{p}{,} \PY{n}{CL}\PY{p}{,} \PY{n}{CH}\PY{p}{)}
+                     \PY{n}{BH} \PY{o}{=} \PY{n}{rBH} \PY{o}{+} \PY{p}{(}\PY{n}{BHA} \PY{o}{+} \PY{n}{BHC}\PY{p}{)} \PY{o}{/} \PY{l+m+mi}{2}
+                     \PY{n}{B} \PY{o}{=} \PY{n}{BL} \PY{o}{+} \PY{n}{BH}
+                     \PY{n}{iw}\PY{o}{.}\PY{n}{write}\PY{p}{(}\PY{n}{B}\PY{p}{,} \PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{o}{+}\PY{n}{x}\PY{o}{/}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{,} \PY{n}{output}\PY{p}{)}
+                     \PY{n}{AL} \PY{o}{=} \PY{n}{CL}
+                     \PY{n}{AH} \PY{o}{=} \PY{n}{CH}
+                     \PY{n}{i} \PY{o}{+}\PY{o}{=} \PY{l+m+mi}{1}
+                     \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{i =}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{i}\PY{p}{)}
+                 \PY{n}{x} \PY{o}{/}\PY{o}{/}\PY{o}{=}\PY{l+m+mi}{2}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}31}]:} \PY{n}{forward}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+
+        ---------------------------------------------------------------------------
+
+        NameError                                 Traceback (most recent call last)
+
+        <ipython-input-31-dcae8b8982c6> in <module>()
+    ----> 1 forward()
+    
+
+        <ipython-input-30-70dd340a9775> in forward(input, output, n, l)
+         62         zero\_H = (zero\_L, zero\_L, zero\_L)
+         63         AL = \_2D\_iDWT(tmpA[0], zero\_H)
+    ---> 64         iw.write(AL, 1)
+         65         AH = \_2D\_iDWT(zero\_L, tmpA[1])
+         66         iw.write(AH, 1)
+
+
+        \textasciitilde{}/MCDWT/src/image\_io.py in write(self, image, number, path)
+         84 
+         85         image += 32768
+    ---> 86 
+         87         assert (np.amax(image) < 65536), '16 bit unsigned int range overflow'
+         88         assert (np.amin(image) >= 0), '16 bit unsigned int range underflow'
+
+
+        NameError: name 'np' is not defined
+
+    \end{Verbatim}
+
+    \hypertarget{imcdwt-code}{%
+\subsubsection{iMCDWT code}\label{imcdwt-code}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{n }\OperatorTok{=} \DecValTok{5} \CommentTok{# Number of images}
+\NormalTok{l }\OperatorTok{=} \DecValTok{2} \CommentTok{# Number of temporal scales}
+
+\NormalTok{x }\OperatorTok{=} \DecValTok{2}\OperatorTok{**}\NormalTok{l}
+\ControlFlowTok{for}\NormalTok{ j }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(l):}
+\NormalTok{    [A.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(V[}\DecValTok{0}\NormalTok{].L, }\DecValTok{0}\NormalTok{)}
+\NormalTok{    [A.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{, V[}\DecValTok{0}\NormalTok{].H)}
+\NormalTok{    V[}\DecValTok{0}\NormalTok{] }\OperatorTok{=}\NormalTok{ [A.L] }\OperatorTok{+}\NormalTok{ [A.H]}
+\NormalTok{    i }\OperatorTok{=} \DecValTok{0} \CommentTok{# Image index}
+    \ControlFlowTok{while}\NormalTok{ i }\OperatorTok{<}\NormalTok{ (n}\OperatorTok{//}\NormalTok{x):}
+\NormalTok{        [B.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(V[x}\OperatorTok{*}\NormalTok{i}\OperatorTok{+}\NormalTok{x}\OperatorTok{//}\DecValTok{2}\NormalTok{].L, }\DecValTok{0}\NormalTok{)}
+\NormalTok{        [}\OperatorTok{~}\NormalTok{B.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{, V[x}\OperatorTok{*}\NormalTok{i}\OperatorTok{+}\NormalTok{x}\OperatorTok{//}\DecValTok{2}\NormalTok{].H)}
+\NormalTok{        [C.L] }\OperatorTok{=}\NormalTok{ 2D_iDWT(V[x}\OperatorTok{*}\NormalTok{i}\OperatorTok{+}\NormalTok{x].L, }\DecValTok{0}\NormalTok{)}
+\NormalTok{        [C.H] }\OperatorTok{=}\NormalTok{ 2D_iDWT(}\DecValTok{0}\NormalTok{, V[x}\OperatorTok{*}\NormalTok{i}\OperatorTok{+}\NormalTok{x].H)}
+\NormalTok{        V[x}\OperatorTok{*}\NormalTok{i}\OperatorTok{+}\NormalTok{x] }\OperatorTok{=}\NormalTok{ [C.L] }\OperatorTok{+}\NormalTok{ [C.H]}
+\NormalTok{        [B.L]}\OperatorTok{->}\NormalTok{[A.L] }\OperatorTok{=}\NormalTok{ ME([B.L], [A.L])}
+\NormalTok{        [B.L]}\OperatorTok{->}\NormalTok{[C.L] }\OperatorTok{=}\NormalTok{ ME([B.L], [C.L])}
+\NormalTok{        [B.H]_A }\OperatorTok{=}\NormalTok{ MC([A.H], [B.L]}\OperatorTok{->}\NormalTok{[A.L])}
+\NormalTok{        [B.H]_C }\OperatorTok{=}\NormalTok{ MC([C.H], [B.L]}\OperatorTok{->}\NormalTok{[C.L])}
+\NormalTok{        [B.H] }\OperatorTok{=}\NormalTok{ [}\OperatorTok{~}\NormalTok{B.H] }\OperatorTok{+} \BuiltInTok{int}\NormalTok{(}\BuiltInTok{round}\NormalTok{(([B.H]_A }\OperatorTok{+}\NormalTok{ [B.H]_C)}\OperatorTok{/}\FloatTok{2.0}\NormalTok{))}
+\NormalTok{        V[x}\OperatorTok{*}\NormalTok{i}\OperatorTok{+}\NormalTok{x}\OperatorTok{//}\DecValTok{2}\NormalTok{] }\OperatorTok{=}\NormalTok{ [B.L] }\OperatorTok{+}\NormalTok{ [B.H]}
+\NormalTok{        [A.L] }\OperatorTok{=}\NormalTok{ [C.L]}
+\NormalTok{        [A.H] }\OperatorTok{=}\NormalTok{ [C.H]}
+\NormalTok{        i }\OperatorTok{+=} \DecValTok{1}
+\NormalTok{    x }\OperatorTok{//=} \DecValTok{2}
+\end{Highlighting}
+\end{Shaded}
+
+    Note: \(x.L^n = \{x.L^{n+1}, x.H^{n+1}\}\)
+
+
+    % Add a bibliography block to the postdoc
+    
+    
+    
+    \end{document}
