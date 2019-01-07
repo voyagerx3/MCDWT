@@ -6,3 +6,11 @@
 *.aux
 *.pdf
 *.out
+*__pycache__*
+*.4ct
+*.4tc
+*.dvi
+*.idv
+*.lg
+*.tmp
+*.xref

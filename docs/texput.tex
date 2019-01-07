@@ -104,6 +104,19 @@ equivalent representation, and viceversa. For this reason, even if we
 use wavelet pyramids in our images, we can suppose at any moment that we
 are working with the Laplacian pyramid of those images.
 
+The following code implements the forward and backward 2D-DWT for
+color images. \(L\) and \(H\) stands for \emph{low-pass
+  filtered} and \emph{high-pass filtered}, respectively.
+
+The 1-iteration 2D-DWT can be applied $k$-times to the LL subband
+recursively, generating a pyramid of $k$-levels. For the sake of
+simplicity, we will denote the subbands \(\{LH^k, HL^k, HH^k\}\) as
+only \(H^k\), and \(LL^k\) as only \(L^k\).
+
+\lstinputlisting[language=python]{../src/DWT/color.py}
+
+\end{document}
+
 \section{The $K$-levels 2D Discrete Wavelet Transform (2D-DWT) of a
 video}
 As said before, a
@@ -154,11 +167,6 @@ A sequence \(S\) of \(N\) pyramids. For example, a (\(K=2\))-levels, the
       S[0]               S[1]                  S[N-1]
 \end{verbatim}
 
-where \(L\) and \(H\) stands for \emph{low-pass filtered} and
-\emph{high-pass filtered}, respectively. The integer \textgreater{} 1
-that follows these letters represents the subband level. For the sake of
-simplicity, we will denote the subbands \(\{LH^k, HL^k, HH^k\}\) as only
-\(H^k\), and \(LL^k\) as only \(L^k\).
 
 
 \subsection{Scalability}
