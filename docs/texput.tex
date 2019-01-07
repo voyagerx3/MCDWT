@@ -126,6 +126,11 @@ DWT to all the images of the video. This is done, for example, in the
 compression standard}. Notice that only the spatial redundancy is
 exploited. All the temporal redundancy is still in the video.
 
+\begin{figure}
+\centering
+\imgw{400}{graphics/forward_MDWT.svg}
+\caption{Forward MDWT step.}
+\end{figure}
 \lstinputlisting[language=python]{../src/MDWT.py}
 
 \subsection{Scalability}
@@ -136,20 +141,20 @@ number of frames), and in quality (we can get the DWT coefficients with
 different quantization steps to reconstruct videos of different
 quality). For example, subbands
 $\{S_0.LL^2, S_1.LL^2, ..., S_{N-1}.LL^2\}$ in
-
-\begin{verbatim}
-+---+---+-------+  +---+---+-------+     +---+---+-------+
-|LL2|HL2|       |  |   |   |       |     |   |   |       |
-+---+---+  HL1  |  +---+---+       |     +---+---+       |
-|LH2|HH2|       |  |   |   |       |     |   |   |       |
-+---+---+-------+  +---+---+-------+ ... +---+---+-------+
-|       |       |  |       |       |     |       |       |
-|  LH1  |  HH1  |  |       |       |     |       |       |
-|       |       |  |       |       |     |       |       |        
-+-------+-------+  +-------+-------+     +-------+-------+
-      S[0]               S[1]                  S[N-1]
-\end{verbatim}
-
+%
+%\begin{verbatim}
+%+---+---+-------+  +---+---+-------+     +---+---+-------+
+%|LL2|HL2|       |  |   |   |       |     |   |   |       |
+%+---+---+  HL1  |  +---+---+       |     +---+---+       |
+%|LH2|HH2|       |  |   |   |       |     |   |   |       |
+%+---+---+-------+  +---+---+-------+ ... +---+---+-------+
+%|       |       |  |       |       |     |       |       |
+%|  LH1  |  HH1  |  |       |       |     |       |       |
+%|       |       |  |       |       |     |       |       |        
+%+-------+-------+  +-------+-------+     +-------+-------+
+%      S[0]               S[1]                  S[N-1]
+%\end{verbatim}
+%
 represent the scale (number) 2 of the original video (the spatial
 resolution of this is the resolution of $s$ divided by 4 in each
 spatial dimension). To reconstruct the scale 1 (which is provided by the
@@ -192,8 +197,8 @@ $C=\{C.L, C.H\}$ (intra-coded).
 \subsection{Algorithm}
 \begin{figure}
 \centering
-\includegraphics{graphics/forward_MCDWT.png}
-\caption{MCDWT}
+\imgw{800}{graphics/forward_MCDWT.svg}
+\caption{Forward MCDWT butterfly.}
 \end{figure}
 \lstinputlisting[language=python,firstline=19,lastline=31]{../src/MCDWT.py}
 

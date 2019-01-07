@@ -31,18 +31,21 @@
 \begin{tikzpicture}[auto, >=triangle 45]
 
   \draw
-  node [block] (s0) {$s[0]$}
-  node [block, right of=s0] (s1) {$s[1]$}
-  node [right of=s1, node distance=1.8cm] (cdots) {$\cdots$}
-  node [block, right of=s1] (sN) {$s[N-1]$}
-  node [block, below of=s0] (S0) {$S[0]$}
-  node [block, below of=s1] (S1) {$S[1]$}
-  node [block, below of=sN] (SN) {$S[N-1]$}
+  node [block] (s1) {$s_1$}
+  node [block, right of=s1] (s2) {$s_2$}
+  node [right of=s2, node distance=1.8cm] (cdots) {$\cdots$}
+  node [block, right of=s2] (sN) {$s_N$}
+  node [below of=s1, node distance=2.8cm] (DWT1) {\DWT{\scriptstyle s_1.L}{\scriptstyle s_1.H}}
+  node [below of=s2, node distance=2.8cm] (DWT2) {\DWT{\scriptstyle s_2.L}{\scriptstyle s_2.H}}
+  node [below of=sN, node distance=2.8cm] (DWTN) {\DWT{\scriptstyle s_N.L}{\scriptstyle s_N.H}}
+  node [below of=DWT1, node distance=1.4cm] (S0) {$S_1$}
+  node [below of=DWT2, node distance=1.4cm] (S0) {$S_2$}
+  node [below of=DWTN, node distance=1.4cm] (SN) {$S_N$}
   ;
 
-  \draw [->] (s0) -- (S0);
-  \draw [->] (s1) -- (S1);
-  \draw [->] (sN) -- (SN);
+  \draw [->] (s1) -- (DWT1);
+  \draw [->] (s2) -- (DWT2);
+  \draw [->] (sN) -- (DWTN);
 
 \end{tikzpicture}
 \end{document}

@@ -17,6 +17,13 @@ def create_zero_subbands(self, dwtA):
     self.zero_H = (zero_L, zero_L, zero_L)
 
 def forward_butterfly(self, AL, AH, BL, BH, CL, CH):
+    ''' Motion compensated forward MCDWT butterfly.
+
+    Input:
+    -----
+
+    AL, AH, BL, BH, CL, CH: array[y, x, component]
+    '''
     dwtB = dwt.forward(A)
     BL = dwt.backward(dwtB[0], zero_H)
     BH = dwt.backward(zero_L, dwtB[1])

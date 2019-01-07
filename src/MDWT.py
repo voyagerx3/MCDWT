@@ -3,7 +3,7 @@ from DWT import forward as DWT
 from DWT import backward as iDWT
 
 def forward(s):
-    ''' Motion 2D 1-iteration forward DWT of a sequence of images.
+    ''' Motion 1-iteration forward 2D DWT of a sequence of images.
 
     Compute the 2D-DWT of each image of the sequence s.
 
@@ -25,7 +25,7 @@ def forward(s):
     return S
 
 def backward(S):
-    ''' Motion 2D 1-iteration forward DWT of a sequence of pyramids.
+    ''' Motion 1-iteration forward 2D DWT of a sequence of pyramids.
 
     Compute the inverse 2D-DWT of each pyramid of the sequence S.
 
