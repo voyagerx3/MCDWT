@@ -115,6 +115,12 @@ DWT to all the images of the video. This is done, for example, in the
 compression standard}. Notice that only the spatial redundancy is
 exploited. All the temporal redundancy is still in the video.
 
+\subsection{Forward transform}
+\lstinputlisting[language=python]{../src/MDWT/forward.py}
+
+\subsection{Backward transform}
+\lstinputlisting[language=python]{../src/MDWT/backward.py}
+
 \subsection{Input}
 A sequence \(s\) of \(N\) images:
 
@@ -154,11 +160,6 @@ that follows these letters represents the subband level. For the sake of
 simplicity, we will denote the subbands \(\{LH^k, HL^k, HH^k\}\) as only
 \(H^k\), and \(LL^k\) as only \(L^k\).
 
-\subsection{Algorithm}\label{algorithm}
-\lstinputlisting[language=python]{../src/sequence/2D_DWT.py}
-
-\subsection{Inverse algorithm}
-\lstinputlisting[language=python]{src/sequence/2D_iDWT.py}
 
 \subsection{Scalability}
 The 2D-DWT applied to a video produces a scalable representation in the
