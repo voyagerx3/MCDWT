@@ -2,3 +2,7 @@
 *~
 *.jp2
 *.png
+*.log
+*.aux
+*.pdf
+*.out
