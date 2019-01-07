@@ -9,14 +9,14 @@ def forward(image):
     Input:
     -----
 
-        image: [component,y,x].
+        image: [component, y, x].
 
-            A color frame.
+            A color image.
 
     Output:
     ------
 
-        pyramid: (L, H), where L = [component,y,x] (low-frequencies color subband) and H = (LH,HL,HH), where LH, HL, HH: [component,y,x] (high-frequencies color subbands).
+        pyramid: (L, H), where L= [component, y, x] (low-frequencies color subband) and H = (LH, HL, HH), where LH, HL, HH: [component, y, x] (high-frequencies color subbands).
 
             A color pyramid.
     '''

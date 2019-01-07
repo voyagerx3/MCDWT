@@ -3,15 +3,14 @@
 %%% TeX-master: "<none>"
 %%% End:
 
-\title{Motion Compensated Discrete Wavelet Transform
-(MCDWT)}
+\title{Motion Compensated Discrete Wavelet Transform (MCDWT)}
 
 \author{Vicente González Ruiz}
 
 \maketitle
 \section{Intro}
 
-MCDWT is a multiresolution
+\textcolor{red}{MCDWT} is a multiresolution
 \href{https://en.wikipedia.org/wiki/Video}{video} transform. The input
 sequence of \href{https://en.wikipedia.org/wiki/Pixel}{pixels} are
 \href{https://en.wikipedia.org/wiki/Decorrelation}{decorrelated} in
@@ -77,8 +76,8 @@ sequence of images in the DWT domain.
 \href{http://www.polyvalens.com/blog/wavelets/theory}{The overwhelming
 majority of DWT's} are not
 \href{http://www.polyvalens.com/blog/wavelets/theory}{shift invariant},
-which basically means \(\text{DWT}(s[t]) \neq \text{DWT}(s[t+x])\),
-where \(x\) is a displacement of \(s[t]\) along the time domain.
+which basically means $\text{DWT}(s[t]) \neq \text{DWT}(s[t+x])$,
+where $x$ is a displacement of $s[t]$ along the time domain.
 Therefore, motion estimators which compare pixel values will not work on
 the DWT domain. On the other hand, if we want to provide true spatial
 scalability (processing only those spatial resolutions (scales)
@@ -105,15 +104,15 @@ use wavelet pyramids in our images, we can suppose at any moment that we
 are working with the Laplacian pyramid of those images.
 
 The following code implements the forward and backward 2D-DWT for
-color images. \(L\) and \(H\) stands for \emph{low-pass
+color images. $L$ and $H$ stands for \emph{low-pass
   filtered} and \emph{high-pass filtered}, respectively.
+
+\lstinputlisting[language=python]{../src/DWT/color.py}
 
 The 1-iteration 2D-DWT can be applied $k$-times to the LL subband
 recursively, generating a pyramid of $k$-levels. For the sake of
-simplicity, we will denote the subbands \(\{LH^k, HL^k, HH^k\}\) as
-only \(H^k\), and \(LL^k\) as only \(L^k\).
-
-\lstinputlisting[language=python]{../src/DWT/color.py}
+simplicity, we will denote the subbands $\{LH^k, HL^k, HH^k\}$ as
+only $H^k$, and $LL^k$ as only $L^k$.
 
 \end{document}
 
@@ -135,7 +134,7 @@ exploited. All the temporal redundancy is still in the video.
 \lstinputlisting[language=python]{../src/MDWT/backward.py}
 
 \subsection{Input}
-A sequence \(s\) of \(N\) images:
+A sequence $s$ of $N$ images:
 
 \begin{verbatim}
                                                       x 
@@ -151,7 +150,7 @@ A sequence \(s\) of \(N\) images:
 \end{verbatim}
 
 \subsection{Output}
-A sequence \(S\) of \(N\) pyramids. For example, a (\(K=2\))-levels, the
+A sequence $S$ of $N$ pyramids. For example, a ($K=2$)-levels, the
 2D-DWT looks like:
 
 \begin{verbatim}
@@ -176,12 +175,12 @@ resolutions), in the time (we can extract diferent videos with different
 number of frames), and in quality (we can get the DWT coefficients with
 different quantization steps to reconstruct videos of different
 quality). In the last example, subbands
-\(\{S_0.LL^2, S_1.LL^2, ..., S_{N-1}.LL^2\}\) represent the scale
+$\{S_0.LL^2, S_1.LL^2, ..., S_{N-1}.LL^2\}$ represent the scale
 (number) 2 of the original video (the spatial resolution of this is the
-resolution of \(s\) divided by 4 in each spatial dimension).
+resolution of $s$ divided by 4 in each spatial dimension).
 
 For example, to reconstruct the scale 1 (which is provided by the
-subbands \(\{LL^2, LH^2, HL^2, HH^2\}\)), we must apply the 2D-iDWT
+subbands $\{LL^2, LH^2, HL^2, HH^2\}$), we must apply the 2D-iDWT
 (1-levels 2D inverse DWT).
 
 \subsection{Implementation of 2D-DWT and 2D-iDWT}
@@ -218,12 +217,12 @@ information is computed at both ends, using the information that is
 available at the decoder.
 
 \subsection{Input}
-Three frames of \(s\): \(a\), \(b\) and \(c\).
+Three frames of $s$: $a$, $b$ and $c$.
 
 \subsubsection{Output}
-Three frames \(A=\{A.L, A.H\}\) (intra-coded),
-\(B=\{B.L, \tilde{B}.H\}\) (bidirectionally predicted) and
-\(C=\{C.L, C.H\}\) (intra-coded).
+Three frames $A=\{A.L, A.H\}$ (intra-coded),
+$B=\{B.L, \tilde{B}.H\}$ (bidirectionally predicted) and
+$C=\{C.L, C.H\}$ (intra-coded).
 
 \subsubsection{Algorithm}
 \begin{figure}
@@ -233,12 +232,12 @@ Three frames \(A=\{A.L, A.H\}\) (intra-coded),
 \end{figure}
 \lstinputlisting[language=python]{src/sequence/2D_iDWT.py}
 
-Notice that, even if \(a\) and \(c\) (at full resolution) are available
-at the decoder, only \(B.L\) is. So, does not make sense to search the
-low resolution structures of \(B.L\) in the high resolution images \(a\)
-and \(c\), because even if a perfect match is achieved, the prediction
-error would be different than \(0\) as a consequence of the high
-resolution information is missing in \(B.L\).
+Notice that, even if $a$ and $c$ (at full resolution) are available
+at the decoder, only $B.L$ is. So, does not make sense to search the
+low resolution structures of $B.L$ in the high resolution images $a$
+and $c$, because even if a perfect match is achieved, the prediction
+error would be different than $0$ as a consequence of the high
+resolution information is missing in $B.L$.
 
 \subsection{Another example (only butterfly)}
 Lets suppose that we have procesed the sequence of images one step and a
@@ -252,38 +251,38 @@ moment, the structure of the images would be:
   \{C.L^2, C.H^2\} = \text{DWT}(C.L)
 \end{equation}
 
-\subsubsection{Zoom-in \(L\) subbands}{Zoom-in L subbands}
+\subsubsection{Zoom-in $L$ subbands}{Zoom-in L subbands}
 \begin{equation}
   [A.L^2] = \text{iDWT}(A.L^2, 0)\\
   [B.L^2] = \text{iDWT}(B.L^2, 0)\\
   [C.L^2] = \text{iDWT}(C.L^2, 0)
 \end{equation}
 
-\subsubsection{Merge and zoom-in \(H\) subbands
+\subsubsection{Merge and zoom-in $H$ subbands
 \begin{equation}
   [A.H^2] = \text{iDWT}(0, A.H^2)\\
   [B.H^2] = \text{iDWT}(0, B.H^2)\\
   [C.H^2] = \text{iDWT}(0, C.H^2)
 \end{equation}
 
-\subsubsection{Generate a prediction \([\hat{B}.H^2]\)¡}
+\subsubsection{Generate a prediction $[\hat{B}.H^2]$¡}
 \begin{equation}
   [B_A.H^2] = [A.H^2]\overset{[A.L^2]\rightarrow[B.L^2]}{\longrightarrow}[B.H^2]\\
   [B_C.H^2] = [C.H^2]\overset{[C.L^2]\rightarrow[B.L^2]}{\longrightarrow}[B.H^2]\\  
 \end{equation}
 
 Note: predictions do not need to be exhaustive. Depending on the quality
-of the predictions for \([B.L^2]\):
+of the predictions for $[B.L^2]$:
 
 \begin{equation}
   [B_A.L^2] = [A.L^2]\overset{[A.L^2]\rightarrow[B.L^2]}{\longrightarrow}[B.L^2]\\
   [B_C.L^2] = [C.L^2]\overset{[C.L^2]\rightarrow[B.L^2]}{\longrightarrow}[B.L^2],\\  
 \end{equation}
 
-comparing \([B_A.L^2]\) and \([B_C.L^2]\) with \([B.L^2]\). In fact,
-\([B_A.H^2]\) and \([B_C.H^2]\) could have ``holes'' (regions to 0,
+comparing $[B_A.L^2]$ and $[B_C.L^2]$ with $[B.L^2]$. In fact,
+$[B_A.H^2]$ and $[B_C.H^2]$ could have ``holes'' (regions to 0,
 supposing that the pixels are positive), producing a parcial prediction
-\([\hat{B}.H^2]\) for \([B.H^2]\). In the simplest case
+$[\hat{B}.H^2]$ for $[B.H^2]$. In the simplest case
 
 \begin{equation}
   [\hat{B}.H^2] = \frac{[B_A.H^2] + [B_C.H^2]}{2}.
@@ -296,12 +295,12 @@ cosideration how to minimize the energy of the residue
   [\tilde{B}.L^2] = [B.L^2] - [\hat{B}.L^2].
 \end{equation}
 
-\subsubsection{Compute the residue \([\tilde{B}.H^2]\)}
+\subsubsection{Compute the residue $[\tilde{B}.H^2]$}
 \begin{equation}
   [\tilde{B}.H^2] = [B.H^2] - [\hat{B}.H^2]
 \end{equation}
 
-\subsubsection{Unmerge \(\tilde{B}.H^2\) subbands}
+\subsubsection{Unmerge $\tilde{B}.H^2$ subbands}
 \begin{equation}
   \tilde{B}.H^2 = \text{DWT}(0, [\tilde{B}.H^2])
 \end{equation}
@@ -319,15 +318,15 @@ domain}\label{compose-the-residue-in-the-wavelet-domain}}
 \begin{itemize}
 \tightlist
 \item
-  Three frames \(A=\{A.L, A.H\}\), \(B=\{B.L, \tilde{B}.H\}\), and
-  \(C=\{C.L, C.H\}\).
+  Three frames $A=\{A.L, A.H\}$, $B=\{B.L, \tilde{B}.H\}$, and
+  $C=\{C.L, C.H\}$.
 \end{itemize}
 
 \subsection{Output}
 \begin{itemize}
 \tightlist
 \item
-  Three frames \(a\), \(b\) and \(c\).
+  Three frames $a$, $b$ and $c$.
 \end{itemize}
 
 \subsection{Algorithm}
@@ -341,49 +340,49 @@ domain}\label{compose-the-residue-in-the-wavelet-domain}}
 Lets restore the structure for the three transformed images of
 Section \ref{another_example}.
 
-\subsubsection{Zoom-in \(L\) subbands}
+\subsubsection{Zoom-in $L$ subbands}
 \begin{equation}
   [A.L^2] = \text{iDWT}(A.L^2, 0)\\
   [B.L^2] = \text{iDWT}(B.L^2, 0)\\
   [C.L^2] = \text{iDWT}(C.L^2, 0)
 \end{equation}
 
-\subsubsection{Merge (and zoom-in) \(H\) subbands}
+\subsubsection{Merge (and zoom-in) $H$ subbands}
 \begin{equation}
   [A.H^2] = \text{iDWT}(0, A.H^2)\\
   [\tilde{B}.H^2] = \text{iDWT}(0, \tilde{B}.H^2)\\
   [C.H^2] = \text{iDWT}(0, C.H^2)
 \end{equation}
 
-\subsubsection{Generate a prediction \([\hat{B}.H^2]\)}
+\subsubsection{Generate a prediction $[\hat{B}.H^2]$}
 Identical to the prediction step performed at the forward transform.
 
-\subsubsection{Restore the original subband \([B.H^2]\)}
+\subsubsection{Restore the original subband $[B.H^2]$}
 \begin{equation}
   [B.H^2] = [\hat{B}.H^2] + [\tilde{B}.H^2]
 \end{equation}
 
-\subsubsection{Compute \(L\) subbands}
+\subsubsection{Compute $L$ subbands}
 \begin{equation}
   A.L = [A.L^2] + [A.H^2]\\
   B.L = [B.L^2] + [B.H^2]\\
   C.L = [C.L^2] + [C.H^2]
 \end{equation}
 
-\subsection{\(K\)-levels (forward) MCDWT}
+\subsection{$K$-levels (forward) MCDWT}
 \subsubsection{Input}
 \begin{itemize}
 \tightlist
 \item
-  A sequence \(s\) of \(N\) images.
+  A sequence $s$ of $N$ images.
 \end{itemize}
 
 \subsubsection{Output}
 \begin{itemize}
 \tightlist
 \item
-  A sequence of \(K+1\) temporal subbands, where each subband is a
-  sequence of \(N/2^K\) (wavelet) pyramids.
+  A sequence of $K+1$ temporal subbands, where each subband is a
+  sequence of $N/2^K$ (wavelet) pyramids.
 \end{itemize}
 
 \subsubsection{Algorithm}
@@ -1036,7 +1035,7 @@ GOP0        GOP1
 \end{Highlighting}
 \end{Shaded}
 
-    Note: \(x.L^n = \{x.L^{n+1}, x.H^{n+1}\}\)
+    Note: $x.L^n = \{x.L^{n+1}, x.H^{n+1}\}$
 
 
     % Add a bibliography block to the postdoc

@@ -178,5 +178,6 @@ table[rules] {border-left:solid black 0.4pt; border-right:solid black 0.4pt; }
 div.lstlisting{font-family: monospace; white-space: nowrap; margin-top:0.5em; margin-bottom:0.5em; }
 div.lstinputlisting{ font-family: monospace; white-space: nowrap; }
 .lstinputlisting .label{margin-right:0.5em;}
+#textcolor1{color:#FF0000}
 /* end css.sty */
 
