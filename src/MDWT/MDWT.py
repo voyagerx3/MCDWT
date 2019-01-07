@@ -1,33 +1,47 @@
 import DWT_2D.forward as DWT_2D
+from DWT import forward as DWT
+from DWT import backward as iDWT
 
-def sequence_DWT_2D(s, K):
-    ''' Motion DWT_2D.
+def forward(s):
+    ''' Motion 2D 1-iteration forward DWT of a sequence of images.
 
-    Compute the 2D-DWT of a sequence of images.
+    Compute the 2D-DWT of each image of the sequence s.
 
-    Arguments
-    ---------
-        s : str
+    Input:
+    -----
 
-            Prefix of the input/output images. Example: "/tmp/".
+        s: list[], the sequence of images.
 
-        K : int
+    Output:
+    ------
 
-            Number of levels of the 2D-DWT.
+        S: list[], the sequence of pyramids.
 
-    Returns
-    -------
-
-        S : str
-
-            Prefix of the output pyramids. Eample: "/tmp".
     '''
     
-
+    S = []
     for image in s:
-        DWT_2D(image, K) # In-place computation
-    return s
-def sequence_2D_iDWT(S, K):
-    for pyramid in S:
-        _2D_iDWT(pyramid, K) # In-place computation
+        S.append(DWT(image))
     return S
+
+def backward(S):
+    ''' Motion 2D 1-iteration forward DWT of a sequence of pyramids.
+
+    Compute the inverse 2D-DWT of each pyramid of the sequence S.
+
+    Input:
+    -----
+
+        S: list[], the sequence of pyramids.
+
+    Output:
+    ------
+
+        s: list[], the sequence of images.
+
+    '''
+    
+    s = []
+    for pyramid in S:
+        s.append(iDWT(pyramid))
+    return s

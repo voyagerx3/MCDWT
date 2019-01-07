@@ -4,19 +4,44 @@ import pywt
 import math
 
 def forward(image):
-    '''2D 1-iteration DWT of a color image.
+    '''2D 1-iteration forward DWT of a color image.
 
     Input:
     -----
 
-        image: [component, y, x].
+        image: array[y, x, component], the color image.
 
-            A color image.
+              x
+         +---------------+
+         |               |-+ component
+       y |               | |-+
+         |               | | |
+         |               | | |
+         |               | | |
+         |               | | |
+         |               | | |
+         +---------------+ | |
+           +---------------+ |
+             +---------------+
+
 
     Output:
     ------
 
-        pyramid: (L, H), where L= [component, y, x] (low-frequencies color subband) and H = (LH, HL, HH), where LH, HL, HH: [component, y, x] (high-frequencies color subbands).
+        pyramid: tuple(L, H), where L = array[y, x, component] (low-frequencies color subband) and H = tuple(LH, HL, HH), where LH, HL, HH: array[y, x, component] (high-frequencies color subbands).
+
+             x
+         +-------+-------+
+         |       |       |-+ component
+       y |  LL   |  HL   | |-+
+         |       |       | | |
+         +-------+-------+ | |
+         |       |       |-+ |
+         |  LH   |  HH   | |-+
+         |       |       | | |
+         +-------+-------+ | |
+           +-------+-------+ |
+             +-------+-------+
 
             A color pyramid.
     '''

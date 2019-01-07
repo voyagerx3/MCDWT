@@ -109,15 +109,12 @@ color images. $L$ and $H$ stands for \emph{low-pass
 
 \lstinputlisting[language=python]{../src/DWT/color.py}
 
-The 1-iteration 2D-DWT can be applied $k$-times to the LL subband
-recursively, generating a pyramid of $k$-levels. For the sake of
+The 1-iteration 2D-DWT can be applied $k$-times to the $LL$ subband
+recursively, generating a pyramid of $k+1$-levels. For the sake of
 simplicity, we will denote the subbands $\{LH^k, HL^k, HH^k\}$ as
 only $H^k$, and $LL^k$ as only $L^k$.
 
-\end{document}
-
-\section{The $K$-levels 2D Discrete Wavelet Transform (2D-DWT) of a
-video}
+\section{Motion DWT}
 As said before, a
 \href{https://en.wikipedia.org/wiki/Discrete_wavelet_transform}{2D-DWT}
 (2 Dimensions - Discrete Wavelet Transform) generates a scalable
