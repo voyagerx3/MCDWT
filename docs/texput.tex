@@ -103,16 +103,18 @@ equivalent representation, and viceversa. For this reason, even if we
 use wavelet pyramids in our images, we can suppose at any moment that we
 are working with the Laplacian pyramid of those images.
 
-The following code implements the forward and backward 2D-DWT for
-color images. $L$ and $H$ stands for \emph{low-pass
-  filtered} and \emph{high-pass filtered}, respectively.
+\href{https://github.com/vicente-gonzalez-ruiz/MCDWT/blob/master/src/DWT.py}{DWT.py}
+implements the forward and backward 2D-DWT for color images. $L$ and
+$H$ stands for \emph{low-pass filtered} and \emph{high-pass filtered},
+respectively.
 
-\lstinputlisting[language=python]{../src/DWT/color.py}
+\lstinputlisting[language=python]{../src/DWT.py}
 
 The 1-iteration 2D-DWT can be applied $k$-times to the $LL$ subband
 recursively, generating a pyramid of $k+1$-levels. For the sake of
-simplicity, we will denote the subbands $\{LH^k, HL^k, HH^k\}$ as
-only $H^k$, and $LL^k$ as only $L^k$.
+simplicity, we will denote the subbands $\{LH^k, HL^k, HH^k\}$ as only
+$H^k$, and $LL^k$ as only $L^k$. More information at
+\href{https://pywavelets.readthedocs.io/en/latest/index.html}{PyWavelets}.
 
 \section{Motion DWT}
 As said before, a
@@ -124,31 +126,16 @@ DWT to all the images of the video. This is done, for example, in the
 compression standard}. Notice that only the spatial redundancy is
 exploited. All the temporal redundancy is still in the video.
 
-\subsection{Forward transform}
-\lstinputlisting[language=python]{../src/MDWT/forward.py}
+\lstinputlisting[language=python]{../src/MDWT.py}
 
-\subsection{Backward transform}
-\lstinputlisting[language=python]{../src/MDWT/backward.py}
-
-\subsection{Input}
-A sequence $s$ of $N$ images:
-
-\begin{verbatim}
-                                                      x 
-+---------------+  +---------------+     +---------------+
-|               |  |               |     |            |  |
-|               |  |               |   y |----------- o <---- s[N-1][y][x]
-|               |  |               | ... |               |
-|               |  |               |     |               |
-|               |  |               |     |               |
-|               |  |               |     |               |
-+---------------+  +---------------+     +---------------+
-      s[0]               s[1]                 s[N-1]
-\end{verbatim}
-
-\subsection{Output}
-A sequence $S$ of $N$ pyramids. For example, a ($K=2$)-levels, the
-2D-DWT looks like:
+\subsection{Scalability}
+The 2D-DWT applied to a video produces a scalable representation in the
+space (we can extract different videos with different spatial scales or
+resolutions), in the time (we can extract diferent videos with different
+number of frames), and in quality (we can get the DWT coefficients with
+different quantization steps to reconstruct videos of different
+quality). For example, subbands
+$\{S_0.LL^2, S_1.LL^2, ..., S_{N-1}.LL^2\}$ in
 
 \begin{verbatim}
 +---+---+-------+  +---+---+-------+     +---+---+-------+
@@ -163,41 +150,22 @@ A sequence $S$ of $N$ pyramids. For example, a ($K=2$)-levels, the
       S[0]               S[1]                  S[N-1]
 \end{verbatim}
 
-
-
-\subsection{Scalability}
-The 2D-DWT applied to a video produces a scalable representation in the
-space (we can extract different videos with different spatial scales or
-resolutions), in the time (we can extract diferent videos with different
-number of frames), and in quality (we can get the DWT coefficients with
-different quantization steps to reconstruct videos of different
-quality). In the last example, subbands
-$\{S_0.LL^2, S_1.LL^2, ..., S_{N-1}.LL^2\}$ represent the scale
-(number) 2 of the original video (the spatial resolution of this is the
-resolution of $s$ divided by 4 in each spatial dimension).
-
-For example, to reconstruct the scale 1 (which is provided by the
+represent the scale (number) 2 of the original video (the spatial
+resolution of this is the resolution of $s$ divided by 4 in each
+spatial dimension). To reconstruct the scale 1 (which is provided by the
 subbands $\{LL^2, LH^2, HL^2, HH^2\}$), we must apply the 2D-iDWT
 (1-levels 2D inverse DWT).
 
-\subsection{Implementation of 2D-DWT and 2D-iDWT}
-See for example,
-\href{https://pywavelets.readthedocs.io/en/latest/ref/2d-dwt-and-idwt.html\#d-multilevel-decomposition-using-wavedec2}{pywt.wavedec2()}
-at
-\href{https://pywavelets.readthedocs.io/en/latest/index.html}{PyWavelets}.
-
-\end{document}
-
 \subsection{Redundancy and compression}
 The 2D-DWT incorporates to $S$ an interesting feature: usually,
-$H$ subbands has a lower entropy than $s. This means that
+$H$ subbands has a lower entropy than $s$. This means that
 if we apply to $S$ an entropy encoder, we can get a shorter
 representation of the video than if we encode $s$ directly. This
 is a consequence of that 2D-DWT removes (most of) the spatial redudancy
 of the images of the video (neighboring pixels tend to have similar
 values and their substraction tends to produce zeros).
 
-\section{Why MCDWT?}
+\section{Removing temporal redundancy with MCDWT?}
 As we have said, the 2D-DWT does not exploit the temporal redundancy of
 a video. Consequently, we can achieve higher compression ratios (in
 addition to the 2D-DWT) if we apply a 1D-DWT along the temporal domain.
@@ -207,11 +175,13 @@ which are moving with respect to the camera, some sort of motion
 compensation should be used before substacting the prediction images to
 the original ones.
 
-\section{Forward (direct) MCDWT (1-levels) butterfly}
-MCDWT is based on the idea that, to provide MC without transmitting the
-motio information from the encoder to the decoder, the motion
-information is computed at both ends, using the information that is
-available at the decoder.
+\end{document}
+
+\section{The (1-levels) forward MCDWT butterfly}
+MCDWT is based on the idea that, to provide MC without transmitting
+the motion information from the encoder to the decoder, the motion
+information is computed at both ends, using only the information that
+is available at the decoder.
 
 \subsection{Input}
 Three frames of $s$: $a$, $b$ and $c$.
