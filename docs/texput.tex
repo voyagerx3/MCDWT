@@ -154,8 +154,8 @@ that follows these letters represents the subband level. For the sake of
 simplicity, we will denote the subbands \(\{LH^k, HL^k, HH^k\}\) as only
 \(H^k\), and \(LL^k\) as only \(L^k\).
 
-\subsection{Algorithm}\label{algorithm}}
-\lstinputlisting[language=python]{src/sequence/2D_DWT.py}
+\subsection{Algorithm}\label{algorithm}
+\lstinputlisting[language=python]{../src/sequence/2D_DWT.py}
 
 \subsection{Inverse algorithm}
 \lstinputlisting[language=python]{src/sequence/2D_iDWT.py}
@@ -181,7 +181,9 @@ See for example,
 at
 \href{https://pywavelets.readthedocs.io/en/latest/index.html}{PyWavelets}.
 
-\subsection{5. Redundancy and compression}
+\end{document}
+
+\subsection{Redundancy and compression}
 The 2D-DWT incorporates to $S$ an interesting feature: usually,
 $H$ subbands has a lower entropy than $s. This means that
 if we apply to $S$ an entropy encoder, we can get a shorter
