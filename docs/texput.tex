@@ -175,9 +175,7 @@ which are moving with respect to the camera, some sort of motion
 compensation should be used before substacting the prediction images to
 the original ones.
 
-\end{document}
-
-\section{The (1-levels) forward MCDWT butterfly}
+\section{The MCDWT forward butterfly}
 MCDWT is based on the idea that, to provide MC without transmitting
 the motion information from the encoder to the decoder, the motion
 information is computed at both ends, using only the information that
@@ -186,18 +184,18 @@ is available at the decoder.
 \subsection{Input}
 Three frames of $s$: $a$, $b$ and $c$.
 
-\subsubsection{Output}
+\subsection{Output}
 Three frames $A=\{A.L, A.H\}$ (intra-coded),
 $B=\{B.L, \tilde{B}.H\}$ (bidirectionally predicted) and
 $C=\{C.L, C.H\}$ (intra-coded).
 
-\subsubsection{Algorithm}
+\subsection{Algorithm}
 \begin{figure}
 \centering
-\includegraphics{forward.png}
+\includegraphics{graphics/forward_MCDWT.png}
 \caption{MCDWT}
 \end{figure}
-\lstinputlisting[language=python]{src/sequence/2D_iDWT.py}
+\lstinputlisting[language=python,firstline=19,lastline=31]{../src/MCDWT.py}
 
 Notice that, even if $a$ and $c$ (at full resolution) are available
 at the decoder, only $B.L$ is. So, does not make sense to search the
@@ -205,6 +203,8 @@ low resolution structures of $B.L$ in the high resolution images $a$
 and $c$, because even if a perfect match is achieved, the prediction
 error would be different than $0$ as a consequence of the high
 resolution information is missing in $B.L$.
+
+\end{document}
 
 \subsection{Another example (only butterfly)}
 Lets suppose that we have procesed the sequence of images one step and a

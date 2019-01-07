@@ -15,7 +15,7 @@ def forward_W():
 def create_zero_subbands(self, dwtA):
     self.zero_L = np.zeros(dwtA[0].shape, np.float64)
     self.zero_H = (zero_L, zero_L, zero_L)
- 
+
 def forward_butterfly(self, AL, AH, BL, BH, CL, CH):
     dwtB = dwt.forward(A)
     BL = dwt.backward(dwtB[0], zero_H)

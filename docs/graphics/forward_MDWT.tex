@@ -1,0 +1,48 @@
+\documentclass[tikz,14pt,border=10pt]{standalone}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usetikzlibrary{shapes,arrows}
+\usetikzlibrary{calc}
+
+\begin{document}
+% Definition of blocks:
+\tikzset{%
+  block/.style    = {draw, rectangle, minimum height = 2cm,
+    minimum width = 2cm, node distance = 3.5cm},
+  sum/.style      = {draw, circle, node distance = 3.5cm}, % Adder
+  input/.style    = {coordinate}, % Input
+  output/.style   = {coordinate} % Output
+}
+% Defining string as labels of certain blocks.
+\newcommand{\suma}{\Large$+$}
+\newcommand{\inte}{$\displaystyle \int$}
+\newcommand{\derv}{\huge$\frac{d}{dt}$}
+\newcommand{\DWT}[2]{\begin{tikzpicture}%
+    \draw node [draw, minimum width = 1cm, minimum height = 1cm] (0) {$#1$};
+    \draw node [draw, minimum width = 1cm, minimum height = 1cm, node distance = 1cm, right of=0, fill=gray!10] (empty) {};
+    \draw node [draw, minimum width = 1cm, minimum height = 1cm, node distance = 1cm, below of=0, fill=gray!10] {};
+    \draw node [draw, minimum width = 1cm, minimum height = 1cm, node distance = 1cm, below of=empty, fill=gray!10] {$#2$};
+    %\draw grid[very thick] (2,2);
+    %\draw node (L) at (0.5,1.5) {$0$};
+    %\draw node (H) at (1.5,0.5) {$#1^\sim.H$};
+  \end{tikzpicture}
+}
+\tikzstyle{line} = [draw, -latex']
+\begin{tikzpicture}[auto, >=triangle 45]
+
+  \draw
+  node [block] (s0) {$s[0]$}
+  node [block, right of=s0] (s1) {$s[1]$}
+  node [right of=s1, node distance=1.8cm] (cdots) {$\cdots$}
+  node [block, right of=s1] (sN) {$s[N-1]$}
+  node [block, below of=s0] (S0) {$S[0]$}
+  node [block, below of=s1] (S1) {$S[1]$}
+  node [block, below of=sN] (SN) {$S[N-1]$}
+  ;
+
+  \draw [->] (s0) -- (S0);
+  \draw [->] (s1) -- (S1);
+  \draw [->] (sN) -- (SN);
+
+\end{tikzpicture}
+\end{document}

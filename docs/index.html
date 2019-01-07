@@ -41,7 +41,9 @@ href="#x1-40004" id="QQ2-1-4">Wavelet and pyramid domains</a></span>
 <br />   <span class="sectionToc" >5 <a 
 href="#x1-50005" id="QQ2-1-6">Motion DWT</a></span>
 <br />   <span class="sectionToc" >6 <a 
-href="#x1-80006" id="QQ2-1-10">Why MCDWT?</a></span>
+href="#x1-80006" id="QQ2-1-10">Removing temporal redundancy with MCDWT?</a></span>
+<br />   <span class="sectionToc" >7 <a 
+href="#x1-90007" id="QQ2-1-11">The MCDWT forward butterﬂy</a></span>
    </div>
    <h3 class="sectionHead"><span class="titlemark">1   </span> <a 
  id="x1-10001"></a>Intro</h3>
@@ -69,11 +71,11 @@ href="https://en.wikipedia.org/wiki/Decoder" >decoder</a>.
      </li>
      <li class="itemize">Spatial decorrelation is performed by the <a 
 href="https://en.wikipedia.org/wiki/Digital_filter#Analysis_techniques" >analysis ﬁltering</a> used in the
-     <a 
-href="https://en.wikipedia.org/wiki/Discrete_wavelet_transform" >2D-DWT</a>.</li></ul>
                                                                   
 
                                                                   
+     <a 
+href="https://en.wikipedia.org/wiki/Discrete_wavelet_transform" >2D-DWT</a>.</li></ul>
 <!--l. 43--><p class="noindent" >
 </p>
    <h3 class="sectionHead"><span class="titlemark">2   </span> <a 
@@ -151,10 +153,10 @@ necessary to get a spatially scaled of our video), a t+2D transformed video is
 not suitable because the ﬁrst step of the forward transform (t) should be
 reversed at full resolution in the backward transform (as the forward transform
 did).
-</p><!--l. 89--><p class="noindent" >
                                                                   
 
                                                                   
+</p><!--l. 89--><p class="noindent" >
 </p>
    <h3 class="sectionHead"><span class="titlemark">4   </span> <a 
  id="x1-40004"></a>Wavelet and pyramid domains</h3>
@@ -1616,10 +1618,10 @@ a scalable representation of an image and by extension, of a video if we
 apply the DWT to all the images of the video. This is done, for example, in
 the <a 
 href="https://en.wikipedia.org/wiki/JPEG_2000" >motion JPEG2000 video compression standard</a>. Notice that only the
-spatial redundancy is exploited. All the temporal redundancy is still in the
                                                                   
 
                                                                   
+spatial redundancy is exploited. All the temporal redundancy is still in the
 video.
 </p>
    <!--l. 129--><div class="lstinputlisting">
@@ -2243,7 +2245,7 @@ and their substraction tends to produce zeros).
 </p><!--l. 168--><p class="noindent" >
 </p>
    <h3 class="sectionHead"><span class="titlemark">6   </span> <a 
- id="x1-80006"></a>Why MCDWT?</h3>
+ id="x1-80006"></a>Removing temporal redundancy with MCDWT?</h3>
 <!--l. 169--><p class="noindent" >As we have said, the 2D-DWT does not exploit the temporal redundancy of a video.
 Consequently, we can achieve higher compression ratios (in addition to the 2D-DWT)
 if we apply a 1D-DWT along the temporal domain. This is exactly what MCDWT
@@ -2254,6 +2256,400 @@ does. However, due to the temporal redundancy is generated mainly by the presenc
 of objects in the scene of the video which are moving with respect to the camera,
 some sort of motion compensation should be used before substacting the prediction
 images to the original ones.
+</p><!--l. 178--><p class="noindent" >
+</p>
+   <h3 class="sectionHead"><span class="titlemark">7   </span> <a 
+ id="x1-90007"></a>The MCDWT forward butterﬂy</h3>
+<!--l. 179--><p class="noindent" >MCDWT is based on the idea that, to provide MC without transmitting the motion
+information from the encoder to the decoder, the motion information is
+computed at both ends, using only the information that is available at the
+decoder.
+</p><!--l. 184--><p class="noindent" >
+</p>
+   <h4 class="subsectionHead"><span class="titlemark">7.1   </span> <a 
+ id="x1-100007.1"></a>Input</h4>
+<!--l. 185--><p class="noindent" >Three frames of <!--l. 185--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>s</mi></math>:
+<!--l. 185--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>a</mi></math>,
+<!--l. 185--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>b</mi></math> and
+<!--l. 185--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>c</mi></math>.
+</p><!--l. 187--><p class="noindent" >
+</p>
+   <h4 class="subsectionHead"><span class="titlemark">7.2   </span> <a 
+ id="x1-110007.2"></a>Output</h4>
+<!--l. 188--><p class="noindent" >Three frames <!--l. 188--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>A</mi> <mo 
+class="MathClass-rel">=</mo> <mrow ><mo 
+class="MathClass-open">{</mo><mrow><mi 
+>A</mi><mo 
+class="MathClass-punc">.</mo><mi 
+>L</mi><mo 
+class="MathClass-punc">,</mo><mi 
+>A</mi><mo 
+class="MathClass-punc">.</mo><mi 
+>H</mi></mrow><mo 
+class="MathClass-close">}</mo></mrow></math> (intra-coded),
+<!--l. 189--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>B</mi> <mo 
+class="MathClass-rel">=</mo> <mrow ><mo 
+class="MathClass-open">{</mo><mrow><mi 
+>B</mi><mo 
+class="MathClass-punc">.</mo><mi 
+>L</mi><mo 
+class="MathClass-punc">,</mo><mover 
+accent="true"><mrow 
+><mi 
+>B</mi></mrow><mo 
+class="MathClass-op">̃</mo></mover><mo 
+class="MathClass-punc">.</mo><mi 
+>H</mi></mrow><mo 
+class="MathClass-close">}</mo></mrow></math> (bidirectionally
+predicted) and <!--l. 190--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>C</mi> <mo 
+class="MathClass-rel">=</mo> <mrow ><mo 
+class="MathClass-open">{</mo><mrow><mi 
+>C</mi><mo 
+class="MathClass-punc">.</mo><mi 
+>L</mi><mo 
+class="MathClass-punc">,</mo><mi 
+>C</mi><mo 
+class="MathClass-punc">.</mo><mi 
+>H</mi></mrow><mo 
+class="MathClass-close">}</mo></mrow></math>
+(intra-coded).
+</p><!--l. 192--><p class="noindent" >
+</p>
+   <h4 class="subsectionHead"><span class="titlemark">7.3   </span> <a 
+ id="x1-120007.3"></a>Algorithm</h4>
+   <hr class="figure" /><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x1-120011"></a>
+                                                                  
+
+                                                                  
+<!--l. 195--><p class="noindent" ><img 
+src="forward.png" alt="PIC"  
+ />
+<br /> </p><div class="caption" 
+><span class="id">Figure 1: </span><span  
+class="content">MCDWT</span></div><!--tex4ht:label?: x1-120011 -->
+                                                                  
+
+                                                                  
+   </div><hr class="endfigure" />
+   <!--l. 198--><div class="lstinputlisting">
+<a 
+ id="x1-12002"></a>
+   <span 
+class="ectt-1000"> </span><br /><span class="label"><a 
+ id="x1-12003r1"></a></span><span 
+class="ectt-1000">def</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">forward_butterfly</span><span 
+class="ectt-1000">(</span><span 
+class="ectt-1000">self</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">AL</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">AH</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">BL</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">BH</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">CL</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">CH</span><span 
+class="ectt-1000">):</span><span 
+class="ectt-1000"> </span><br /><span class="label"><a 
+ id="x1-12004r2"></a></span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">dwtB</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">=</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">dwt</span><span 
+class="ectt-1000">.</span><span 
+class="ectt-1000">forward</span><span 
+class="ectt-1000">(</span><span 
+class="ectt-1000">A</span><span 
+class="ectt-1000">)</span><span 
+class="ectt-1000"> </span><br /><span class="label"><a 
+ id="x1-12005r3"></a></span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">BL</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">=</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">dwt</span><span 
+class="ectt-1000">.</span><span 
+class="ectt-1000">backward</span><span 
+class="ectt-1000">(</span><span 
+class="ectt-1000">dwtB</span><span 
+class="ectt-1000">[0],</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">zero_H</span><span 
+class="ectt-1000">)</span><span 
+class="ectt-1000"> </span><br /><span class="label"><a 
+ id="x1-12006r4"></a></span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">BH</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">=</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">dwt</span><span 
+class="ectt-1000">.</span><span 
+class="ectt-1000">backward</span><span 
+class="ectt-1000">(</span><span 
+class="ectt-1000">zero_L</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">dwtB</span><span 
+class="ectt-1000">[1])</span><span 
+class="ectt-1000"> </span><br /><span class="label"><a 
+ id="x1-12007r5"></a></span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">dwtC</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">=</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">dwt</span><span 
+class="ectt-1000">.</span><span 
+class="ectt-1000">forward</span><span 
+class="ectt-1000">(</span><span 
+class="ectt-1000">C</span><span 
+class="ectt-1000">)</span><span 
+class="ectt-1000"> </span><br /><span class="label"><a 
+ id="x1-12008r6"></a></span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">CL</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">=</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">dwt</span><span 
+class="ectt-1000">.</span><span 
+class="ectt-1000">backward</span><span 
+class="ectt-1000">(</span><span 
+class="ectt-1000">dwtC</span><span 
+class="ectt-1000">[0],</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">zero_H</span><span 
+class="ectt-1000">)</span><span 
+class="ectt-1000"> </span><br /><span class="label"><a 
+ id="x1-12009r7"></a></span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">CH</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">=</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">dwt</span><span 
+class="ectt-1000">.</span><span 
+class="ectt-1000">backward</span><span 
+class="ectt-1000">(</span><span 
+class="ectt-1000">zero_L</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">dwtC</span><span 
+class="ectt-1000">[1])</span><span 
+class="ectt-1000"> </span><br /><span class="label"><a 
+ id="x1-12010r8"></a></span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">BAH</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">=</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">motion_compensation</span><span 
+class="ectt-1000">(</span><span 
+class="ectt-1000">AL</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">BL</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">AH</span><span 
+class="ectt-1000">)</span><span 
+class="ectt-1000"> </span><br /><span class="label"><a 
+ id="x1-12011r9"></a></span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">BCH</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">=</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">motion_compensation</span><span 
+class="ectt-1000">(</span><span 
+class="ectt-1000">CL</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">BL</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">CL</span><span 
+class="ectt-1000">)</span><span 
+class="ectt-1000"> </span><br /><span class="label"><a 
+ id="x1-12012r10"></a></span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">prediction</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">=</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">(</span><span 
+class="ectt-1000">BAH</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">+</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">BCH</span><span 
+class="ectt-1000">)</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">/</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">2</span><span 
+class="ectt-1000"> </span><br /><span class="label"><a 
+ id="x1-12013r11"></a></span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">rBH</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">=</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">BH</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">-</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">prediction</span><span 
+class="ectt-1000"> </span><br /><span class="label"><a 
+ id="x1-12014r12"></a></span><span 
+class="ecit-1000"> </span><span 
+class="ecit-1000"> </span><span 
+class="ecit-1000"> </span><span 
+class="ecit-1000"> </span><span 
+class="ecit-1000">#</span><span 
+class="ecit-1000">rBH</span><span 
+class="ecit-1000"> </span><span 
+class="ecit-1000">=</span><span 
+class="ecit-1000"> </span><span 
+class="ecit-1000">dwt</span><span 
+class="ecit-1000">.</span><span 
+class="ecit-1000">forward</span><span 
+class="ecit-1000">(</span><span 
+class="ecit-1000">rBH</span><span 
+class="ecit-1000">)</span><span 
+class="ectt-1000"> </span><br /><span class="label"><a 
+ id="x1-12015r13"></a></span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">return</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">BL</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">rBH</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">CL</span><span 
+class="ectt-1000">,</span><span 
+class="ectt-1000"> </span><span 
+class="ectt-1000">CH</span>
+   
+   </div>
+<!--l. 200--><p class="indent" >   Notice that, even if <!--l. 200--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>a</mi></math>
+and <!--l. 200--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>c</mi></math>
+(at full resolution) are available at the decoder, only
+<!--l. 201--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>B</mi><mo 
+class="MathClass-punc">.</mo><mi 
+>L</mi></math>
+is. So, does not make sense to search the low resolution structures of
+<!--l. 202--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>B</mi><mo 
+class="MathClass-punc">.</mo><mi 
+>L</mi></math> in the high
+resolution images <!--l. 202--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>a</mi></math>
+and <!--l. 203--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>c</mi></math>,
+because even if a perfect match is achieved, the prediction error would be diﬀerent
+than <!--l. 204--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mn>0</mn></math>
+as a consequence of the high resolution information is missing in
+<!--l. 205--><math 
+ xmlns="http://www.w3.org/1998/Math/MathML"  
+display="inline" ><mi 
+>B</mi><mo 
+class="MathClass-punc">.</mo><mi 
+>L</mi></math>.
 </p>
     
 </body> 
