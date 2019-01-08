@@ -16,26 +16,46 @@ def create_zero_subbands(self, dwtA):
     self.zero_L = np.zeros(dwtA[0].shape, np.float64)
     self.zero_H = (zero_L, zero_L, zero_L)
 
-def forward_butterfly(self, AL, AH, BL, BH, CL, CH):
+def forward_butterfly(self, aL, aH, bL, bH, cL, cH):
     ''' Motion compensated forward MCDWT butterfly.
 
     Input:
     -----
 
-    AL, AH, BL, BH, CL, CH: array[y, x, component]
+    aL, aH, bL, bH, cL, cH: array[y, x, component], the pyramid of the images a, b and c.
+
+    Output:
+    ------
+    residue_bH: array[y, x, component], the base of the pyramid of the residue fot the image b.
+    
+
     '''
-    dwtB = dwt.forward(A)
-    BL = dwt.backward(dwtB[0], zero_H)
-    BH = dwt.backward(zero_L, dwtB[1])
-    dwtC = dwt.forward(C)
-    CL = dwt.backward(dwtC[0], zero_H)
-    CH = dwt.backward(zero_L, dwtC[1])
-    BAH = motion_compensation(AL, BL, AH)
-    BCH = motion_compensation(CL, BL, CL)
-    prediction = (BAH + BCH) / 2
-    rBH = BH - prediction
-    #rBH = dwt.forward(rBH)
-    return BL, rBH, CL, CH
+
+    AL = iDWT(aL, zero_H)
+    AH = iDWT(zero_L, aH)
+    BL = iDWT(bL, zero_H)
+    BH = iDWT(zero_L, bH)
+    CL = iDWT(cL, zero_H)
+    CH = iDWT(zero_L, cH)
+    BHA = prediction(AL, BL, AH)
+    BHC = prediction(CL, BL, CL)
+    prediction_BH = (BHA + BHC) / 2
+    residue_BH = BH - prediction_BH
+    residue_bH = DWT(residue_BH)
+    return residue_bH
+
+    #dwtB = dwt.forward(A)
+    #BL = dwt.backward(dwtB[0], zero_H)
+    #BH = dwt.backward(zero_L, dwtB[1])
+    #dwtC = dwt.forward(C)
+    #CL = dwt.backward(dwtC[0], zero_H)
+    #CH = dwt.backward(zero_L, dwtC[1])
+    #BAH = motion_compensation(AL, BL, AH)
+    #BCH = motion_compensation(CL, BL, CL)
+    #prediction = (BAH + BCH) / 2
+    #rBH = BH - prediction
+    ##rBH = dwt.forward(rBH)
+    #return BL, rBH, CL, CH
 
 def backward_butterfly(self, AL, AH, BL, BH C):
     A = AL + AH
@@ -44,10 +64,10 @@ def backward_butterfly(self, AL, AH, BL, BH C):
 def forward(prefix = "/tmp/", N = 5, K = 2):
     '''A Motion Compensated Discrete Wavelet Transform.
 
-    Compute the 1D-DWT along motion trajectories. The input video (as
-    a sequence of images) must be stored in disk (<input> directory)
-    and the output (as a sequence of DWT coefficients that are called
-    pyramids) will be stored in disk (<output> directory).
+    Compute the MC 1D-DWT. The input video (as a sequence of images)
+    must be stored in disk (<input> directory) and the output (as a
+    sequence of DWT coefficients that are called pyramids) will be
+    stored in disk (<output> directory).
 
     Arguments
     ---------
