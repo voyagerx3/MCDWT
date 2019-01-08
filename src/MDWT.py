@@ -10,12 +10,12 @@ def forward(s = "/tmp/input/", S = "/tmp/output/", N = 5):
     Input:
     -----
 
-        s: sequence, the sequence of images.
+        s: the sequence of images to be transformed.
 
     Output:
     ------
 
-        S: sequence, the sequence of pyramids.
+        S: the sequence of pyramids (transformed images).
 
     '''
     for i in range(N):
@@ -35,12 +35,12 @@ def backward(S = "/tmp/input", s = "/tmp/output/", N = 5):
     Input:
     -----
 
-        S: list[], the sequence of pyramids.
+        S: the sequence of pyramids to be transformed.
 
     Output:
     ------
 
-        s: list[], the sequence of images.
+        s: the sequence of images.
 
     '''
 
