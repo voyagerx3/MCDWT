@@ -4,11 +4,17 @@ import cv2
 import numpy as np
 import pywt
 import math
+import sys
+sys.path.insert(0, "..")
+from src.io import image
+from src.io import pyramid
+#import io.image as image
+#import io.pyramid as pyramid
 
 class DWT:
     
     #def forward(i = "/tmp/i000.png", I = "/tmp/p000.png"):
-    def forward(image):
+    def forward(self, image):
         '''2D 1-iteration forward DWT of a color image.
 
         Input:
@@ -62,7 +68,7 @@ class DWT:
         return pyramid
 
     #def backward(I = "/tmp/p000.png", i = "/tmp/i000.png"):
-    def backward(pyramid):
+    def backward(self, pyramid):
         '''2D 1-iteration inverse DWT of a color pyramid.
 
         Input:
@@ -85,7 +91,7 @@ class DWT:
             frame[:,:,c] = pywt.idwt2((LL[:,:,c], (LH[:,:,c], HL[:,:,c], HH[:,:,c])), 'db5', mode='per')
         return image
 
-if __main__:
+if __name__ == "__main__":
 
     import argparse
 
@@ -96,19 +102,23 @@ if __main__:
                         help="Backward transform")
 
     parser.add_argument("-i", "--image",
-                        help="Image to be transformed", default="/tmp/i000.png")
+                        help="Image to be transformed", default="../images/000_0")
 
     parser.add_argument("-p", "--pyramid",
-                        help="Pyramid to be transformed", default="/tmp/p000.png")
+                        help="Pyramid to be transformed", default="/tmp/000_0")
 
     args = parser.parse_args()
 
     d = DWT()
     if args.backward:
+        if __debug__:
+            print("Backward transform")
         p = pyramid.read("{}".format(args.pyramid))
         i = d.backward(p)
-        image.write("{}".format(args.image))
+        image.write(i, "{}".format(args.image))
     else:
+        if __debug__:
+            print("Forward transform")
         i = image.read("{}".format(args.image))
         p = d.forward(i)
-        pyramid.write("{}".format(args.pyramid))
+        pyramid.write(p, "{}".format(args.pyramid))

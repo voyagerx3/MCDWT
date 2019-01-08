@@ -97,9 +97,9 @@ def write(pyramid, file_name):
 
     LH = np.rint(LH).astype(np.uint16)
     cv2.imwrite(file_name + "_LH.png", LH)
-    
+
     #buf[0:y,x:x*2,:] = np.rint(LH).astype('uint16')
-    
+
     HL = pyramid[1][1] + 32768
 
     assert (np.amax(HL) < 65536), 'range overflow'
@@ -107,9 +107,9 @@ def write(pyramid, file_name):
 
     HL = np.rint(HL).astype(np.uint16)
     cv2.imwrite(file_name + "_HL.png", HL)
-    
+
     #buf[y:y*2,0:x,:]= np.rint(HL).astype('uint16')
-    
+
     HH = pyramid[1][2] + 32768
 
     assert (np.amax(HH) < 65536), 'range overflow'
@@ -117,7 +117,7 @@ def write(pyramid, file_name):
 
     HH = np.rint(HH).astype(np.uint16)
     cv2.imwrite(file_name + "_HH.png", HH)
-    
+
     #buf[y:y*2,x:x*2,:] = np.rint(HH).astype('uint16')
     #file_name = '{}H{:03d}.png'.format(path, number)
 
