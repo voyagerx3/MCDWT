@@ -25,24 +25,40 @@ def read(file_name):
 
     '''
 
-    LL = cv2.imread(file_name + "_LL.png", -1).astype(np.float64)
+    fn = file_name + "_LL.png"
+    LL = cv2.imread(fn, -1).astype(np.float64)
     if LL is None:
-        raise InputFileException('{} not found'.format(file_name + "_LL.png"))
+        raise InputFileException('{} not found'.format(fn))
+    else:
+        if __debug__:
+            print("pyramid: read {}".format(fn))
     #LL -= 32768
 
-    LH = cv2.imread(file_name + "_LH.png", -1).astype(np.float64)
+    fn = file_name + "_LH.png"
+    LH = cv2.imread(fn, -1).astype(np.float64)
     if LH is None:
-        raise InputFileException('{} not found'.format(file_name + "_LH.png"))
+        raise InputFileException('{} not found'.format(fn))
+    else:
+        if __debug__:
+            print("pyramid: read {}".format(fn))
     #LH -= 32768
 
-    HL = cv2.imread(file_name + "_HL.png", -1).astype(np.float64)
+    fn = file_name + "_HL.png"
+    HL = cv2.imread(fn, -1).astype(np.float64)
     if HL is None:
-        raise InputFileException('{} not found'.format(file_name + "_HL.png"))
+        raise InputFileException('{} not found'.format(fn))
+    else:
+        if __debug__:
+            print("pyramid: read {}".format(fn))
     #HL -= 32768
 
-    HH = cv2.imread(file_name + "_HH.png", -1).astype(np.float64)
+    fn = file_name + "_HH.png"
+    HH = cv2.imread(fn, -1).astype(np.float64)
     if HH is None:
-        raise InputFileException('{} not found'.format(file_name + "_HH.png"))
+        raise InputFileException('{} not found'.format(fn))
+    else:
+        if __debug__:
+            print("pyramid: read {}".format(fn))
     #HH -= 32768
 
     return (LL, (LH, HL, HH))
@@ -82,7 +98,10 @@ def write(pyramid, file_name):
     #assert (np.amin(LL) >= 0), 'range underflow'
 
     LL = np.rint(LL).astype(np.uint16)
-    cv2.imwrite(file_name + "_LL.png", LL)
+    fn = file_name + "_LL.png"
+    cv2.imwrite(fn, LL)
+    if __debug__:
+        print("pyramid: written {}".format(fn))
     #y = pyramid[0].shape[0]
     #x = pyramid[0].shape[1]
     #buf = np.full((y*2, x*2, 3), 32768, np.uint16)
@@ -97,7 +116,10 @@ def write(pyramid, file_name):
 
     #LH = np.rint(LH).astype(np.uint16)
     LH = np.rint(LH).astype(np.int16)
-    cv2.imwrite(file_name + "_LH.png", LH)
+    fn = file_name + "_LH.png"
+    cv2.imwrite(fn, LH)
+    if __debug__:
+        print("pyramid: written {}".format(fn))
 
     #buf[0:y,x:x*2,:] = np.rint(LH).astype('uint16')
 
@@ -109,7 +131,10 @@ def write(pyramid, file_name):
 
     #HL = np.rint(HL).astype(np.uint16)
     HL = np.rint(HL).astype(np.int16)
-    cv2.imwrite(file_name + "_HL.png", HL)
+    fn = file_name + "_HL.png"
+    cv2.imwrite(fn, HL)
+    if __debug__:
+        print("pyramid: written {}".format(fn))
 
     #buf[y:y*2,0:x,:]= np.rint(HL).astype('uint16')
 
@@ -121,7 +146,10 @@ def write(pyramid, file_name):
 
     #HH = np.rint(HH).astype(np.uint16)
     HH = np.rint(HH).astype(np.int16)
-    cv2.imwrite(file_name + "_HH.png", HH)
+    fn = file_name + "_HH.png"
+    cv2.imwrite(fn, HH)
+    if __debug__:
+        print("pyramid: written {}".format(fn))
 
     #buf[y:y*2,x:x*2,:] = np.rint(HH).astype('uint16')
     #file_name = '{}H{:03d}.png'.format(path, number)

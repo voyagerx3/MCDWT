@@ -27,13 +27,16 @@ def read(file_name):
     image = cv2.imread(file_name, -1)
     if image is None:
         raise InputFileException('{} not found'.format(file_name))
+    else:
+        if __debug__:
+            print("image.py: read {}".format(file_name))
     buf = image.astype(np.float64)
     #buf -= 32768
     #assert (np.amax(buf) < 32767), 'range overflow'
     #assert (np.amin(buf) >= -32768), 'range underflow'
     return buf
 
-def write(image, file_name):
+def write(image, file_name, bpc):
     '''Write an image to disk.
 
     Parameters
@@ -61,4 +64,13 @@ def write(image, file_name):
     #assert (np.amin(tmp) >= 0), '16 bit unsigned int range underflow'
 
     #cv2.imwrite(file_name + "_LL.png", np.rint(tmp).astype(np.uint16))
-    cv2.imwrite(file_name + "_LL.png", np.rint(image).astype(np.uint16))
+    file_name += "_LL.png"
+    cv2.imwrite(file_name, np.rint(image).astype(bpc))
+    if __debug__:
+        print("image.py: written {} using {}".format(file_name, bpc))
+
+def write8(image, file_name):
+    write(image, file_name, np.uint8)
+
+def write16(image, file_name):
+    write(image, file_name, np.uint16)

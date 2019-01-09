@@ -115,7 +115,7 @@ if __name__ == "__main__":
             print("Backward transform")
         p = pyramid.read("{}".format(args.pyramid))
         i = d.backward(p)
-        image.write(i, "{}".format(args.image))
+        image.write8(i, "{}".format(args.image))
     else:
         if __debug__:
             print("Forward transform")
