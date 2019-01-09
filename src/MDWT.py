@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
-import cv2
-import numpy as np
-import pywt
-import math
+#import cv2
+#import numpy as np
+#import pywt
+#import math
 import sys
 
 from DWT import DWT
 sys.path.insert(0, "..")
-from src.io import image
-from src.io import pyramid
+from src.IO import image
+from src.IO import pyramid
 
 class MDWT:
 

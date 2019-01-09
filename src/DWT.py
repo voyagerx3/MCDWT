@@ -7,8 +7,8 @@ import math
 import sys
 
 sys.path.insert(0, "..")
-from src.io import image
-from src.io import pyramid
+from src.IO import image
+from src.IO import pyramid
 
 class DWT:
     
