@@ -1,7 +1,6 @@
 .ipynb_checkpoints/
 *~
 *.jp2
-*.png
 *.log
 *.aux
 *.pdf

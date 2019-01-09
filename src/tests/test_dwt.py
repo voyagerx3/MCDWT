@@ -5,7 +5,10 @@ import pywt
 
 filter = 'db5'
 
-frame = cv2.imread('../images/000.png')
+frame = cv2.imread('../../images/000_0_LL.png')
+if frame is None:
+    print("Error: Image not found!")
+    quit()
 
 #cv2.imshow('003', frame); cv2.waitKey(0); cv2.destroyAllWindows()
 #cv2.imshow('003', frame[:,:,0]); cv2.waitKey(0); cv2.destroyAllWindows()
@@ -15,13 +18,14 @@ pyramid = pywt.dwt2(frame, filter)
 frame2 = pywt.idwt2(pyramid, filter)
 '''
 
-pyramid = [None]*3
+pyramid = []
 for c in range(3):
-    pyramid[c] = pywt.dwt2(frame[:,:,c], filter, mode='per')
+    component = pywt.dwt2(frame[:,:,c], filter, mode='per')
+    pyramid.append(component)
 
-tmp = [None]*3
+tmp = []
 for c in range(3):
-    tmp[c] = pywt.idwt2(pyramid[c], filter, mode='per')
+    tmp.append(pywt.idwt2(pyramid[c], filter, mode='per'))
 
 frame2 = np.empty((768,1280,3), dtype=np.uint8)
 
@@ -39,3 +43,4 @@ print((frame==frame2).all())
 
 cv2.imwrite('/tmp/test_dwt_output.png',frame2)
 
+print("Written /tmp/test_dwt_output.png")

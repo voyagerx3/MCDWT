@@ -88,7 +88,7 @@ class DWT:
         HH = pyramid[1][2]
         image = np.ndarray((LL.shape[0]*2, LL.shape[1]*2, 3), np.float64)
         for c in range(3):
-            frame[:,:,c] = pywt.idwt2((LL[:,:,c], (LH[:,:,c], HL[:,:,c], HH[:,:,c])), 'db5', mode='per')
+            image[:,:,c] = pywt.idwt2((LL[:,:,c], (LH[:,:,c], HL[:,:,c], HH[:,:,c])), 'db5', mode='per')
         return image
 
 if __name__ == "__main__":
@@ -98,14 +98,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description = "2D Discrete Wavelet (color) Transform")
 
-    parser.add_argument("-b", "--backward",
-                        help="Backward transform")
+    parser.add_argument("-b", "--backward", action='store_true',
+                        help="Performs backward transform")
 
     parser.add_argument("-i", "--image",
                         help="Image to be transformed", default="../images/000_0")
 
     parser.add_argument("-p", "--pyramid",
-                        help="Pyramid to be transformed", default="/tmp/000_0")
+                        help="Pyramid to be transformed", default="/tmp/000_1")
 
     args = parser.parse_args()
 

@@ -27,12 +27,11 @@ def read(file_name):
     image = cv2.imread(file_name, -1)
     if image is None:
         raise InputFileException('{} not found'.format(file_name))
-    else:
-        buf = image.astype(np.float64)
-        buf -= 32768
-        assert (np.amax(buf) < 32767), 'range overflow'
-        assert (np.amin(buf) >= -32768), 'range underflow'
-        return buf
+    buf = image.astype(np.float64)
+    #buf -= 32768
+    #assert (np.amax(buf) < 32767), 'range overflow'
+    #assert (np.amin(buf) >= -32768), 'range underflow'
+    return buf
 
 def write(image, file_name):
     '''Write an image to disk.
@@ -55,10 +54,11 @@ def write(image, file_name):
 
     '''
 
-    tmp = np.copy(image)
-    tmp += 32768
+    #tmp = np.copy(image)
+    #tmp += 32768
 
-    assert (np.amax(tmp) < 65536), '16 bit unsigned int range overflow'
-    assert (np.amin(tmp) >= 0), '16 bit unsigned int range underflow'
+    #assert (np.amax(tmp) < 65536), '16 bit unsigned int range overflow'
+    #assert (np.amin(tmp) >= 0), '16 bit unsigned int range underflow'
 
-    cv2.imwrite(file_name + "_LL.png", np.rint(tmp).astype(np.uint16))
+    #cv2.imwrite(file_name + "_LL.png", np.rint(tmp).astype(np.uint16))
+    cv2.imwrite(file_name + "_LL.png", np.rint(image).astype(np.uint16))
