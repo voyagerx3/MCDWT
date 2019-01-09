@@ -94,9 +94,15 @@ if __name__ == "__main__":
 
     import argparse
 
+    class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
+        pass
+    
     parser = argparse.ArgumentParser(
-        description = "2D Discrete Wavelet (color) Transform",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        description = "2D Discrete Wavelet (color) Transform\n\n"
+        "Examples:\n\n"
+        "  ./DWT.py                          <- Forward transform\n"
+        "  ./DWT.py -b -i /tmp/a -p /tmp/000 <- Backward transform\n",
+        formatter_class=CustomFormatter)
 
     parser.add_argument("-b", "--backward", action='store_true',
                         help="Performs backward transform")

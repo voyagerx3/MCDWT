@@ -72,9 +72,15 @@ if __name__ == "__main__":
 
     import argparse
 
+    class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
+        pass
+    
     parser = argparse.ArgumentParser(
-        description = "Motion 2D Discrete Wavelet (color) Transform",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        description = "Motion 2D Discrete Wavelet (color) Transform\n\n"
+        "Examples:\n\n"
+        "  ./MDWT.py                                     <- Forward transform\n"
+        "  ./MDWT.py -b -i /tmp/images -p /tmp/stockholm <- Backward transform\n",
+        formatter_class=CustomFormatter)
 
     parser.add_argument("-b", "--backward", action='store_true',
                         help="Performs backward transform")
