@@ -16,7 +16,7 @@ class MDWT:
     def __init__(self):
         self.dwt = DWT()
 
-    def forward(self, s="../sequences/stockholm/", S="/tmp/stockholm_", N=5):
+    def forward(self, s="/tmp/stockholm/", S="/tmp/stockholm_", N=5):
         ''' Motion 1-iteration forward 2D DWT of a sequence of images.
 
         Compute the 2D-DWT of each image of the sequence s.
@@ -78,15 +78,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description = "Motion 2D Discrete Wavelet (color) Transform\n\n"
         "Examples:\n\n"
-        "  ./MDWT.py -i ../sequences/stockholm/ -p /tmp/stockholm_ <- Forward transform\n"
-        "  ./MDWT.py -b -i /tmp/stockholm_ -p /tmp/stockholm_      <- Backward transform\n",
+        "  ./MDWT.py    -i /tmp/stockholm/ -p /tmp/stockholm_ <- Forward transform\n"
+        "  ./MDWT.py -b -i /tmp/stockholm_ -p /tmp/stockholm_ <- Backward transform\n",
         formatter_class=CustomFormatter)
 
     parser.add_argument("-b", "--backward", action='store_true',
                         help="Performs backward transform")
 
     parser.add_argument("-i", "--images",
-                        help="Sequence of images", default="../sequences/stockholm/")
+                        help="Sequence of images", default="/tmp/stockholm/")
 
     parser.add_argument("-p", "--pyramids",
                         help="Sequence of pyramids", default="/tmp/stockholm_")

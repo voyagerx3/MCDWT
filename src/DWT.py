@@ -108,10 +108,10 @@ if __name__ == "__main__":
                         help="Performs backward transform")
 
     parser.add_argument("-i", "--image",
-                        help="Image to be transformed", default="../sequences/stockholm/000")
+                        help="Image to be transformed", default="/tmp/stockholm/000")
 
     parser.add_argument("-p", "--pyramid",
-                        help="Pyramid to be transformed", default="/tmp/000")
+                        help="Pyramid to be transformed", default="/tmp/stockholm_000")
 
     args = parser.parse_args()
 

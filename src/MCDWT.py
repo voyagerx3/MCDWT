@@ -328,8 +328,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description = "Motion Compensated 2D Discrete Wavelet (color) Transform\n\n"
         "Examples:\n\n"
-        "  ./MCDWT.py                                     <- Forward transform\n"
-        "  ./MCDWT.py -b -i /tmp/images -p /tmp/stockholm <- Backward transform\n",
+        "  ./MCDWT.py -p /tmp/stockholm_ -m /tmp/mc_stockholm_    <- Forward transform\n"
+        "  ./MCDWT.py -b -p /tmp/stockholm_ -m /tmp/mc_stockholm_ <- Backward transform\n",
         formatter_class=CustomFormatter)
 
     parser.add_argument("-b", "--backward", action='store_true',
