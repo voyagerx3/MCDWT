@@ -76,6 +76,7 @@ def read(file_name):
     return (LL, (LH, HL, HH))
 
 def writeH(H, file_name):
+    print(len(H))
     LH = H[0]
     LH = np.rint(LH).astype(np.int16)
     cv2.imwrite(file_name + "_LH.png", LH)

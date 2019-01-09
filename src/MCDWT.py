@@ -46,7 +46,7 @@ class MCDWT:
         prediction_BH = (BHA + BHC) / 2
         residue_BH = BH - prediction_BH
         residue_bH = self.dwt.forward(residue_BH)
-        return residue_bH
+        return residue_bH[1]
 
         #dwtB = dwt.forward(A)
         #BL = dwt.backward(dwtB[0], zero_H)
@@ -73,9 +73,9 @@ class MCDWT:
         prediction_BH = (BHA + BHC) / 2
         BH = residue_BH + prediction_BH
         bH = self.dwt.forward(BH)
-        return bH
+        return bH[1]
 
-    def forward(self, s="/tmp/stockholm", S="/tmp/mc_stockholm", N=5, T=2):
+    def forward(self, s="/tmp/stockholm_", S="/tmp/mc_stockholm_", N=5, T=2):
         '''A Motion Compensated Discrete Wavelet Transform.
 
         Compute the MC 1D-DWT. The input video s (as a sequence of
@@ -119,25 +119,29 @@ class MCDWT:
         for t in range(T): # Temporal scale
             i = 0
             aL, aH = pyramid.read("{}{:03d}".format(s, 0))
+            pyramid.write((aL, aH), "{}{:03d}".format(S, 0))
             while i < (N//x):
                 bL, bH = pyramid.read("{}{:03d}".format(s, x*i+x//2))
                 cL, cH = pyramid.read("{}{:03d}".format(s, x*i+x))
                 bH = self.__forward_butterfly(aL, aH, bL, bH, cL, cH)
-                pyramid.writeH(bH, "{}{:03d}".format(s, x*i+x//2))
+                pyramid.write((bL, bH), "{}{:03d}".format(S, x*i+x//2))
+                pyramid.write((cL, cH), "{}{:03d}".format(S, x*i+x))
                 aL, aH = cL, cH
                 i += 1
             x *= 2
 
-    def backward(self, S="/tmp/mc_stockholm", s="/tmp/stockholm", N=5, T=2):
+    def backward(self, S="/tmp/mc_stockholm_", s="/tmp/stockholm_", N=5, T=2):
         x = 2**T
         for t in range(T): # Temporal scale
             i = 0
-            aL, aH = pyramid.read("{}{:03d}".format(s, 0))
+            aL, aH = pyramid.read("{}{:03d}".format(S, 0))
+            pyramid.write((aL, aH), "{}{:03d}".format(s, 0))
             while i < (N//x):
-                bL, bH = pyramid.read("{}{:03d}".format(s, x*i+x//2))
-                cL, cH = pyramid.read("{}{:03d}".format(s, x*i+x))
+                bL, bH = pyramid.read("{}{:03d}".format(S, x*i+x//2))
+                cL, cH = pyramid.read("{}{:03d}".format(S, x*i+x))
                 bH = self.__backward_butterfly(aL, aH, bL, bH, cL, cH)
-                pyramid.writeH(bH, "{}{:03d}".format(s, x*i+x//2))
+                pyramid.write((bL, bH), "{}{:03d}".format(s, x*i+x//2))
+                pyramid.write((cL, cH), "{}{:03d}".format(s, x*i+x))
                 aL, aH = cL, cH
                 i += 1
             x //=2
@@ -332,10 +336,10 @@ if __name__ == "__main__":
                         help="Performs backward transform")
 
     parser.add_argument("-p", "--pyramids",
-                        help="Sequence of pyramids", default="/tmp/stockholm")
+                        help="Sequence of pyramids", default="/tmp/stockholm_")
 
     parser.add_argument("-m", "--mc_pyramids",
-                        help="Sequence motion compensated pyramids", default="/tmp/mc_stockholm")
+                        help="Sequence motion compensated pyramids", default="/tmp/mc_stockholm_")
 
     parser.add_argument("-N",
                         help="Number of pyramids", default=5, type=int)
@@ -345,14 +349,19 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    p = pyramid.readL("{}000".format(args.pyramids))
-    d = MCDWT(p.shape)
-
     if args.backward:
         if __debug__:
             print("Backward transform")
+
+        p = pyramid.readL("{}000".format(args.mc_pyramids))
+        d = MCDWT(p.shape)
+
         d.backward(args.mc_pyramids, args.pyramids, args.N, args.T)
     else:
         if __debug__:
             print("Forward transform")
+            
+        p = pyramid.readL("{}000".format(args.pyramids))
+        d = MCDWT(p.shape)
+
         p = d.forward(args.pyramids, args.mc_pyramids, args.N, args.T)
