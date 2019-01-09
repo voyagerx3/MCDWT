@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import os
 
 class InputFileException(Exception):
     pass
@@ -23,7 +24,7 @@ def read(file_name):
 
     '''
 
-    file_name += "_LL.png"
+    #file_name += "_LL.png"
     image = cv2.imread(file_name, -1)
     if image is None:
         raise InputFileException('{} not found'.format(file_name))
@@ -64,10 +65,11 @@ def write(image, file_name, bpc):
     #assert (np.amin(tmp) >= 0), '16 bit unsigned int range underflow'
 
     #cv2.imwrite(file_name + "_LL.png", np.rint(tmp).astype(np.uint16))
-    file_name += "_LL.png"
-    cv2.imwrite(file_name, np.rint(image).astype(bpc))
+    #file_name += "_LL.png"
+    cv2.imwrite(file_name + ".png", np.rint(image).astype(bpc))
+    os.rename(file_name + ".png", file_name)
     if __debug__:
-        print("image.py: written {} using {}".format(file_name, bpc))
+        print("image.py: written {} using {}".format(file_name + ".png", bpc))
 
 def write8(image, file_name):
     write(image, file_name, np.uint8)

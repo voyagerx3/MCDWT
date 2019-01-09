@@ -5,11 +5,10 @@ import numpy as np
 import pywt
 import math
 import sys
+
 sys.path.insert(0, "..")
 from src.io import image
 from src.io import pyramid
-#import io.image as image
-#import io.pyramid as pyramid
 
 class DWT:
     
@@ -96,16 +95,17 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
-        description = "2D Discrete Wavelet (color) Transform")
+        description = "2D Discrete Wavelet (color) Transform",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("-b", "--backward", action='store_true',
                         help="Performs backward transform")
 
     parser.add_argument("-i", "--image",
-                        help="Image to be transformed", default="../images/000_0")
+                        help="Image to be transformed", default="../sequences/stockholm/000")
 
     parser.add_argument("-p", "--pyramid",
-                        help="Pyramid to be transformed", default="/tmp/000_1")
+                        help="Pyramid to be transformed", default="/tmp/000")
 
     args = parser.parse_args()
 
