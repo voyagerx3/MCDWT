@@ -13,7 +13,10 @@ from src.io import pyramid
 
 class MDWT:
 
-    def forward(s = "../images/", S = "/tmp/pyramid", N = 5):
+    def __init__(self):
+        self.dwt = DWT()
+    
+    def forward(self, s = "../sequences/stockholm/", S = "/tmp/stockholm", N = 5):
         ''' Motion 1-iteration forward 2D DWT of a sequence of images.
 
         Compute the 2D-DWT of each image of the sequence s.
@@ -31,14 +34,14 @@ class MDWT:
         '''
         for i in range(N):
             img = image.read("{}{:03d}".format(s, i))
-            pyr = DWT.forward(img)
+            pyr = self.dwt.forward(img)
             pyramid.write(pyr, "{}{:03d}".format(S, i))
     #    S = Sequence()
     #    for image in s:
     #        S.append(DWT(image))
     #    return S
 
-    def backward(S = "/tmp/pyramid", s = "/tmp/image", N = 5):
+    def backward(self, S = "/tmp/pyramid", s = "/tmp/image", N = 5):
         ''' Motion 1-iteration forward 2D DWT of a sequence of pyramids.
 
         Compute the inverse 2D-DWT of each pyramid of the sequence S.
@@ -57,7 +60,7 @@ class MDWT:
 
         for i in range(N):
             pyr = pyramid.read("{}{:03d}".format(S, i))
-            img = DWT.backward(pyr)
+            img = self.dwt.backward(pyr)
             image.write8(img, "{}{:03d}".format(s, i))
 
     #    s = []
@@ -77,10 +80,10 @@ if __name__ == "__main__":
                         help="Performs backward transform")
 
     parser.add_argument("-i", "--images",
-                        help="Sequence of images to be transformed", default="../images/")
+                        help="Sequence of images to be transformed", default="../sequences/stockholm/")
 
     parser.add_argument("-p", "--pyramids",
-                        help="Sequence of pyramids to be transformed", default="/tmp/")
+                        help="Sequence of pyramids to be transformed", default="/tmp/stockholm")
 
     parser.add_argument("-N",
                         help="Number of images/pyramids", default=5, type=int)
