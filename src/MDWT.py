@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-#import cv2
-#import numpy as np
-#import pywt
-#import math
+# import cv2
+# import numpy as np
+# import pywt
+# import math
 import sys
 
 from DWT import DWT
@@ -16,7 +16,7 @@ class MDWT:
     def __init__(self):
         self.dwt = DWT()
     
-    def forward(self, s = "../sequences/stockholm/", S = "/tmp/stockholm", N = 5):
+    def forward(self, s="../sequences/stockholm/", S="/tmp/stockholm", N=5):
         ''' Motion 1-iteration forward 2D DWT of a sequence of images.
 
         Compute the 2D-DWT of each image of the sequence s.
@@ -41,7 +41,7 @@ class MDWT:
     #        S.append(DWT(image))
     #    return S
 
-    def backward(self, S = "/tmp/pyramid", s = "/tmp/image", N = 5):
+    def backward(self, S="/tmp/pyramid", s="/tmp/image", N=5):
         ''' Motion 1-iteration forward 2D DWT of a sequence of pyramids.
 
         Compute the inverse 2D-DWT of each pyramid of the sequence S.
@@ -86,10 +86,10 @@ if __name__ == "__main__":
                         help="Performs backward transform")
 
     parser.add_argument("-i", "--images",
-                        help="Sequence of images to be transformed", default="../sequences/stockholm/")
+                        help="Sequence of images", default="../sequences/stockholm/")
 
     parser.add_argument("-p", "--pyramids",
-                        help="Sequence of pyramids to be transformed", default="/tmp/stockholm")
+                        help="Sequence of pyramids", default="/tmp/stockholm")
 
     parser.add_argument("-N",
                         help="Number of images/pyramids", default=5, type=int)

@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-def motion_compensation(curr, next, base):
+def generate_prediction(curr, next, base):
     flow = motion_estimation(curr, next)
     return estimate_frame(base, flow)
 
