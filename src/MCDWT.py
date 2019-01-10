@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+# import cv2
+# import numpy as np
+# import pywt
+# import math
+
 import cv2
 import numpy as np
 import pywt
@@ -328,8 +333,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description = "Motion Compensated 2D Discrete Wavelet (color) Transform\n\n"
         "Examples:\n\n"
-        "  ./MCDWT.py -p /tmp/stockholm_ -m /tmp/mc_stockholm_    <- Forward transform\n"
-        "  ./MCDWT.py -b -p /tmp/stockholm_ -m /tmp/mc_stockholm_ <- Backward transform\n",
+        "  yes | cp -rf ../sequences/stockholm/ /tmp/\n"
+        "  ./MDWT.py -i /tmp/stockholm/ -p /tmp/stockholm_\n"
+        "  ./MCDWT.py    -p /tmp/stockholm_ -m /tmp/mc_stockholm_ # Forward transform\n"
+        "  ./MCDWT.py -b -p /tmp/stockholm_ -m /tmp/mc_stockholm_ # Backward transform\n",
+        "  ./MDWT.py -b -i /tmp/stockholm_ -p /tmp/stockholm_\n"
         formatter_class=CustomFormatter)
 
     parser.add_argument("-b", "--backward", action='store_true',

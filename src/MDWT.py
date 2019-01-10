@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
-# import cv2
-# import numpy as np
-# import pywt
-# import math
+# Note: swap the above line with the following two ones to switch
+# between the standar and the optimized mode.
+
+#!/bin/sh
+''''exec python3 -O -- "$0" ${1+"$@"} # '''
+
 import sys
 
 from DWT import DWT
@@ -78,8 +80,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description = "Motion 2D Discrete Wavelet (color) Transform\n\n"
         "Examples:\n\n"
-        "  ./MDWT.py    -i /tmp/stockholm/ -p /tmp/stockholm_ <- Forward transform\n"
-        "  ./MDWT.py -b -i /tmp/stockholm_ -p /tmp/stockholm_ <- Backward transform\n",
+        "  cp -rf ../sequences/stockholm/ /tmp/\n"
+        "  ./MDWT.py    -i /tmp/stockholm/ -p /tmp/stockholm_ # Forward transform\n"
+        "  ./MDWT.py -b -i /tmp/stockholm_ -p /tmp/stockholm_ # Backward transform\n",
         formatter_class=CustomFormatter)
 
     parser.add_argument("-b", "--backward", action='store_true',
