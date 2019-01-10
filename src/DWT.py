@@ -11,8 +11,7 @@ from src.IO import image
 from src.IO import pyramid
 
 class DWT:
-    
-    #def forward(i = "/tmp/i000.png", I = "/tmp/p000.png"):
+
     def forward(self, image):
         '''2D 1-iteration forward DWT of a color image.
 
