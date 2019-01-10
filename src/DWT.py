@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+# Note: swap the above line with the following two ones to switch
+# between the standar and the optimized mode.
+
+#!/bin/sh
+''''exec python3 -O -- "$0" ${1+"$@"} # '''
+
 import cv2
 import numpy as np
 import pywt
@@ -99,8 +105,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description = "2D Discrete Wavelet (color) Transform\n\n"
         "Examples:\n\n"
-        "  ./DWT.py                          <- Forward transform\n"
-        "  ./DWT.py -b -i /tmp/a -p /tmp/000 <- Backward transform\n",
+        "  mkdir /tmp/stockholm\n"
+        "  cp ../sequences/stockholm/000 /tmp/stockholm/\n"
+        "  ./DWT.py    -i /tmp/a -p /tmp/stockholm/000 # Forward transform\n"
+        "  ./DWT.py -b -i /tmp/a -p /tmp/stockholm/000 # Backward transform\n",
         formatter_class=CustomFormatter)
 
     parser.add_argument("-b", "--backward", action='store_true',
